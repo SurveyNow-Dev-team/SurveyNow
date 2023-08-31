@@ -1,0 +1,15 @@
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\bin\Debug\net7.0\Application.deps.json
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\bin\Debug\net7.0\Application.dll
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\bin\Debug\net7.0\Application.pdb
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\bin\Debug\net7.0\Domain.dll
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\bin\Debug\net7.0\Domain.pdb
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.csproj.AssemblyReference.cache
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.GeneratedMSBuildEditorConfig.editorconfig
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.AssemblyInfoInputs.cache
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.AssemblyInfo.cs
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.csproj.CoreCompileInputs.cache
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.csproj.CopyComplete
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.dll
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\refint\Application.dll
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\Application.pdb
+F:\Work Space\EXE 2\SurveyNow\BE\SuerveyNow\Application\obj\Debug\net7.0\ref\Application.dll

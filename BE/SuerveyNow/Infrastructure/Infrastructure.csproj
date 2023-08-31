@@ -12,10 +12,13 @@
 
     <ItemGroup>
       <Folder Include="Caches\" />
-      <Folder Include="Data\" />
-      <Folder Include="Mappers\" />
       <Folder Include="Repositories\" />
       <Folder Include="Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.21" />
     </ItemGroup>
 
 </Project>
