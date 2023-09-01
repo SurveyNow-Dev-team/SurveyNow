@@ -11,3 +11,12 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Ignore build output
+bin/
+obj/
+
+# Ignore debug files
+*.pdb
+*.dll
+*.exe
