@@ -14,18 +14,18 @@ public class User
     [DatabaseGenerated((DatabaseGeneratedOption.Identity))]
     public long Id { get; set; }
 
-    [Column(TypeName = "nvarchar(50)")]
-    public string Email { get; set; }
-    
-    [Column(TypeName = "nvarchar(100)")]
-    public string GoogleId { get; set; }
+    [Column(TypeName = "nvarchar(50)")] 
+    public string Email { get; set; } = null!;
+
+    [Column(TypeName = "nvarchar(100)")] 
+    public string GoogleId { get; set; } = null!;
     
     [RegularExpression(@"(84|0[3|5|7|8|9])+([0-9]{8})\b", ErrorMessage = "Invalid phone number.")]
     [Column(TypeName = "nvarchar(20)")]
     public string? PhoneNumber { get; set; }
-    
+
     [Column(TypeName = "nvarchar(50)")]
-    public string FullName { get; set; }
+    public string FullName { get; set; } = null!;
     
     public Gender? Gender { get; set; }
     
@@ -52,9 +52,9 @@ public class User
     
     [Precision(2)]
     public DateTime CreatedDate { get; set; } = DateTime.Now;
-    
-    [Precision(2)]
-    public DateTime? ModifiedDate { get; set; }
+
+    [Precision(2)] 
+    public DateTime ModifiedDate { get; set; } = DateTime.Now;
     
     // public long? OccupationId { get; set; }
     //Shadow foreign key

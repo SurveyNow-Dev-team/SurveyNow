@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public class AppDbContext:DbContext
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions options) : base(options)
     {
     }
-    
+
     public DbSet<User> Users { get; set; }
     public DbSet<Occupation> Occupations { get; set; }
     public DbSet<Field> Fields { get; set; }
@@ -22,4 +22,6 @@ public class AppDbContext:DbContext
     public DbSet<PointPurchase> PointPurchases { get; set; }
     public DbSet<PackPurchase> PackPurchases { get; set; }
     public DbSet<PointHistory> PointHistories { get; set; }
+    public DbSet<Survey> Surveys { get; set; }
+    public DbSet<Question> Questions { get; set; }
 }

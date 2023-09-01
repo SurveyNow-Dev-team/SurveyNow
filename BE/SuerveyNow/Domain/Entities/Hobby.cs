@@ -10,7 +10,7 @@ public class Hobby
     public long Id { get; set; }
     
     [Column(TypeName = "nvarchar(50)")]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

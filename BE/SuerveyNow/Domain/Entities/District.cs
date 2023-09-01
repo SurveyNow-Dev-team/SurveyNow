@@ -10,7 +10,7 @@ public class District
     public long Id { get; set; }
     
     [Column(TypeName = "nvarchar(100)")]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual City City { get; set; } = null!;
 }

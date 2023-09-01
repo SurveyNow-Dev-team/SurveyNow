@@ -10,7 +10,7 @@ public class Field
     public long Id { get; set; }
     
     [Column(TypeName = "nvarchar(100)")]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public ICollection<Position> Positions { get; } = new List<Position>();
 }

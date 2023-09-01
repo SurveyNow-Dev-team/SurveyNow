@@ -16,23 +16,23 @@ public class PointPurchase
     
     [Precision(2)]
     public DateTime Date { get; set; }
-    
-    [Column(TypeName = "nvarchar(20)")]
-    public string Type { get; set; }
-    
-    [Column(TypeName = "nvarchar(80)")]
-    public string Account { get; set; }
+
+    [Column(TypeName = "nvarchar(20)")] 
+    public string Type { get; set; } = null!;
     
     [Column(TypeName = "nvarchar(80)")]
-    public string DestinationAccount { get; set; }
+    public string Account { get; set; } = null!;
     
     [Column(TypeName = "nvarchar(80)")]
-    public string PurchaseCode { get; set; }
+    public string DestinationAccount { get; set; } = null!;
+    
+    [Column(TypeName = "nvarchar(80)")]
+    public string PurchaseCode { get; set; } = null!;
     
     public int Point { get; set; }
     
     [Column(TypeName = "varchar(20)")]
-    public string Currency { get; set; }
+    public string Currency { get; set; } = null!;
 
     public TransactionStatus Status { get; set; }
 

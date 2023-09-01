@@ -10,7 +10,7 @@ public class Address
     public long Id { get; set; }
     
     [Column(TypeName = "nvarchar(100)")]
-    public string Detail { get; set; }
+    public string? Detail { get; set; }
     
     public virtual Province? Province { get; set; } //need to be optional to prevent cascade delete
     

@@ -8,9 +8,9 @@ public class Province
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
-    
-    [Column(TypeName = "nvarchar(100)")]
-    public string Name { get; set; }
+
+    [Column(TypeName = "nvarchar(100)")] 
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<City> Cities { get; } = new List<City>();
 }

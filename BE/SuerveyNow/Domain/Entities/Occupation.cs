@@ -14,10 +14,10 @@ public class Occupation
     public decimal Income { get; set; }
     
     [Column(TypeName = "nvarchar(250)")]
-    public string PlaceOfWork { get; set; }
+    public string PlaceOfWork { get; set; } = null!;
     
     [Column(TypeName = "nvarchar(10)")]
-    public string Currency { get; set; }
+    public string Currency { get; set; } = null!;
     
     public virtual Field? Field { get; set; }
     

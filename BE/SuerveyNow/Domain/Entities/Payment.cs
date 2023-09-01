@@ -12,10 +12,10 @@ public class Payment
     public long Id { get; set; }
     
     [Column(TypeName = "nvarchar(20)")]
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
     
     [Column(TypeName = "nvarchar(80)")]
-    public string Account { get; set; }
+    public string Account { get; set; } = null!;
 
     public bool IsDefault { get; set; } = false;
 
