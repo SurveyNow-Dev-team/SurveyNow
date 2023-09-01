@@ -1,0 +1,25 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace Domain.Entities;
+
+[Index(nameof(Type), nameof(UserId), IsUnique = true)]
+public class Payment
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
+    
+    [Column(TypeName = "nvarchar(20)")]
+    public string Type { get; set; }
+    
+    [Column(TypeName = "nvarchar(80)")]
+    public string Account { get; set; }
+
+    public bool IsDefault { get; set; } = false;
+
+    public long UserId { get; set; }
+    
+    public virtual User User { get; set; } = null!;
+}

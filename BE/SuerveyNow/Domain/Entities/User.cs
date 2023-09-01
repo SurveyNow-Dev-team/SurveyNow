@@ -56,6 +56,12 @@ public class User
     [Precision(2)]
     public DateTime? ModifiedDate { get; set; }
     
+    // public long? OccupationId { get; set; }
+    //Shadow foreign key
     public virtual Occupation? Occupation { get; set; }
+    
+    // public long? AddressId { get; set; }
+    //Shadow foreign key
+    public virtual Address? Address { get; set; } // need to be optional to prevent cascade delete in many-to-many relationship
     
 }
