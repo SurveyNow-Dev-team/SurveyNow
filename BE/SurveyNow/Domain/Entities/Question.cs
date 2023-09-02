@@ -22,7 +22,7 @@ public class Question
 
     public string? ResourceUrl { get; set; }
     
-    [ForeignKey("SurveyId")] // Specify the foreign key relationship
+    [ForeignKey("SurveyId")] 
     public virtual Survey Survey { get; set; } = null!;
 
     public virtual ICollection<QuestionDetail> QuestionDetails { get; set; } = new List<QuestionDetail>();

@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Infrastructure.Data;
 
@@ -38,5 +39,53 @@ public class AppDbContext : DbContext
             .HasOne(qd => qd.Question)
             .WithMany(q => q.QuestionDetails)
             .HasForeignKey(qd => new { qd.SurveyId, qd.QuestionOrder });
+        
+        //Read only property constraints
+          modelBuilder.Entity<User>()
+              .Property(u => u.CreatedDate)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<UserSurvey>()
+              .Property(u => u.CreatedDate)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+          modelBuilder.Entity<UserReport>()
+              .Property(u => u.CreatedDate)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<UserReport>()
+              .Property(u => u.CreatedUserId)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<UserReport>()
+              .Property(u => u.UserId)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<UserReport>()
+              .Property(u => u.SurveyId)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<Survey>()
+              .Property(u => u.CreatedDate)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<Survey>()
+              .Property(u => u.CreatedUserId)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<PointPurchase>()
+              .Property(u => u.Date)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<PointHistory>()
+              .Property(u => u.Date)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+          
+          modelBuilder.Entity<PackPurchase>()
+              .Property(u => u.Date)
+              .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+        //Read only property constraints
+        
+       
     }
 }

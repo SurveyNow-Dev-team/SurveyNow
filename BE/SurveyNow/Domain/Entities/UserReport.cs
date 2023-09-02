@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,10 @@ public class UserReport
 
     public UserReportStatus Status { get; set; }
 
-    [Precision(2)] public DateTime CreatedDate { get; set; } = DateTime.Now;
+    [DataType(DataType.DateTime)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
+    [Precision(2)]
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     [Column(TypeName = "nvarchar(500)")] public string? Result { get; set; }
 
@@ -28,5 +32,5 @@ public class UserReport
 
     public long? SurveyId { get; set; }
 
-    public virtual Survey? Survey { get; set; }
+    [ForeignKey(nameof(SurveyId))] public virtual Survey? Survey { get; set; }
 }

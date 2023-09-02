@@ -12,5 +12,5 @@ public class Province
     [Column(TypeName = "nvarchar(100)")] 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<City> Cities { get; } = new List<City>();
+    public virtual ICollection<City> Cities { get; set; } = new List<City>();
 }

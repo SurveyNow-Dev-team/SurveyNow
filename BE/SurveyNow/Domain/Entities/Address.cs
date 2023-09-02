@@ -8,9 +8,8 @@ public class Address
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
-    
-    [Column(TypeName = "nvarchar(100)")]
-    public string? Detail { get; set; }
+
+    [Column(TypeName = "nvarchar(100)")] public string Detail { get; set; } = null!;
     
     public virtual Province? Province { get; set; } //need to be optional to prevent cascade delete
     

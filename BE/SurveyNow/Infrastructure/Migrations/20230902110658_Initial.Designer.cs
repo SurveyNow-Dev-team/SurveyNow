@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230902065105_Initial")]
+    [Migration("20230902110658_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -37,6 +37,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Detail")
+                        .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<long?>("DistrictId")
@@ -523,7 +524,13 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int>("TotalAnswer")
+                        .HasColumnType("int");
+
                     b.Property<int>("TotalQuestion")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalValidAnswer")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -790,7 +797,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.PackPurchase", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PackPurchases")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -801,7 +808,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Payment", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -824,7 +831,7 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("SurveyId");
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PointHistories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -841,7 +848,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.PointPurchase", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PointPurchases")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -985,6 +992,14 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Navigation("Hobbies");
+
+                    b.Navigation("PackPurchases");
+
+                    b.Navigation("Payments");
+
+                    b.Navigation("PointHistories");
+
+                    b.Navigation("PointPurchases");
 
                     b.Navigation("Surveys");
 

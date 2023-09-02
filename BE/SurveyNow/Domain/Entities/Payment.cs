@@ -17,9 +17,10 @@ public class Payment
     [Column(TypeName = "nvarchar(80)")]
     public string Account { get; set; } = null!;
 
-    public bool IsDefault { get; set; } = false;
+    public bool IsDefault { get; set; }
 
     public long UserId { get; set; }
     
+    [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 }

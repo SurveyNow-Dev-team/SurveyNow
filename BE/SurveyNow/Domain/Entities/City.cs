@@ -14,5 +14,5 @@ public class City
 
     public virtual Province Province { get; set; } = null!;
 
-    public virtual ICollection<District> Districts { get; } = new List<District>();
+    public virtual ICollection<District> Districts { get; set; } = new List<District>();
 }

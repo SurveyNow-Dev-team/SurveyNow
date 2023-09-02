@@ -129,7 +129,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Detail = table.Column<string>(type: "nvarchar(100)", nullable: true),
+                    Detail = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     ProvinceId = table.Column<long>(type: "bigint", nullable: true),
                     CityId = table.Column<long>(type: "bigint", nullable: true),
                     DistrictId = table.Column<long>(type: "bigint", nullable: true)
@@ -304,6 +304,8 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", nullable: true),
                     TotalQuestion = table.Column<int>(type: "int", nullable: false),
+                    TotalAnswer = table.Column<int>(type: "int", nullable: false),
+                    TotalValidAnswer = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     IsDelete = table.Column<bool>(type: "bit", nullable: false),
                     PackType = table.Column<int>(type: "int", nullable: true),

@@ -12,5 +12,5 @@ public class Field
     [Column(TypeName = "nvarchar(100)")]
     public string Name { get; set; } = null!;
 
-    public ICollection<Position> Positions { get; } = new List<Position>();
+    public ICollection<Position> Positions { get; set; } = new List<Position>();
 }
