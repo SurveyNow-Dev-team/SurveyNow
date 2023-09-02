@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230901113332_Initial")]
+    [Migration("20230902065105_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -54,6 +54,24 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Answer", b =>
+                {
+                    b.Property<long>("QuestionDetailId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("QuestionDetailId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("Domain.Entities.City", b =>
@@ -277,11 +295,20 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<long?>("PackPurchaseId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Point")
                         .HasColumnType("int");
 
+                    b.Property<long?>("PointPurchaseId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<long?>("SurveyId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -290,6 +317,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PackPurchaseId");
+
+                    b.HasIndex("PointPurchaseId");
+
+                    b.HasIndex("SurveyId");
 
                     b.HasIndex("UserId");
 
@@ -409,6 +442,40 @@ namespace Infrastructure.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DetailOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("QuestionOrder")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SurveyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TotalAnswer")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SurveyId", "QuestionOrder", "DetailOrder")
+                        .IsUnique();
+
+                    b.ToTable("QuestionDetails");
+                });
+
             modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.Property<long>("Id")
@@ -417,12 +484,12 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasPrecision(2)
                         .HasColumnType("datetime2(2)");
+
+                    b.Property<long>("CreatedUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(1000)");
@@ -445,8 +512,13 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("PackType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Point")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -456,7 +528,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("CreatedUserId");
 
                     b.ToTable("Surveys");
                 });
@@ -549,6 +621,84 @@ namespace Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Domain.Entities.UserReport", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
+
+                    b.Property<long>("CreatedUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("SurveyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedUserId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserReports");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserSurvey", b =>
+                {
+                    b.Property<long>("SurveyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
+
+                    b.Property<bool>("IsModified")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
+
+                    b.Property<decimal>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
+
+                    b.HasKey("SurveyId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSurveys");
+                });
+
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.HasOne("Domain.Entities.City", "City")
@@ -568,6 +718,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("District");
 
                     b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Answer", b =>
+                {
+                    b.HasOne("Domain.Entities.QuestionDetail", "QuestionDetail")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuestionDetail");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.City", b =>
@@ -595,7 +764,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Hobby", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Hobbies")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -642,11 +811,29 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.PointHistory", b =>
                 {
+                    b.HasOne("Domain.Entities.PackPurchase", "PackPurchase")
+                        .WithMany()
+                        .HasForeignKey("PackPurchaseId");
+
+                    b.HasOne("Domain.Entities.PointPurchase", "PointPurchase")
+                        .WithMany()
+                        .HasForeignKey("PointPurchaseId");
+
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany()
+                        .HasForeignKey("SurveyId");
+
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("PackPurchase");
+
+                    b.Navigation("PointPurchase");
+
+                    b.Navigation("Survey");
 
                     b.Navigation("User");
                 });
@@ -676,7 +863,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
                     b.HasOne("Domain.Entities.Survey", "Survey")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("SurveyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -684,12 +871,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Survey");
                 });
 
+            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany("QuestionDetails")
+                        .HasForeignKey("SurveyId", "QuestionOrder")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.HasOne("Domain.Entities.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Surveys")
+                        .HasForeignKey("CreatedUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
@@ -710,6 +908,48 @@ namespace Infrastructure.Migrations
                     b.Navigation("Occupation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.UserReport", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany()
+                        .HasForeignKey("SurveyId");
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Survey");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserSurvey", b =>
+                {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany("UserSurveys")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("UserSurveys")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Survey");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.City", b =>
                 {
                     b.Navigation("Districts");
@@ -723,6 +963,32 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Province", b =>
                 {
                     b.Navigation("Cities");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Question", b =>
+                {
+                    b.Navigation("QuestionDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Survey", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("UserSurveys");
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Navigation("Hobbies");
+
+                    b.Navigation("Surveys");
+
+                    b.Navigation("UserSurveys");
                 });
 #pragma warning restore 612, 618
         }

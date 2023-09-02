@@ -27,15 +27,28 @@ public class Survey
     public PackType? PackType { get; set; }
     
     [Precision(2)]
+    public DateTime? StartDate { get; set; }
+    
+    [Precision(2)]
     public DateTime? ExpiredDate { get; set; }
     
-    public int? Point { get; set; }
+    [Precision(6, 1)]
+    [Range(0, 100000)]
+    public decimal? Point { get; set; }
     
     [Precision(2)]
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     
     [Precision(2)]
     public DateTime ModifiedDate { get; set; } = DateTime.Now;
-
+    
+    public long CreatedUserId { get; set; }
+    
+    [ForeignKey(nameof(CreatedUserId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public virtual User CreatedBy { get; set; } = null!;
+
+    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+
+    public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
 }

@@ -12,5 +12,8 @@ public class Hobby
     [Column(TypeName = "nvarchar(50)")]
     public string Name { get; set; } = null!;
 
+    public long UserId { get; set; }
+    
+    [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 }

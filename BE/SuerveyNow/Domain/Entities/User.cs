@@ -36,6 +36,7 @@ public class User
     public string? AvatarUrl { get; set; }
     
     [Precision(6, 1)]
+    [Range(0, 100000)]
     public decimal Point { get; set; } = 0;
     
     public UserStatus Status { get; set; } = UserStatus.Active;
@@ -63,5 +64,11 @@ public class User
     // public long? AddressId { get; set; }
     //Shadow foreign key
     public virtual Address? Address { get; set; } // need to be optional to prevent cascade delete in many-to-many relationship
-    
+
+    public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
+
+    public virtual ICollection<Survey> Surveys { get; set; } = new List<Survey>();
+
+    public virtual ICollection<Hobby> Hobbies { get; set; } = new List<Hobby>();
+
 }

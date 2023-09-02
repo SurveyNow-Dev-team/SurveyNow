@@ -24,4 +24,19 @@ public class AppDbContext : DbContext
     public DbSet<PointHistory> PointHistories { get; set; }
     public DbSet<Survey> Surveys { get; set; }
     public DbSet<Question> Questions { get; set; }
+    public DbSet<QuestionDetail> QuestionDetails { get; set; }
+    public DbSet<UserSurvey> UserSurveys { get; set; }
+    public DbSet<Answer> Answers { get; set; }
+    public DbSet<UserReport> UserReports { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // modelBuilder.Entity<Question>()
+        //     .HasKey(q => new { q.SurveyId, q.Order });
+        
+        modelBuilder.Entity<QuestionDetail>()
+            .HasOne(qd => qd.Question)
+            .WithMany(q => q.QuestionDetails)
+            .HasForeignKey(qd => new { qd.SurveyId, qd.QuestionOrder });
+    }
 }

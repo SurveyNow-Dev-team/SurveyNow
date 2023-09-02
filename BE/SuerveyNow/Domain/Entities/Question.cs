@@ -15,7 +15,7 @@ public class Question
     
     public QuestionType Type { get; set; }
 
-    public bool IsRequire { get; set; } = false;
+    public bool IsRequire { get; set; } 
 
     [Column (TypeName = "nvarchar(500)")]
     public string Title { get; set; } = null!;
@@ -23,5 +23,7 @@ public class Question
     public string? ResourceUrl { get; set; }
     
     [ForeignKey("SurveyId")] // Specify the foreign key relationship
-    public Survey Survey { get; set; } = null!;
+    public virtual Survey Survey { get; set; } = null!;
+
+    public virtual ICollection<QuestionDetail> QuestionDetails { get; set; } = new List<QuestionDetail>();
 }

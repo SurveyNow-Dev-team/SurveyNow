@@ -268,30 +268,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PointHistories",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Date = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Point = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PointHistories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PointHistories_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PointPurchases",
                 columns: table => new
                 {
@@ -331,18 +307,60 @@ namespace Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     IsDelete = table.Column<bool>(type: "bit", nullable: false),
                     PackType = table.Column<int>(type: "int", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: true),
                     ExpiredDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: true),
-                    Point = table.Column<int>(type: "int", nullable: true),
+                    Point = table.Column<decimal>(type: "decimal(6,1)", precision: 6, scale: 1, nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
-                    CreatedById = table.Column<long>(type: "bigint", nullable: false)
+                    CreatedUserId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Surveys", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Surveys_Users_CreatedById",
-                        column: x => x.CreatedById,
+                        name: "FK_Surveys_Users_CreatedUserId",
+                        column: x => x.CreatedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PointHistories",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Point = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    PointPurchaseId = table.Column<long>(type: "bigint", nullable: true),
+                    PackPurchaseId = table.Column<long>(type: "bigint", nullable: true),
+                    SurveyId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PointHistories_PackPurchases_PackPurchaseId",
+                        column: x => x.PackPurchaseId,
+                        principalTable: "PackPurchases",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PointHistories_PointPurchases_PointPurchaseId",
+                        column: x => x.PointPurchaseId,
+                        principalTable: "PointPurchases",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PointHistories_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PointHistories_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -370,6 +388,120 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserReports",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Type = table.Column<string>(type: "nvarchar(100)", nullable: true),
+                    Reason = table.Column<string>(type: "nvarchar(500)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
+                    Result = table.Column<string>(type: "nvarchar(500)", nullable: true),
+                    CreatedUserId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    SurveyId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserReports_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserReports_Users_CreatedUserId",
+                        column: x => x.CreatedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserReports_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSurveys",
+                columns: table => new
+                {
+                    SurveyId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    Point = table.Column<decimal>(type: "decimal(6,1)", precision: 6, scale: 1, nullable: false),
+                    IsValid = table.Column<bool>(type: "bit", nullable: false),
+                    IsModified = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2(2)", precision: 2, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSurveys", x => new { x.SurveyId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_UserSurveys_Surveys_SurveyId",
+                        column: x => x.SurveyId,
+                        principalTable: "Surveys",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserSurveys_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionDetails",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SurveyId = table.Column<long>(type: "bigint", nullable: false),
+                    QuestionOrder = table.Column<int>(type: "int", nullable: false),
+                    DetailOrder = table.Column<int>(type: "int", nullable: false),
+                    IsCustom = table.Column<bool>(type: "bit", nullable: false),
+                    TotalAnswer = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuestionDetails_Questions_SurveyId_QuestionOrder",
+                        columns: x => new { x.SurveyId, x.QuestionOrder },
+                        principalTable: "Questions",
+                        principalColumns: new[] { "SurveyId", "Order" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Answers",
+                columns: table => new
+                {
+                    QuestionDetailId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Answers", x => new { x.QuestionDetailId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_Answers_QuestionDetails_QuestionDetailId",
+                        column: x => x.QuestionDetailId,
+                        principalTable: "QuestionDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Answers_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_CityId",
                 table: "Addresses",
@@ -384,6 +516,11 @@ namespace Infrastructure.Migrations
                 name: "IX_Addresses_ProvinceId",
                 table: "Addresses",
                 column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Answers_UserId",
+                table: "Answers",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_ProvinceId",
@@ -427,6 +564,21 @@ namespace Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PointHistories_PackPurchaseId",
+                table: "PointHistories",
+                column: "PackPurchaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointHistories_PointPurchaseId",
+                table: "PointHistories",
+                column: "PointPurchaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointHistories_SurveyId",
+                table: "PointHistories",
+                column: "SurveyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PointHistories_UserId",
                 table: "PointHistories",
                 column: "UserId");
@@ -442,9 +594,30 @@ namespace Infrastructure.Migrations
                 column: "FieldId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Surveys_CreatedById",
+                name: "IX_QuestionDetails_SurveyId_QuestionOrder_DetailOrder",
+                table: "QuestionDetails",
+                columns: new[] { "SurveyId", "QuestionOrder", "DetailOrder" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Surveys_CreatedUserId",
                 table: "Surveys",
-                column: "CreatedById");
+                column: "CreatedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserReports_CreatedUserId",
+                table: "UserReports",
+                column: "CreatedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserReports_SurveyId",
+                table: "UserReports",
+                column: "SurveyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserReports_UserId",
+                table: "UserReports",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_AddressId",
@@ -474,22 +647,39 @@ namespace Infrastructure.Migrations
                 column: "PhoneNumber",
                 unique: true,
                 filter: "[PhoneNumber] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSurveys_UserId",
+                table: "UserSurveys",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Hobbies");
+                name: "Answers");
 
             migrationBuilder.DropTable(
-                name: "PackPurchases");
+                name: "Hobbies");
 
             migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "PointHistories");
+
+            migrationBuilder.DropTable(
+                name: "UserReports");
+
+            migrationBuilder.DropTable(
+                name: "UserSurveys");
+
+            migrationBuilder.DropTable(
+                name: "QuestionDetails");
+
+            migrationBuilder.DropTable(
+                name: "PackPurchases");
 
             migrationBuilder.DropTable(
                 name: "PointPurchases");
