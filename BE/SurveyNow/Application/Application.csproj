@@ -13,7 +13,6 @@
     <ItemGroup>
       <Folder Include="DTOs\" />
       <Folder Include="ErrorHandlers\" />
-      <Folder Include="Interfaces\Repositories\" />
       <Folder Include="Interfaces\Services\" />
       <Folder Include="Utils\" />
     </ItemGroup>
