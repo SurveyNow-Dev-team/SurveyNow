@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+﻿using Application;
+using Application.Interfaces.Repositories;
 using Infrastructure.Data;
 using Infrastructure.Mappers;
 using Infrastructure.Repositories;
@@ -34,6 +35,9 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IAnswerRepository, AnswerRepository>();
         services.AddScoped<IAddressRepository, AddressRepository>();
+        
+        //Unit of work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         //Add Mapper
         services.AddAutoMapper(typeof(UserMappingProfile));
