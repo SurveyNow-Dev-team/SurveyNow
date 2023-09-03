@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class FieldRepository: BaseRepository<Field>, IFieldRepository
 {
-    protected FieldRepository(AppDbContext context) : base(context)
+    public FieldRepository(AppDbContext context) : base(context)
     {
     }
 }

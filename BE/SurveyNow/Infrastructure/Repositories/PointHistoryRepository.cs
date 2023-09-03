@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class PointHistoryRepository: BaseRepository<PointHistory>, IPointHistoryRepository
 {
-    protected PointHistoryRepository(AppDbContext context) : base(context)
+    public PointHistoryRepository(AppDbContext context) : base(context)
     {
     }
 }

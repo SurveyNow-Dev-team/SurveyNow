@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class AnswerRepository: BaseRepository<Answer>, IAnswerRepository
 {
-    protected AnswerRepository(AppDbContext context) : base(context)
+    public AnswerRepository(AppDbContext context) : base(context)
     {
     }
 }

@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class PointPurchaseRepository: BaseRepository<PointPurchase>, IPointPurchaseRepository
 {
-    protected PointPurchaseRepository(AppDbContext context) : base(context)
+    public PointPurchaseRepository(AppDbContext context) : base(context)
     {
     }
 }

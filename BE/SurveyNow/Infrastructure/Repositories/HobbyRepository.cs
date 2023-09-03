@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class HobbyRepository: BaseRepository<Hobby>, IHobbyRepository
 {
-    protected HobbyRepository(AppDbContext context) : base(context)
+    public HobbyRepository(AppDbContext context) : base(context)
     {
     }
 }

@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class DistrictRepository: BaseRepository<District>, IDistrictRepository
 {
-    protected DistrictRepository(AppDbContext context) : base(context)
+    public DistrictRepository(AppDbContext context) : base(context)
     {
     }
 }

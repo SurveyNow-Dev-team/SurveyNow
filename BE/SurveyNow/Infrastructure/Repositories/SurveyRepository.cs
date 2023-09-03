@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class SurveyRepository: BaseRepository<Survey>, ISurveyRepository
 {
-    protected SurveyRepository(AppDbContext context) : base(context)
+    public SurveyRepository(AppDbContext context) : base(context)
     {
     }
 }

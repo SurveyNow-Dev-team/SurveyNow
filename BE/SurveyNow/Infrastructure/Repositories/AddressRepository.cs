@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class AddressRepository: BaseRepository<Address>, IAddressRepository
 {
-    protected AddressRepository(AppDbContext context) : base(context)
+    public AddressRepository(AppDbContext context) : base(context)
     {
     }
 }

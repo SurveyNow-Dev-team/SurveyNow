@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class UserRepository: BaseRepository<User>, IUserRepository
 {
-    protected UserRepository(AppDbContext context) : base(context)
+    public UserRepository(AppDbContext context) : base(context)
     {
     }
 }

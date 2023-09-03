@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class PositionRepository: BaseRepository<Position>, IPositionRepository
 {
-    protected PositionRepository(AppDbContext context) : base(context)
+    public PositionRepository(AppDbContext context) : base(context)
     {
     }
 }

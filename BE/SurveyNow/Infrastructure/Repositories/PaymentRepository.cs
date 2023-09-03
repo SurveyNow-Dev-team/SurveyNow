@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class PaymentRepository: BaseRepository<Payment>, IPaymentRepository
 {
-    protected PaymentRepository(AppDbContext context) : base(context)
+    public PaymentRepository(AppDbContext context) : base(context)
     {
     }
 }

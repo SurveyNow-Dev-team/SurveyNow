@@ -4,9 +4,9 @@ using Infrastructure.Data;
 
 namespace Infrastructure.Repositories;
 
- public class CityRepository: BaseRepository<City>, ICityRepository
+public class CityRepository : BaseRepository<City>, ICityRepository
 {
- protected CityRepository(AppDbContext context) : base(context)
- {
- }
+    public CityRepository(AppDbContext context) : base(context)
+    {
+    }
 }

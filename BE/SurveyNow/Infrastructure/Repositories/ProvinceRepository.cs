@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class ProvinceRepository: BaseRepository<Province>, IProvinceRepository
 {
-    protected ProvinceRepository(AppDbContext context) : base(context)
+    public ProvinceRepository(AppDbContext context) : base(context)
     {
     }
 }

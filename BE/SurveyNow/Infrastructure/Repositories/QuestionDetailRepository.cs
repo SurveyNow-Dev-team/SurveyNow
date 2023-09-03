@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class QuestionDetailRepository: BaseRepository<QuestionDetail>, IQuestionDetailRepository
 {
-    protected QuestionDetailRepository(AppDbContext context) : base(context)
+    public QuestionDetailRepository(AppDbContext context) : base(context)
     {
     }
 }
