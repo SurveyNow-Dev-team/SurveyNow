@@ -20,7 +20,7 @@ namespace SuerveyNow.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<ActionResult<PagingResponse<UserResponse>>> Get(UserRequest filter, PagingRequest pagingRequest)
+        public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery]UserRequest filter, [FromQuery]PagingRequest pagingRequest)
         {
             var users = await _userService.GetUsers(filter, pagingRequest);
             if(users == null)
@@ -42,22 +42,16 @@ namespace SuerveyNow.Controllers
             return Ok(user);
         }
 
-        //// POST api/<UsersController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
-        public void UpdateUser(int id, [FromBody] string value)
+        public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UserRequest userRequest)
         {
+            var user = await _userService.UpdateUser(id, userRequest);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
         }
-
-        //// DELETE api/<UsersController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

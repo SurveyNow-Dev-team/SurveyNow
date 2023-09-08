@@ -40,6 +40,8 @@ public static class DependencyInjection
 
         //Add services
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IHobbyService, HobbyService>();
+        services.AddScoped<IAddressService, AddressService>();
         
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

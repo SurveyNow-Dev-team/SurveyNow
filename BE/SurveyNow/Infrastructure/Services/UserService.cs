@@ -21,15 +21,29 @@ namespace Infrastructure.Services
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest)
         {
-            var user = await _unitOfWork.UserRepository.GetAllAsync();
-            return _mapper.Map<PagingResponse<User>, PagingResponse<UserResponse>>(user.AsQueryable<User>()
-                .Filter<User>(_mapper.Map<User>(filter)).ToList<User>()
-                .Paginate<User>(pagingRequest.Page, pagingRequest.RecordsPerPage));
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var userResponses = _mapper.Map<List<User>, List<UserResponse>>(users);
+            var filteredUsers = userResponses.AsQueryable().Filter(_mapper.Map<UserResponse>(filter));
+            var paginatedUsers = filteredUsers.ToList().Paginate(pagingRequest.Page, pagingRequest.RecordsPerPage);
+            return paginatedUsers;
         }
 
         public async Task<UserResponse> GetUser(long id)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            return _mapper.Map<UserResponse>(user);
+        }
+
+        public async Task<UserResponse> UpdateUser(long id, UserRequest request)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return null;
+            }
+            user = _mapper.Map<UserRequest, User>(request, user);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
             return _mapper.Map<UserResponse>(user);
         }
     }

@@ -14,7 +14,7 @@ namespace Application.Utils
         {
             if (page == null && recordsPerPage == null)
             {
-                recordsPerPage = list.Count;
+                recordsPerPage = 20;
                 page = 1;
             }
             else if (page < 1 || recordsPerPage < 1)
@@ -40,16 +40,18 @@ namespace Application.Utils
                 var properties = filter.GetType().GetProperties();
                 foreach (PropertyInfo property in properties)
                 {
-                    if (filter.GetType().GetProperty(property.Name) != null)
+                    var data = filter.GetType().GetProperty(property.Name)?.GetValue(filter);
+                    if (data != null)
                     {
-                        var data = filter.GetType().GetProperty(property.Name).GetValue(filter);
-                        if (data != null)
+                        Type type = data.GetType();
+                        if (type == typeof(string))
                         {
-                            Type type = data.GetType();
-                            if (type == typeof(string))
-                            {
-                                source.Where(x => (typeof(T).GetProperty(property.Name).GetValue(x) as string).ToLower().Contains((data as string).ToLower()));
-                            }
+                            source.Where(x => (typeof(T).GetProperty(property.Name).GetValue(x) as string).ToLower().Contains((data as string).ToLower()));
+                            //source.Where(x =>
+                            //{
+
+                            //    return (typeof(T).GetProperty(property.Name).GetValue(x) as string).ToLower().Contains((data as string).ToLower());
+                            //});
                         }
                     }
                 }

@@ -10,6 +10,15 @@ public class UserMappingProfile: Profile
     public UserMappingProfile()
     {
         CreateMap<User, UserResponse>();
-        CreateMap<UserRequest, UserResponse>();
+        CreateMap<UserRequest, User>();
+        CreateMap<UserResponse, UserRequest>().ReverseMap();
+
+        CreateMap<Hobby, HobbyResponse>();
+        CreateMap<HobbyRequest, Hobby>();
+
+        CreateMap<Address, AddressResponse>();
+        CreateMap<Province, ProvinceResponse>();
+        CreateMap<City, CityResponse>();
+        CreateMap<District, DistrictResponse>();
     }
 }
