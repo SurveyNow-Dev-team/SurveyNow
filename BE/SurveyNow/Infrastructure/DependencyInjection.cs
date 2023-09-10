@@ -1,8 +1,10 @@
 ﻿using Application;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Infrastructure.Data;
 using Infrastructure.Mappers;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,6 +37,11 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IAnswerRepository, AnswerRepository>();
         services.AddScoped<IAddressRepository, AddressRepository>();
+
+        //Add services
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IHobbyService, HobbyService>();
+        services.AddScoped<IAddressService, AddressService>();
         
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
