@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 
 namespace Application.Utils
 {
@@ -46,12 +47,17 @@ namespace Application.Utils
                         Type type = data.GetType();
                         if (type == typeof(string))
                         {
-                            source.Where(x => (typeof(T).GetProperty(property.Name).GetValue(x) as string).ToLower().Contains((data as string).ToLower()));
-                            //source.Where(x =>
+                            // IQueryable: NuGet System.Linq.Dynamic.Core
+                            source = source.Where<T>(property.Name + ".ToLower().Contains(@0)", (data as string).ToLower());
+                            // IEnumarable
+                            //source = source.Where(delegate(T x)
                             //{
-
-                            //    return (typeof(T).GetProperty(property.Name).GetValue(x) as string).ToLower().Contains((data as string).ToLower());
-                            //});
+                            //    var sourceData = typeof(T).GetProperty(property.Name)?.GetValue(x) as string;
+                            //    return sourceData.ToLower().Contains((data as string).ToLower());
+                            //}).AsQueryable();
+                        } else if (type == typeof(int))
+                        {
+                            source = source.Where<T>(property.Name + " == @0", data);
                         }
                     }
                 }
