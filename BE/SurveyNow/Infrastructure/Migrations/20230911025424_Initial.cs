@@ -161,7 +161,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    GoogleId = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    GoogleId = table.Column<string>(type: "nvarchar(100)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "varchar(100)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: true),
@@ -636,7 +637,8 @@ namespace Infrastructure.Migrations
                 name: "IX_Users_GoogleId",
                 table: "Users",
                 column: "GoogleId",
-                unique: true);
+                unique: true,
+                filter: "[GoogleId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_OccupationId",

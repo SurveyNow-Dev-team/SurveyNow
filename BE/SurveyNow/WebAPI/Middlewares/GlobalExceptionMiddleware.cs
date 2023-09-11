@@ -51,6 +51,10 @@ public class GlobalExceptionMiddleware
         {
             return (int)HttpStatusCode.BadRequest;
         }
+        else if (exception is ConflictException)
+        {
+            return (int)HttpStatusCode.Conflict;
+        }
         else
         {
             return (int)HttpStatusCode.InternalServerError;
@@ -68,9 +72,13 @@ public class GlobalExceptionMiddleware
         {
             return "Bad request.";
         }
+        else if (exception is ConflictException)
+        {
+            return "Resource conflict.";
+        }
         else
         {
             return "Internal server error.";
-        }
+        } 
     }
 }

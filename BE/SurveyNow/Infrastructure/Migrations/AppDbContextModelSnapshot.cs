@@ -574,7 +574,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("GoogleId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsDelete")
@@ -589,6 +588,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<long?>("OccupationId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(20)");
@@ -614,7 +616,8 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("GoogleId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[GoogleId] IS NOT NULL");
 
                     b.HasIndex("OccupationId");
 

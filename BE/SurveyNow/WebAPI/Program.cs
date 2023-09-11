@@ -31,8 +31,8 @@ builder.Services.AddAuthentication(options =>
     {
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
-            //ValidateIssuer = true,
-            //ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             //ValidIssuer = _configuration["Jwt:Issuer"],
             //ValidAudience = _configuration["Jwt:Audience"],
@@ -53,8 +53,7 @@ builder.Services.AddAuthorization(options =>
     
 });
 
-// Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>

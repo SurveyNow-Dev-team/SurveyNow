@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IHobbyService, HobbyService>();
         services.AddScoped<IAddressService, AddressService>();
+        services.AddScoped<IJwtService, JwtService>();
         
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

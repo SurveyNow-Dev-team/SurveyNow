@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Entities;
 
 namespace Application.Interfaces.Services
 {
@@ -13,5 +14,7 @@ namespace Application.Interfaces.Services
         Task<UserResponse> GetUser(long id);
         Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest);
         Task<UserResponse> UpdateUser(long id, UserRequest request);
+        Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
+        Task<User?> GetCurrentUserAsync();
     }
 }

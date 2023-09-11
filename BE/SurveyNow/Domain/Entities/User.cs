@@ -16,7 +16,9 @@ public class User
 
     [Column(TypeName = "nvarchar(50)")] public string Email { get; set; } = null!;
 
-    [Column(TypeName = "nvarchar(100)")] public string GoogleId { get; set; } = null!;
+    [Column(TypeName = "nvarchar(100)")] public string? GoogleId { get; set; }
+
+    [Column(TypeName = "varchar(100)")] public string? PasswordHash { get; set; }
 
     [RegularExpression(@"(84|0[3|5|7|8|9])+([0-9]{8})\b", ErrorMessage = "Invalid phone number.")]
     [Column(TypeName = "nvarchar(20)")]
@@ -33,7 +35,7 @@ public class User
 
     [Column(TypeName = "nvarchar(100)")] public string? AvatarUrl { get; set; }
 
-    [Precision(6, 1)] [Range(0, 100000)] public decimal Point { get; set; }
+    [Precision(6, 1)] [Range(0, 100000)] public decimal Point { get; set; } = 0;
 
     public UserStatus Status { get; set; } = UserStatus.Active;
 

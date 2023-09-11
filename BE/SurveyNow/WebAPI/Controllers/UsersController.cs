@@ -1,11 +1,12 @@
 ﻿using Application.DTOs.Request;
 using Application.DTOs.Response;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace SuerveyNow.Controllers
+namespace SurveyNow.Controllers
 {
     [Route("api/user")]
     [ApiController]
