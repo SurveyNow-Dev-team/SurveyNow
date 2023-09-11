@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Application.DTOs.Response;
+namespace Application.DTOs.Response.User;
 
 public record LoginUserResponse
 {

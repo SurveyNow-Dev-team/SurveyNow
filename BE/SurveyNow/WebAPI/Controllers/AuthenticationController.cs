@@ -1,12 +1,14 @@
-﻿using Application.DTOs.Request;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers;
 
 [Route("api/v1/authentication")]
 [ApiController]
+[AllowAnonymous]
 public class AuthenticationController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -31,4 +33,11 @@ public class AuthenticationController : ControllerBase
     // {
     //     return Ok(await _userService.GetCurrentUserAsync());
     // }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest requestUser)
+    {
+        var returnUser = await _userService.LoginAsync(requestUser);
+        return Ok(returnUser);
+    }
 }

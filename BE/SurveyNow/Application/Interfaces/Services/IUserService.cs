@@ -1,10 +1,7 @@
 ﻿using Application.DTOs.Request;
 using Application.DTOs.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Domain.Entities;
 
 namespace Application.Interfaces.Services
@@ -15,6 +12,7 @@ namespace Application.Interfaces.Services
         Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest);
         Task<UserResponse> UpdateUser(long id, UserRequest request);
         Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
+        Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
         Task<User?> GetCurrentUserAsync();
     }
 }

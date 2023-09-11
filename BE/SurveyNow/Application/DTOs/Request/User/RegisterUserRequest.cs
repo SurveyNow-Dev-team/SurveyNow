@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Application.DTOs.Request;
+namespace Application.DTOs.Request.User;
 
 public record RegisterUserRequest()
 {

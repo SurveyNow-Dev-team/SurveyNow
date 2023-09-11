@@ -1,5 +1,7 @@
 ﻿using Application.DTOs.Request;
+using Application.DTOs.Request.User;
 using Application.DTOs.Response;
+using Application.DTOs.Response.User;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
@@ -20,6 +22,7 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.FullName, src => src.MapFrom(src => StringUtil.GetNameFromEmail(src.Email)))
             .ForMember(dest => dest.Role, src => src.MapFrom(src => Role.User));
         CreateMap<User, LoginUserResponse>();
+        
         
         CreateMap<Hobby, HobbyResponse>();
         CreateMap<HobbyRequest, Hobby>();

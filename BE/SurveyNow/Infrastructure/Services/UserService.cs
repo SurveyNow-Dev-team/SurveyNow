@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
 using Application;
 using Application.DTOs.Request;
+using Application.DTOs.Request.User;
 using Application.DTOs.Response;
+using Application.DTOs.Response.User;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Application.Utils;
@@ -89,6 +91,24 @@ namespace Infrastructure.Services
             result.Token = token;
             return result;
         }
+        
+        public async Task<LoginUserResponse> LoginAsync(LoginUserRequest request)
+        {
+            var user = await _unitOfWork.UserRepository.GetByEmailAndPasswordAsync(request.Email, request.Password);
+            if (user == null)
+            {
+                throw new NotFoundException("Incorrect Email or Password");
+            }
+            var mappingTask = Task.Run(() => _mapper.Map<LoginUserResponse>(user));
+            var tokenTask = _jwtService.GenerateAccessTokenAsync(user);
+            await Task.WhenAll(mappingTask, tokenTask);
+
+            var result = mappingTask.Result;
+            var token = tokenTask.Result;
+
+            result.Token = token;
+            return result;
+        }
 
         public async Task<User?> GetCurrentUserAsync()
         {
@@ -98,5 +118,7 @@ namespace Infrastructure.Services
             var fail = long.TryParse(subject, out var userId);
             return await _unitOfWork.UserRepository.GetByIdAsync(userId);
         }
+
+        
     }
 }
