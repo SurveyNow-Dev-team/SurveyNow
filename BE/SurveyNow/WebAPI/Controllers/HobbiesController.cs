@@ -33,14 +33,14 @@ namespace SuerveyNow.Controllers
 
         // POST api/<HobbiesController>
         [HttpPost]
-        public async void Post(HobbyRequest request)
+        public async Task Post(HobbyRequest request)
         {
             await _hobbyService.CreateHobby(request);
         }
 
         // PUT api/<HobbiesController>/5
         [HttpPut("{id}")]
-        public async void Put(long id, [FromBody] HobbyRequest request)
+        public async Task Put(long id, [FromBody] HobbyRequest request)
         {
             await _hobbyService.UpdateHobby(id, request);
         }
