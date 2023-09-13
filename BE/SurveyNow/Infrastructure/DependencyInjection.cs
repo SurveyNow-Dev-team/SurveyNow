@@ -43,12 +43,13 @@ public static class DependencyInjection
         services.AddScoped<IHobbyService, HobbyService>();
         services.AddScoped<IAddressService, AddressService>();
         services.AddScoped<IJwtService, JwtService>();
-        
+
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         //Add Mapper
-        services.AddAutoMapper(typeof(UserMappingProfile), typeof(SurveyMappingProfile));
+        services.AddAutoMapper(typeof(UserMappingProfile));
+        services.AddAutoMapper(typeof(SurveyMappingProfile));
 
         return services;
     }
