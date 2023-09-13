@@ -6,5 +6,6 @@ public enum PointHistoryType
     DoSurvey,
     Gift,
     Refund,
-    Redeem
+    Redeem,
+    PackPurchase
 }

@@ -14,5 +14,9 @@
       <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DTOs\Request\Point\" />
+    </ItemGroup>
+
 
 </Project>
