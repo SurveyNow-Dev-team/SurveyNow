@@ -48,7 +48,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         //Add Mapper
-        services.AddAutoMapper(typeof(UserMappingProfile));
+        services.AddAutoMapper(typeof(UserMappingProfile), typeof(SurveyMappingProfile));
 
         return services;
     }
