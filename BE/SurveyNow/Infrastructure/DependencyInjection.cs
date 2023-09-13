@@ -50,6 +50,7 @@ public static class DependencyInjection
 
         //Add Mapper
         services.AddAutoMapper(typeof(UserMappingProfile));
+        services.AddAutoMapper(typeof(SurveyMappingProfile));
         services.AddAutoMapper(typeof(PointMappingProfile));
 
         return services;

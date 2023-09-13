@@ -21,7 +21,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<LoginUserResponse>> Register([FromBody] RegisterUserRequest registerUser)
+    public async Task<ActionResult<LoginUserResponse>> RegisterAsync([FromBody] RegisterUserRequest registerUser)
     {
         var createdUser = await _userService.CreateUserAsync(registerUser);
         return Ok(createdUser);
@@ -35,7 +35,7 @@ public class AuthenticationController : ControllerBase
     // }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest requestUser)
+    public async Task<ActionResult<LoginUserResponse>> LoginAsync([FromBody] LoginUserRequest requestUser)
     {
         var returnUser = await _userService.LoginAsync(requestUser);
         return Ok(returnUser);
