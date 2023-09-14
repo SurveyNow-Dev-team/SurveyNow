@@ -15,7 +15,7 @@ public static class DependencyInjection
             {
                 options.AddPolicy(name: "_publicPolicy",
                     //Define cors URL 
-                    policy => policy.AllowAnyOrigin()
+                    policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
                 );
             }
         );
