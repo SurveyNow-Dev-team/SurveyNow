@@ -6,7 +6,7 @@ namespace Application.DTOs.Response.Point
     {
         public long Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public int Point { get; set; }
 

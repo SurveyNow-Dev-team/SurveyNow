@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Response.Point;
+using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
 
@@ -9,8 +10,13 @@ namespace Infrastructure.Mappers
         public PointMappingProfile()
         {
             #region Purchase
-            CreateMap<PointHistory, PointPurchaseResponse>();
-            CreateMap<PointHistory, PointPurchaseDetailResponse>();
+            CreateMap<PointHistory, PointPurchaseResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
+
+            CreateMap<PointHistory, PointPurchaseDetailResponse>()
+                .ForMember(dest => dest.Date, 
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
             #endregion
 
             #region Redeem
