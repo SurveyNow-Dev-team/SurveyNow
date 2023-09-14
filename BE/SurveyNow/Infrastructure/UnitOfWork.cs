@@ -1,12 +1,16 @@
 ﻿using Application;
 using Application.Interfaces.Repositories;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
 public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
     private readonly AppDbContext _context;
+    private IDbContextTransaction? _transaction;
+    private ILogger<UnitOfWork> _logger;
 
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }
@@ -27,17 +31,18 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     public IUserReportRepository UserReportRepository { get; }
     public IUserSurveyRepository UserSurveyRepository { get; }
 
-    public UnitOfWork(AppDbContext context, IAddressRepository addressRepository, IAnswerRepository answerRepository,
-        ICityRepository cityRepository, IDistrictRepository districtRepository, IFieldRepository fieldRepository,
-        IHobbyRepository hobbyRepository, IPackPurchaseRepository packPurchaseRepository,
-        IPaymentRepository paymentRepository, IPointHistoryRepository pointHistoryRepository,
-        IPointPurchaseRepository pointPurchase, IPositionRepository positionRepository,
-        IProvinceRepository provinceRepository, IQuestionRepository questionRepository,
-        IQuestionDetailRepository questionDetailRepository, ISurveyRepository surveyRepository,
-        IUserRepository userRepository, IUserReportRepository userReportRepository,
+    public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, IAddressRepository addressRepository,
+        IAnswerRepository answerRepository, ICityRepository cityRepository, IDistrictRepository districtRepository,
+        IFieldRepository fieldRepository, IHobbyRepository hobbyRepository,
+        IPackPurchaseRepository packPurchaseRepository, IPaymentRepository paymentRepository,
+        IPointHistoryRepository pointHistoryRepository, IPointPurchaseRepository pointPurchase,
+        IPositionRepository positionRepository, IProvinceRepository provinceRepository,
+        IQuestionRepository questionRepository, IQuestionDetailRepository questionDetailRepository,
+        ISurveyRepository surveyRepository, IUserRepository userRepository, IUserReportRepository userReportRepository,
         IUserSurveyRepository userSurveyRepository)
     {
         _context = context;
+        _logger = logger;
         AddressRepository = addressRepository;
         AnswerRepository = answerRepository;
         CityRepository = cityRepository;
@@ -58,10 +63,40 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         UserSurveyRepository = userSurveyRepository;
     }
 
-
     public async Task<int> SaveChangeAsync()
     {
         return await _context.SaveChangesAsync();
+    }
+
+    public async Task BeginTransactionAsync()
+    {
+        _transaction = await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitAsync()
+    {
+        try
+        {
+            await _transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error when commit transaction.\nDate:{DateTime.UtcNow}");
+            throw;
+        }
+    }
+
+    public async Task RollbackAsync()
+    {
+        try
+        {
+            await _transaction.RollbackAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error when roll back transaction.\nDate:{DateTime.UtcNow}");
+            throw;
+        }
     }
 
     //implement Dispose pattern
@@ -88,6 +123,11 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (_transaction != null)
+        {
+            await _transaction.DisposeAsync();
+        }
+
         await _context.DisposeAsync();
     }
     //implement Dispose pattern

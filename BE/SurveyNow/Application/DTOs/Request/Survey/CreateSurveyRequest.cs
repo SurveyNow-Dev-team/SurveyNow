@@ -20,5 +20,5 @@ public class CreateSurveyRequest
     
     public DateTime? ExpiredDate { get; set; }
 
-    public List<SurveyQuestionRequest> SurveyQuestionRequests { get; set; } = new List<SurveyQuestionRequest>();
+    public ICollection<SurveyQuestionRequest> SurveyQuestionRequests { get; set; } = new List<SurveyQuestionRequest>();
 }

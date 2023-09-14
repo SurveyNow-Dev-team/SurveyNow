@@ -51,9 +51,7 @@ public class JwtService : IJwtService
         //create claims:
         var claims = await Task.Run(() => new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim("email", user.Email),
-                new Claim("role", user.Role.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
             }
         );
 
