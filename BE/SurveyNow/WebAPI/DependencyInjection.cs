@@ -11,6 +11,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, string? jwtKey)
     {
+        services.AddCors(options =>
+            {
+                options.AddPolicy(name: "_publicPolicy",
+                    //Define cors URL 
+                    policy => policy.AllowAnyOrigin()
+                );
+            }
+        );
         services.AddControllers()
             //allow enum string value in swagger and front-end instead of int value
             .AddJsonOptions(options =>
