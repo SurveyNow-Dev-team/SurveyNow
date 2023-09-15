@@ -1,9 +1,8 @@
-﻿using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace Application.DTOs.Response.Point
 {
-    public class PointPurchaseDetailResponse
+    public class PointRedeemDetailResponse
     {
         public long Id { get; set; }
 
