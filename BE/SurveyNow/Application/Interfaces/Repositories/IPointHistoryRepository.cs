@@ -7,5 +7,6 @@ namespace Application.Interfaces.Repositories;
 public interface IPointHistoryRepository: IBaseRepository<PointHistory>
 {
     Task<PointHistory?> GetPointPurchaseDetailAsync(long id);
+    Task<PointHistory?> GetPointRedeemDetailAsync(long id);
     Task<List<PointHistory>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId);
 }

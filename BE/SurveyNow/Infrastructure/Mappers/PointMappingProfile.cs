@@ -20,6 +20,10 @@ namespace Infrastructure.Mappers
             #endregion
 
             #region Redeem
+            CreateMap<PointHistory, PointRedeemDetailResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
+
             #endregion
 
             #region PointPurchase/Transaction

@@ -108,4 +108,10 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
                 return (q => q.OrderByDescending(p => p.Date));
         }
     }
+
+    public async Task<PointHistory?> GetPointRedeemDetailAsync(long id)
+    {
+        return await _dbSet.Include(p => p.PointPurchase)
+                        .FirstOrDefaultAsync(p => p.Id == id);
+    }
 }

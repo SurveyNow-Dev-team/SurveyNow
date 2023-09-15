@@ -4,7 +4,6 @@ using Application.DTOs.Response;
 using Application.DTOs.Response.Point;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
@@ -80,6 +79,28 @@ namespace SurveyNow.Controllers
         #endregion
 
         #region Redeem
+        [HttpGet("redeem/history/{id}")]
+        public async Task<ActionResult<PointRedeemDetailResponse>> GetPointRedeemDetailAsync(long id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid ID");
+            }
+            try
+            {
+                var pointDetail = await _pointService.GetPointRedeemDetailAsync(id);
+                if (pointDetail == null)
+                {
+                    throw new NotFoundException();
+                }
+                return Ok(pointDetail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving point purchase detail");
+                return StatusCode(500, "An unexpected error occurred");
+            }
+        }
         #endregion
 
     }

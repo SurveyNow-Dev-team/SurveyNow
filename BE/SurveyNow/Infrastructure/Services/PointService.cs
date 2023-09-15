@@ -22,16 +22,20 @@ namespace Infrastructure.Services
 
 
         #region Purchase
-        public async Task<PointPurchaseDetailResponse> GetPointPurchaseDetailAsync(long id)
+        public async Task<PointPurchaseDetailResponse?> GetPointPurchaseDetailAsync(long id)
         {
             var pointHistory = await _unitOfWork.PointHistoryRepository.GetPointPurchaseDetailAsync(id);
-            var result = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
+            if(pointHistory != null)
+            {
+                var result = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
 
-            var pointPurchase = await _unitOfWork.PointPurchase.GetByIdAsync(pointHistory.PointPurchaseId);
-            var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
-            
-            result.PointPurchase = shortPointPurchase;
-            return result;
+                var pointPurchase = await _unitOfWork.PointPurchase.GetByIdAsync(pointHistory.PointPurchaseId);
+                var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
+                result.PointPurchase = shortPointPurchase;
+
+                return result;
+            }
+            return null;
         }
 
         public async Task<PagingResponse<PointPurchaseResponse>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId)
@@ -57,6 +61,21 @@ namespace Infrastructure.Services
         #endregion
 
         #region Redeem
+        public async Task<PointRedeemDetailResponse?> GetPointRedeemDetailAsync(long id)
+        {
+            var pointHistory = await _unitOfWork.PointHistoryRepository.GetPointRedeemDetailAsync(id);
+            if(pointHistory != null)
+            {
+                var result = _mapper.Map<PointRedeemDetailResponse>(pointHistory);
+
+                var pointPurchase = await _unitOfWork.PointPurchase.GetByIdAsync(pointHistory.PointPurchaseId);
+                var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
+                result.PointPurchase = shortPointPurchase;
+
+                return result;
+            }
+            return null;
+        }
         #endregion
     }
 }
