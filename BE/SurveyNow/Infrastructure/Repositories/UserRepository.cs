@@ -2,12 +2,13 @@
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class UserRepository : BaseRepository<User>, IUserRepository
 {
-    public UserRepository(AppDbContext context) : base(context)
+    public UserRepository(AppDbContext context, ILogger logger) : base(context, logger)
     {
     }
 

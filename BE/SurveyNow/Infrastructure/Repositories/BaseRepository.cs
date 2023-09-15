@@ -3,6 +3,7 @@ using Application.DTOs.Response;
 using Application.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
@@ -10,11 +11,13 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     protected readonly AppDbContext _context;
     protected readonly DbSet<T> _dbSet;
+    protected readonly ILogger _logger;
 
-    public BaseRepository(AppDbContext context)
+    public BaseRepository(AppDbContext context, ILogger logger)
     {
         _context = context;
         _dbSet = _context.Set<T>();
+        _logger = logger;
     }
 
     public virtual async Task<IEnumerable<T>> Get(
@@ -48,8 +51,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
         catch (Exception e)
         {
-            // _logger.LogError(e, $"Error when filter data of {typeof(T)} entity.");
-            Console.WriteLine(e.Message);
+            _logger.LogError(e, $"Error when filter data of {typeof(T)} entity.");
             throw;
         }
     }
@@ -93,8 +95,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
         catch (Exception e)
         {
-            // _logger.LogError(e, $"Error when filter data of {typeof(T)} entity.");
-            Console.WriteLine(e.Message);
+            _logger.LogError(e, $"Error when filter data of {typeof(T)} entity.");
             throw;
         }
     }

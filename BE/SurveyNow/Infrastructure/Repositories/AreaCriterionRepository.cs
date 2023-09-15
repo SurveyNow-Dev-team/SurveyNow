@@ -1,12 +1,13 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class AreaCriterionRepository:BaseRepository<AreaCriterion>, IAreaCriterionRepository
 {
-    public AreaCriterionRepository(AppDbContext context) : base(context)
+    public AreaCriterionRepository(AppDbContext context, ILogger logger) : base(context, logger)
     {
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class AnswerRepository: BaseRepository<Answer>, IAnswerRepository
 {
-    public AnswerRepository(AppDbContext context) : base(context)
+    public AnswerRepository(AppDbContext context, ILogger logger) : base(context, logger)
     {
     }
 }

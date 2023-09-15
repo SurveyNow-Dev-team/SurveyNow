@@ -6,12 +6,14 @@ using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistoryRepository
 {
-    public PointHistoryRepository(AppDbContext context) : base(context)
+
+    public PointHistoryRepository(AppDbContext context, ILogger logger) : base(context, logger)
     {
     }
 
@@ -114,4 +116,6 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
         return await _dbSet.Include(p => p.PointPurchase)
                         .FirstOrDefaultAsync(p => p.Id == id);
     }
+
+    
 }

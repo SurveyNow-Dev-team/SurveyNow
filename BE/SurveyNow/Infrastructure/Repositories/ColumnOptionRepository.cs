@@ -1,12 +1,13 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class ColumnOptionRepository:BaseRepository<ColumnOption>, IColumnOptionRepository
 {
-    public ColumnOptionRepository(AppDbContext context) : base(context)
+    public ColumnOptionRepository(AppDbContext context, ILogger logger) : base(context, logger)
     {
     }
 }
