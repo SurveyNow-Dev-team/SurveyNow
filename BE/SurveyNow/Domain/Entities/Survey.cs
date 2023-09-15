@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -61,4 +62,6 @@ public class Survey
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
     
     public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
+
+    public virtual ICollection<Criterion> Criteria { get; set; } = new List<Criterion>();
 }

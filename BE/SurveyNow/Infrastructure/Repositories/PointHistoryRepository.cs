@@ -89,7 +89,7 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
 
     private Expression<Func<PointHistory, bool>> GetPointHistoryTypeFilterExpression(PointHistoryType type)
     {
-        return (p => p.Type == type);
+        return (p => p.PointHistoryType == type);
     }
 
     private Func<IQueryable<PointHistory>, IOrderedQueryable<PointHistory>> GetOrderByFunction(PointSortOrderRequest sortOrder)

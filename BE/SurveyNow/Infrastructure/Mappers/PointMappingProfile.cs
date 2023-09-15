@@ -27,7 +27,7 @@ namespace Infrastructure.Mappers
             #endregion
 
             #region PointPurchase/Transaction
-            CreateMap<PointPurchase, ShortPointPurchaseResponse>();
+            CreateMap<Transaction, ShortPointPurchaseResponse>();
             #endregion
         }
     }

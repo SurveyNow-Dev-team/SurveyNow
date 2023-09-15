@@ -20,7 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<District> Districts { get; set; }
     public DbSet<Hobby> Hobbies { get; set; }
     public DbSet<Payment> Payments { get; set; }
-    public DbSet<PointPurchase> PointPurchases { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
     public DbSet<PackPurchase> PackPurchases { get; set; }
     public DbSet<PointHistory> PointHistories { get; set; }
     public DbSet<Survey> Surveys { get; set; }
@@ -32,6 +32,7 @@ public class AppDbContext : DbContext
     public DbSet<Answer> Answers { get; set; }
     public DbSet<AnswerOption> AnswerOptions { get; set; }
     public DbSet<UserReport> UserReports { get; set; }
+    public DbSet<Criterion> Criteria { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,7 +77,7 @@ public class AppDbContext : DbContext
             .Property(u => u.CreatedUserId)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-        modelBuilder.Entity<PointPurchase>()
+        modelBuilder.Entity<Transaction>()
             .Property(u => u.Date)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 

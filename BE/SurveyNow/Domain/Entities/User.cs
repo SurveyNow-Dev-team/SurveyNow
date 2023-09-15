@@ -77,7 +77,7 @@ public class User
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual ICollection<PointPurchase> PointPurchases { get; set; } = new List<PointPurchase>();
+    public virtual ICollection<Transaction> PointPurchases { get; set; } = new List<Transaction>();
 
     public virtual ICollection<PackPurchase> PackPurchases { get; set; } = new List<PackPurchase>();
 

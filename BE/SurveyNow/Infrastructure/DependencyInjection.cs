@@ -26,7 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IQuestionRepository, QuestionRepository>();
         services.AddScoped<IProvinceRepository, ProvinceRepository>();
         services.AddScoped<IPositionRepository, PositionRepository>();
-        services.AddScoped<IPointPurchaseRepository, PointPurchaseRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<IPointHistoryRepository, PointHistoryRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IPackPurchaseRepository, PackPurchaseRepository>();
@@ -41,6 +41,11 @@ public static class DependencyInjection
         services.AddScoped<IColumnOptionRepository, ColumnOptionRepository>();
         services.AddScoped<IRowOptionRepository, RowOptionRepository>();
         services.AddScoped<ISectionRepository, SectionRepository>();
+        services.AddScoped<IAreaCriterionRepository, AreaCriterionRepository>();
+        services.AddScoped<ICriterionRepository, CriterionRepository>();
+        services.AddScoped<IFieldCriterionRepository, FieldCriterionRepository>();
+        services.AddScoped<IGenderCriterionRepository, GenderCriterionRepository>();
+        services.AddScoped<IRelationshipCriterionRepository, RelationshipCriterionRepository>();
 
         //Add services
         services.AddScoped<IUserService, UserService>();

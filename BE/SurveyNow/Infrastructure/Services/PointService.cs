@@ -29,7 +29,7 @@ namespace Infrastructure.Services
             {
                 var result = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
 
-                var pointPurchase = await _unitOfWork.PointPurchase.GetByIdAsync(pointHistory.PointPurchaseId);
+                var pointPurchase = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
                 var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
                 result.PointPurchase = shortPointPurchase;
 
@@ -68,7 +68,7 @@ namespace Infrastructure.Services
             {
                 var result = _mapper.Map<PointRedeemDetailResponse>(pointHistory);
 
-                var pointPurchase = await _unitOfWork.PointPurchase.GetByIdAsync(pointHistory.PointPurchaseId);
+                var pointPurchase = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
                 var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
                 result.PointPurchase = shortPointPurchase;
 
