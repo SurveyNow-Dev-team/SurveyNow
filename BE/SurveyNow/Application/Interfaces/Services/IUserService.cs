@@ -14,5 +14,7 @@ namespace Application.Interfaces.Services
         Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
         Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
         Task<User?> GetCurrentUserAsync();
+        Task ChangePasswordAsync(PasswordChangeRequest request);
+        Task Remove();
     }
 }

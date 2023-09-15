@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
 {
-    [Route("api/user")]
+    [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -37,10 +37,6 @@ namespace SurveyNow.Controllers
         public async Task<ActionResult<UserResponse>> Get(long id)
         {
             var user = await _userService.GetUser(id);
-            if(user == null)
-            {
-                return NotFound();
-            }
             return Ok(user);
         }
 
@@ -49,11 +45,20 @@ namespace SurveyNow.Controllers
         public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UserRequest userRequest)
         {
             var user = await _userService.UpdateUser(id, userRequest);
-            if(user == null)
-            {
-                return NotFound();
-            }
             return Ok(user);
+        }
+
+        [HttpPut("password-change")]
+        public async Task ChangePassword([FromBody] PasswordChangeRequest request)
+        {
+            await _userService.ChangePasswordAsync(request);
+        }
+
+        // PUT api/<UsersController>/5
+        [HttpPut("user-removal")]
+        public async Task Remove()
+        {
+            await _userService.Remove();
         }
     }
 }

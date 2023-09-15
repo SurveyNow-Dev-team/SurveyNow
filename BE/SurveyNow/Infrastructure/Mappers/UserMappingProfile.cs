@@ -14,7 +14,7 @@ public class UserMappingProfile : Profile
     public UserMappingProfile()
     {
         CreateMap<User, UserResponse>();
-        CreateMap<UserRequest, User>();
+        CreateMap<UserRequest, User>().ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
         CreateMap<UserResponse, UserRequest>().ReverseMap();
         CreateMap<RegisterUserRequest, User>()
             .ForMember(dest => dest.PasswordHash,

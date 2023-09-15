@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using Application;
 using Application.DTOs.Request;
 using Application.DTOs.Request.User;
@@ -8,6 +10,7 @@ using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Application.Utils;
 using AutoMapper;
+using BCrypt.Net;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -21,20 +24,26 @@ namespace Infrastructure.Services
         private readonly ILogger<UserService> _logger;
         private readonly IJwtService _jwtService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPhoneNumberService _phoneNumberService;
 
         public UserService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UserService> logger, IJwtService jwtService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor, IPhoneNumberService phoneNumberService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _jwtService = jwtService;
             _httpContextAccessor = httpContextAccessor;
+            _phoneNumberService = phoneNumberService;
         }
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest)
         {
             var users = await _unitOfWork.UserRepository.GetAllAsync();
+            if(users == null)
+            {
+                throw new NotFoundException("There aren't any users");
+            }
             var userResponses = _mapper.Map<List<User>, List<UserResponse>>(users);
             var filteredUsers = userResponses.AsQueryable().Filter(_mapper.Map<UserResponse>(filter));
             var paginatedUsers = filteredUsers.ToList().Paginate(pagingRequest.Page, pagingRequest.RecordsPerPage);
@@ -44,6 +53,10 @@ namespace Infrastructure.Services
         public async Task<UserResponse> GetUser(long id)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                throw new NotFoundException("User is not existed");
+            }
             return _mapper.Map<UserResponse>(user);
         }
 
@@ -52,10 +65,14 @@ namespace Infrastructure.Services
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
             if (user == null)
             {
-                return null;
+                throw new NotFoundException("User with this id is not existed");
             }
 
             user = _mapper.Map<UserRequest, User>(request, user);
+            if(request.PhoneNumber != null)
+            {
+                await _phoneNumberService.SendSmsAsync($"Your SurveyNow verification code is: {GenerateOTP()}", request.PhoneNumber);
+            }
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
             return _mapper.Map<UserResponse>(user);
@@ -119,6 +136,56 @@ namespace Infrastructure.Services
             return await _unitOfWork.UserRepository.GetByIdAsync(userId);
         }
 
-        
+        private async Task<User> GetLoggedInUserAsync()
+        {
+            if (_httpContextAccessor.HttpContext.Request.Headers.ContainsKey("Authorization"))
+            {
+                var token = _httpContextAccessor.HttpContext.Request.Headers.First(x => x.Key.Equals("Authorization")).Value;
+                var principle = _jwtService.ConvertToken(Regex.Replace(token, "Bearer ", ""));
+                var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId));
+                if (user == null)
+                {
+                    throw new NotFoundException("User doesn't exist");
+                }
+                return user;
+            }
+            else
+            {
+                throw new NotFoundException("User doesn't log in");
+            }
+        }
+
+        public async Task Remove()
+        {
+            var user = await GetLoggedInUserAsync();
+            user.IsDelete = true;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task ChangePasswordAsync(PasswordChangeRequest request)
+        {
+            var user = await GetLoggedInUserAsync();
+            if(!BCrypt.Net.BCrypt.EnhancedVerify(request.OldPassword, user.PasswordHash))
+            {
+                throw new BadRequestException("Old password is incorrect");
+            }
+            user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.NewPassword);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+        }
+
+        private string GenerateOTP()
+        {
+            string otp = "";
+            Random random = new Random();
+            for(int i = 0; i < 6; i++)
+            {
+                otp += random.Next(0, 10);
+            }
+            return otp;
+        }
+
     }
 }
