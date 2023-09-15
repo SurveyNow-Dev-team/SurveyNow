@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace SuerveyNow.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230904113346_DefaultConnection")]
-    partial class DefaultConnection
+    [Migration("20230911025424_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -577,7 +577,6 @@ namespace SuerveyNow.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("GoogleId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsDelete")
@@ -592,6 +591,9 @@ namespace SuerveyNow.Migrations
 
                     b.Property<long?>("OccupationId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(20)");
@@ -617,7 +619,8 @@ namespace SuerveyNow.Migrations
                         .IsUnique();
 
                     b.HasIndex("GoogleId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[GoogleId] IS NOT NULL");
 
                     b.HasIndex("OccupationId");
 

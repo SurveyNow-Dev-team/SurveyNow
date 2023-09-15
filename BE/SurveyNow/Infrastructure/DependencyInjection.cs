@@ -12,7 +12,7 @@ namespace Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDependency(this IServiceCollection services, string databaseConnection)
+    public static IServiceCollection AddDependency(this IServiceCollection services, string? databaseConnection)
     {
         //Add db context
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(databaseConnection));
@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IHobbyService, HobbyService>();
         services.AddScoped<IAddressService, AddressService>();
+        services.AddScoped<IJwtService, JwtService>();
         
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

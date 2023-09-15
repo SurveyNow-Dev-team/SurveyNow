@@ -22,7 +22,8 @@ public class JwtService : IJwtService
         //create claims:
         var claims = await Task.Run(() => new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim("email", user.Email),
                 new Claim("role", user.Role.ToString())
             }
         );
@@ -36,7 +37,7 @@ public class JwtService : IJwtService
         {
             Subject = new ClaimsIdentity(claims),
             IssuedAt = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddDays(3),
             SigningCredentials = credentials
         };
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -50,7 +51,8 @@ public class JwtService : IJwtService
         //create claims:
         var claims = await Task.Run(() => new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim("email", user.Email),
                 new Claim("role", user.Role.ToString())
             }
         );

@@ -2,7 +2,7 @@
 
 public class AppConfiguration
 {
-    public string DatabaseConnection { get; set; }
-    public string Key { get; set; }
+    public string? DatabaseConnection { get; set; }
+    public string? Key { get; set; }
     
 }
