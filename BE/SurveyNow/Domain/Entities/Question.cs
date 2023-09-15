@@ -10,7 +10,7 @@ public class Question
 {
     public long SurveyId { get; set; }
     
-    [Range(0, 1000)]
+    [Range(1, 1000)]
     public int Order { get; set; } 
     
     public QuestionType Type { get; set; }

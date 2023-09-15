@@ -24,4 +24,8 @@ public interface IUnitOfWork: IDisposable
     public IUserSurveyRepository UserSurveyRepository { get; }
 
     public Task<int> SaveChangeAsync();
+
+    public Task BeginTransactionAsync();
+    public Task CommitAsync();
+    public Task RollbackAsync();
 }

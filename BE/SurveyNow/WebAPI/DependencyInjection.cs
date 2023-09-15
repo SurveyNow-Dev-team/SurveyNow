@@ -11,6 +11,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, string? jwtKey)
     {
+        services.AddCors(options =>
+            {
+                options.AddPolicy(name: "_publicPolicy",
+                    //Define cors URL 
+                    policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+                );
+            }
+        );
         services.AddControllers()
             //allow enum string value in swagger and front-end instead of int value
             .AddJsonOptions(options =>
@@ -26,7 +34,7 @@ public static class DependencyInjection
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,

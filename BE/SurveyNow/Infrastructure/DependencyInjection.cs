@@ -44,12 +44,15 @@ public static class DependencyInjection
         services.AddScoped<IAddressService, AddressService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPhoneNumberService, PhoneNumberService>();
-        
+        services.AddScoped<IPointService, PointService>();
+
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         //Add Mapper
         services.AddAutoMapper(typeof(UserMappingProfile));
+        services.AddAutoMapper(typeof(SurveyMappingProfile));
+        services.AddAutoMapper(typeof(PointMappingProfile));
 
         return services;
     }

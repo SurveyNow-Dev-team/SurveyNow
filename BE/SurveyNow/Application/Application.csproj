@@ -15,4 +15,8 @@
     </ItemGroup>
 
 
+    <ItemGroup>
+      <Folder Include="DTOs\Response\Survey\" />
+    </ItemGroup>
+
 </Project>

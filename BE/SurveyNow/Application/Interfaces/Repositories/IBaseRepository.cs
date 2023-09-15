@@ -1,13 +1,22 @@
 ﻿using System.Linq.Expressions;
+using Application.DTOs.Response;
 
 namespace Application.Interfaces.Repositories;
 
 public interface IBaseRepository<T> where T : class
 {
-    public IEnumerable<T> Get(
+    Task<IEnumerable<T>> Get(
         Expression<Func<T, bool>>? filter,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties);
+
+    Task<PagingResponse<T>> GetPaginate(
+        Expression<Func<T, bool>>? filter,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
+        string includeProperties,
+        int page,
+        int size
+    );
 
     Task<T?> GetByIdAsync(object id);
 
