@@ -5,5 +5,7 @@ public enum QuestionType
     Text,
     Radio,
     CheckBox,
-    Selection
+    Selection,
+    Rating,
+    Likert
 }

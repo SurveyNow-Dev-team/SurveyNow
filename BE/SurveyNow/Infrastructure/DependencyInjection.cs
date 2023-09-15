@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Mappers;
 using Infrastructure.Repositories;
@@ -23,7 +24,6 @@ public static class DependencyInjection
         services.AddScoped<IUserReportRepository, UserReportRepository>();
         services.AddScoped<ISurveyRepository, SurveyRepository>();
         services.AddScoped<IQuestionRepository, QuestionRepository>();
-        services.AddScoped<IQuestionDetailRepository, QuestionDetailRepository>();
         services.AddScoped<IProvinceRepository, ProvinceRepository>();
         services.AddScoped<IPositionRepository, PositionRepository>();
         services.AddScoped<IPointPurchaseRepository, PointPurchaseRepository>();
@@ -37,6 +37,10 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IAnswerRepository, AnswerRepository>();
         services.AddScoped<IAddressRepository, AddressRepository>();
+        services.AddScoped<IAnswerOptionRepository, AnswerOptionRepository>();
+        services.AddScoped<IColumnOptionRepository, ColumnOptionRepository>();
+        services.AddScoped<IRowOptionRepository, RowOptionRepository>();
+        services.AddScoped<ISectionRepository, SectionRepository>();
 
         //Add services
         services.AddScoped<IUserService, UserService>();

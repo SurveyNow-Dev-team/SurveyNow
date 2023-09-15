@@ -14,7 +14,9 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }
+    public IAnswerOptionRepository AnswerOptionRepository { get; }
     public ICityRepository CityRepository { get; }
+    public IColumnOptionRepository ColumnOptionRepository { get; }
     public IDistrictRepository DistrictRepository { get; }
     public IFieldRepository FieldRepository { get; }
     public IHobbyRepository HobbyRepository { get; }
@@ -25,27 +27,32 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     public IPositionRepository PositionRepository { get; }
     public IProvinceRepository ProvinceRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
-    public IQuestionDetailRepository QuestionDetailRepository { get; }
+    public IRowOptionRepository RowOptionRepository { get; }
+    public ISectionRepository SectionRepository { get; }
     public ISurveyRepository SurveyRepository { get; }
     public IUserRepository UserRepository { get; }
     public IUserReportRepository UserReportRepository { get; }
     public IUserSurveyRepository UserSurveyRepository { get; }
 
-    public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, IAddressRepository addressRepository,
-        IAnswerRepository answerRepository, ICityRepository cityRepository, IDistrictRepository districtRepository,
+    public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger,
+        IAddressRepository addressRepository, IAnswerRepository answerRepository,
+        IAnswerOptionRepository answerOptionRepository, ICityRepository cityRepository,
+        IColumnOptionRepository columnOptionRepository, IDistrictRepository districtRepository,
         IFieldRepository fieldRepository, IHobbyRepository hobbyRepository,
         IPackPurchaseRepository packPurchaseRepository, IPaymentRepository paymentRepository,
         IPointHistoryRepository pointHistoryRepository, IPointPurchaseRepository pointPurchase,
         IPositionRepository positionRepository, IProvinceRepository provinceRepository,
-        IQuestionRepository questionRepository, IQuestionDetailRepository questionDetailRepository,
-        ISurveyRepository surveyRepository, IUserRepository userRepository, IUserReportRepository userReportRepository,
-        IUserSurveyRepository userSurveyRepository)
+        IQuestionRepository questionRepository, IRowOptionRepository rowOptionRepository,
+        ISectionRepository sectionRepository, ISurveyRepository surveyRepository, IUserRepository userRepository,
+        IUserReportRepository userReportRepository, IUserSurveyRepository userSurveyRepository)
     {
         _context = context;
         _logger = logger;
         AddressRepository = addressRepository;
         AnswerRepository = answerRepository;
+        AnswerOptionRepository = answerOptionRepository;
         CityRepository = cityRepository;
+        ColumnOptionRepository = columnOptionRepository;
         DistrictRepository = districtRepository;
         FieldRepository = fieldRepository;
         HobbyRepository = hobbyRepository;
@@ -56,7 +63,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         PositionRepository = positionRepository;
         ProvinceRepository = provinceRepository;
         QuestionRepository = questionRepository;
-        QuestionDetailRepository = questionDetailRepository;
+        RowOptionRepository = rowOptionRepository;
+        SectionRepository = sectionRepository;
         SurveyRepository = surveyRepository;
         UserRepository = userRepository;
         UserReportRepository = userReportRepository;

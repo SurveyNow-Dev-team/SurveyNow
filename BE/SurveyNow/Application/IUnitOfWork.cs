@@ -2,11 +2,13 @@
 
 namespace Application;
 
-public interface IUnitOfWork: IDisposable
+public interface IUnitOfWork : IDisposable
 {
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }
+    public IAnswerOptionRepository AnswerOptionRepository { get; }
     public ICityRepository CityRepository { get; }
+    public IColumnOptionRepository ColumnOptionRepository { get; }
     public IDistrictRepository DistrictRepository { get; }
     public IFieldRepository FieldRepository { get; }
     public IHobbyRepository HobbyRepository { get; }
@@ -17,7 +19,8 @@ public interface IUnitOfWork: IDisposable
     public IPositionRepository PositionRepository { get; }
     public IProvinceRepository ProvinceRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
-    public IQuestionDetailRepository QuestionDetailRepository { get; }
+    public IRowOptionRepository RowOptionRepository { get; }
+    public ISectionRepository SectionRepository { get; }
     public ISurveyRepository SurveyRepository { get; }
     public IUserRepository UserRepository { get; }
     public IUserReportRepository UserReportRepository { get; }

@@ -1,0 +1,12 @@
+﻿using Application.Interfaces.Repositories;
+using Domain.Entities;
+using Infrastructure.Data;
+
+namespace Infrastructure.Repositories;
+
+public class AnswerOptionRepository : BaseRepository<AnswerOption>, IAnswerOptionRepository
+{
+    public AnswerOptionRepository(AppDbContext context) : base(context)
+    {
+    }
+}

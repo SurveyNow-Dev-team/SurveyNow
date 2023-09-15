@@ -1,13 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities;
 
-[PrimaryKey(nameof(SurveyId), nameof(UserId))]
+[Index(nameof(SurveyId), nameof(UserId), IsUnique = true)]
 public class UserSurvey
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
+    
     public long SurveyId { get; set; }
 
     public long UserId { get; set; }
@@ -16,17 +19,10 @@ public class UserSurvey
 
     public bool IsValid { get; set; }
 
-    public bool IsModified { get; set; }
-
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
     [Precision(2)]
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-
-    [DataType(DataType.DateTime)]
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
-    [Precision(2)]
-    public DateTime? ModifiedDate { get; set; }
+    public DateTime Date { get; set; } = DateTime.UtcNow;
 
     [ForeignKey("UserId")] public virtual User User { get; set; } = null!;
 

@@ -9,9 +9,9 @@ public class SurveyMappingProfile : Profile
 {
     public SurveyMappingProfile()
     {
-        CreateMap<SurveyQuestionDetailRequest, QuestionDetail>()
-            .ForMember(des => des.QuestionOrder,
-                otp => otp.MapFrom<QuestionDetailResolver>());
+        // CreateMap<SurveyQuestionDetailRequest, QuestionDetail>()
+        //     .ForMember(des => des.QuestionOrder,
+        //         otp => otp.MapFrom<QuestionDetailResolver>());
 
         CreateMap<SurveyQuestionRequest, Question>()
             .ForMember(des => des.Order, 
@@ -24,16 +24,16 @@ public class SurveyMappingProfile : Profile
                 src => src.MapFrom(src => SurveyStatus.Draft));
     }
 }
-
-public class QuestionDetailResolver : IValueResolver<SurveyQuestionDetailRequest, QuestionDetail, int>
-{
-    public int Resolve(SurveyQuestionDetailRequest source, QuestionDetail destination, int destMember,
-        ResolutionContext context)
-    {
-        var sourceList = context.Items["SourceList"] as List<SurveyQuestionDetailRequest>;
-        return sourceList.IndexOf(source) + 1;
-    }
-}
+//
+// public class QuestionDetailResolver : IValueResolver<SurveyQuestionDetailRequest, QuestionDetail, int>
+// {
+//     public int Resolve(SurveyQuestionDetailRequest source, QuestionDetail destination, int destMember,
+//         ResolutionContext context)
+//     {
+//         var sourceList = context.Items["SourceList"] as List<SurveyQuestionDetailRequest>;
+//         return sourceList.IndexOf(source) + 1;
+//     }
+// }
 
 public class QuestionResolver : IValueResolver<SurveyQuestionRequest, Question, int>
 {
