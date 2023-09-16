@@ -14,6 +14,8 @@ public class Transaction
 
     public TransactionType TransactionType { get; set; }
 
+    public PaymentMethod PaymentMethod { get; set; }
+
     [Precision(6,1)]
     [Range(0.1, 100000)]
     public decimal Point { get; set; }

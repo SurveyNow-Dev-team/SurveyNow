@@ -16,6 +16,7 @@
 
 
     <ItemGroup>
+      <Folder Include="DTOs\Response\Point\History\" />
       <Folder Include="DTOs\Response\Survey\" />
     </ItemGroup>
 
