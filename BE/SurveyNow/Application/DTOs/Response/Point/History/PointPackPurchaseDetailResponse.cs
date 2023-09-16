@@ -4,6 +4,6 @@ namespace Application.DTOs.Response.Point.History
 {
     public class PointPackPurchaseDetailResponse : BasePointHistoryResponse
     {
-        public required PackPurchaseResponse PackPurchaseResponse { get; set; }
+        public required PackPurchaseResponse PackPurchase { get; set; }
     }
 }

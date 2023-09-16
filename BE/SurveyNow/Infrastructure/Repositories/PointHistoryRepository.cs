@@ -4,9 +4,10 @@ using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
+using Application.DTOs.Response;
+using Application.Utils;
 
 namespace Infrastructure.Repositories;
 
@@ -17,38 +18,34 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
     {
     }
 
-    public async Task<PointHistory?> GetPointPurchaseDetailAsync(long id)
-    {
-        return await _dbSet.Include(p => p.PointPurchase)
-            .FirstOrDefaultAsync(p => p.Id == id);
-    }
-
-    public async Task<List<PointHistory>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter,
-        PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId)
+    public async Task<PagingResponse<PointHistory>?> GetPointHistoryPaginatedAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest)
     {
         // Get and combine filter expressions
         Expression<Func<PointHistory, bool>> userIdExp = (p => p.UserId == userId);
-        Expression<Func<PointHistory, bool>> typeExp = GetPointHistoryTypeFilterExpression(PointHistoryType.PurchasePoint);
+        Expression<Func<PointHistory, bool>>? typeExp = GetPointHistoryTypeFilterExpression(type);
         Expression<Func<PointHistory, bool>>? dateExp = GetDateFilterExpression(dateFilter);
         Expression<Func<PointHistory, bool>>? pointRangeExp = GetPointRangeFilterExpression(valueFilter);
 
-        var parameter = Expression.Parameter(typeof(PointHistory), "p");
+        // Declare expression parameter and combine expression body
+        ParameterExpression parameter = Expression.Parameter(typeof(PointHistory));
+        Expression combinedBody = Expression.Invoke(userIdExp, parameter);
 
-        var combinedExp = Expression.AndAlso(
-            Expression.Invoke(userIdExp, parameter),
-            Expression.Invoke(typeExp, parameter));
+        if (typeExp != null)
+        {
+            combinedBody = Expression.AndAlso(combinedBody, Expression.Invoke(typeExp, parameter));
+        }
 
         if (dateExp != null)
         {
-            combinedExp = Expression.AndAlso(combinedExp, Expression.Invoke(dateExp, parameter));
+            combinedBody = Expression.AndAlso(combinedBody, Expression.Invoke(dateExp, parameter));
         }
 
         if (pointRangeExp != null)
         {
-            combinedExp = Expression.AndAlso(combinedExp, Expression.Invoke(pointRangeExp, parameter));
+            combinedBody = Expression.AndAlso(combinedBody, Expression.Invoke(pointRangeExp, parameter));
         }
 
-        var combinedExpression = Expression.Lambda<Func<PointHistory, bool>>(combinedExp, parameter);
+        var combinedExpression = Expression.Lambda<Func<PointHistory, bool>>(combinedBody, parameter);
 
         // Get sorting expression
         var orderByFunction = GetOrderByFunction(sortOrder);
@@ -56,18 +53,12 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
         // Get filtered and sorted item collection
         var filteredItems = await GetAsync(combinedExpression, orderByFunction);
 
-        // Apply pagination
+        // Apply pagination to result
         if (filteredItems != null && (filteredItems.Count() > 0))
         {
-            int page = (int)pagingRequest.Page, pageItemCount = (int)pagingRequest.RecordsPerPage;
-            var result = filteredItems
-                .Skip((page - 1) * pageItemCount)
-                .Take(pageItemCount)
-                .ToList();
-
+            PagingResponse<PointHistory>? result = filteredItems.ToList().Paginate(pagingRequest.Page, pagingRequest.RecordsPerPage);
             return result;
         }
-
         return null;
     }
 
@@ -93,13 +84,19 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
         return null;
     }
 
-    private Expression<Func<PointHistory, bool>> GetPointHistoryTypeFilterExpression(PointHistoryType type)
+    private Expression<Func<PointHistory, bool>>? GetPointHistoryTypeFilterExpression(PointHistoryType type)
     {
-        return (p => p.PointHistoryType == type);
+        if(type == PointHistoryType.None)
+        {
+            return null;
+        }
+        else
+        {
+            return (p => p.PointHistoryType == type);
+        }
     }
 
-    private Func<IQueryable<PointHistory>, IOrderedQueryable<PointHistory>> GetOrderByFunction(
-        PointSortOrderRequest sortOrder)
+    private Func<IQueryable<PointHistory>, IOrderedQueryable<PointHistory>> GetOrderByFunction(PointSortOrderRequest sortOrder)
     {
         switch (sortOrder.SortingOrder)
         {
@@ -114,11 +111,5 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
             default:
                 return (q => q.OrderByDescending(p => p.Date));
         }
-    }
-
-    public async Task<PointHistory?> GetPointRedeemDetailAsync(long id)
-    {
-        return await _dbSet.Include(p => p.PointPurchase)
-            .FirstOrDefaultAsync(p => p.Id == id);
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Application.DTOs.Request;
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
-using Application.DTOs.Response.Point;
+using Application.DTOs.Response.Point.History;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
@@ -23,85 +24,54 @@ namespace SurveyNow.Controllers
             _logger = logger;
         }
 
-        #region Purchase
-
-        [HttpGet("purchase/history/{id}")]
-        public async Task<ActionResult<PointPurchaseDetailResponse>> GetPointPurchaseDetailAsync(long id)
+        [HttpGet("history/{id}")]
+        public async Task<ActionResult<BasePointHistoryResponse>> GetPointHistoryDetailAsync(long id)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid ID");
+                return BadRequest("Invalid point history ID");
             }
             try
             {
-                var pointDetail = await _pointService.GetPointPurchaseDetailAsync(id);
-                if (pointDetail == null)
+                var pointHistoryDetail = await _pointService.GetPointHistoryDetailAsync(id);
+                if (pointHistoryDetail == null)
                 {
-                    throw new NotFoundException();
+                    return NotFound("Cannot find point history detail with the given ID");
                 }
-                return Ok(pointDetail);
+                return Ok(pointHistoryDetail);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retrieving point purchase detail");
-                return StatusCode(500, "An unexpected error occurred");
+                _logger.LogError(ex, "An error occurred while trying to retrieve point history detail");
+                return StatusCode(500, "An error occurred while trying to retrieve point history detail");
             }
         }
 
-        [HttpGet("purchase/history")]
-        public async Task<ActionResult<PagingResponse<PointPurchaseResponse>>> GetPointPurchasesFilteredAsync([FromQuery]PointDateFilterRequest dateFilter, [FromQuery]PointValueFilterRequest valueFilter, [FromQuery]PointSortOrderRequest sortOrder, [FromQuery]PagingRequest pagingRequest)
+        [HttpGet("history")]
+        public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery]PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
         {
             try
             {
                 var user = await _userService.GetCurrentUserAsync();
-                if(user != null)
+                if (user != null)
                 {
-                    var result = await _pointService.GetPointPurchasesFilteredAsync(dateFilter, valueFilter, sortOrder, pagingRequest, user.Id);
+                    var result = await _pointService.GetPaginatedPointHistoryListAsync(user.Id, type, dateFilter, valueFilter, sortOrder, pagingRequest);
                     if (result != null)
                     {
                         return Ok(result);
                     }
                     return NotFound();
-                    
                 }
                 else
                 {
-                    return BadRequest(new BadRequestException("Cannot retrieve user's point purchase history without user information!"));
+                    return BadRequest("Unspecified user ID! Cannot retrieve user's point history!");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retrieving point purchase history");
-                return StatusCode(500, "An unexpected error occurred");
-            }
-            throw new BadRequestException();
-        }
-        #endregion
-
-        #region Redeem
-        [HttpGet("redeem/history/{id}")]
-        public async Task<ActionResult<PointRedeemDetailResponse>> GetPointRedeemDetailAsync(long id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest("Invalid ID");
-            }
-            try
-            {
-                var pointDetail = await _pointService.GetPointRedeemDetailAsync(id);
-                if (pointDetail == null)
-                {
-                    throw new NotFoundException();
-                }
-                return Ok(pointDetail);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving point purchase detail");
-                return StatusCode(500, "An unexpected error occurred");
+                _logger.LogError(ex, "An error occurred while trying to retrieve point history");
+                return StatusCode(500, "An error occurred while trying to retrieve point history");
             }
         }
-        #endregion
-
     }
 }

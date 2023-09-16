@@ -9,4 +9,5 @@ public enum PointHistoryType
     RedeemPoint,
     PackPurchase,
     ReceiveGift,
+    None,
 }

@@ -2,19 +2,14 @@
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Point;
+using Application.DTOs.Response.Point.History;
+using Domain.Enums;
 
 namespace Application.Interfaces.Services
 {
     public interface IPointService
     {
-        #region Purchase
-        Task<PointPurchaseDetailResponse?> GetPointPurchaseDetailAsync(long id);
-
-        Task<PointRedeemDetailResponse?> GetPointRedeemDetailAsync(long id);
-
-        Task<PagingResponse<PointPurchaseResponse>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId);
-        #endregion
-        #region Redeem
-        #endregion
+        Task<BasePointHistoryResponse?> GetPointHistoryDetailAsync(long id);
+        Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest);
     }
 }
