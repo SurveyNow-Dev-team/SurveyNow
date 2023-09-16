@@ -32,7 +32,7 @@ namespace SurveyNow.Controllers
 
         // POST api/<AddressesController>
         [HttpPost]
-        public async void Post(AddressRequest request)
+        public async Task Post(AddressRequest request)
         {
             await _addressService.CreateAddress(request);
         }
@@ -50,9 +50,9 @@ namespace SurveyNow.Controllers
         }
 
         // DELETE api/<AddressesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
     }
 }

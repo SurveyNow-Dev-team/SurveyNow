@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<IHobbyService, HobbyService>();
         services.AddScoped<IAddressService, AddressService>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IPhoneNumberService, PhoneNumberService>();
         services.AddScoped<IPointService, PointService>();
 
         //Unit of work

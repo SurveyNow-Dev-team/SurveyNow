@@ -71,4 +71,19 @@ public class JwtService : IJwtService
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
+
+    public ClaimsPrincipal ConvertToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.Key)),
+            ValidateLifetime = true,
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ClockSkew = TimeSpan.Zero
+        }, out SecurityToken validatedToken);
+        return claims;
+    }
 }
