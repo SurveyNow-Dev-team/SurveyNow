@@ -2,6 +2,7 @@
 
 public enum TransactionType
 {
-    VnPay,
-    Momo
+    PurchasePoint,
+    RedeemGift,
+    RefundMoney
 }
