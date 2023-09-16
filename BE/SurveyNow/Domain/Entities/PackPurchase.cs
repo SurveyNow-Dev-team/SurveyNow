@@ -18,27 +18,14 @@ public class PackPurchase
 
     public PackType PackType { get; set; }
 
-    public bool IsUsePoint { get; set; }
-
-    public int? Point { get; set; }
-
-    public int? Quantity { get; set; }
-
-    [Column(TypeName = "nvarchar(20)")] public string? Type { get; set; }
-
-    [Column(TypeName = "nvarchar(80)")] public string? Account { get; set; }
-
-    [Precision(9, 2)] public decimal? Amount { get; set; }
-
-    [Column(TypeName = "nvarchar(80)")] public string? DestinationAccount { get; set; }
-
-    [Column(TypeName = "nvarchar(80)")] public string? PurchaseCode { get; set; }
-
-    [Column(TypeName = "varchar(20)")] public string? Currency { get; set; }
+    [Precision(6,1)]
+    [Range(0.1, 100000)]
+    public decimal Point { get; set; }
 
     public TransactionStatus Status { get; set; }
 
     public long UserId { get; set; }
 
+    [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 }

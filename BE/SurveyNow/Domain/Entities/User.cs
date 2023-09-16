@@ -65,10 +65,11 @@ public class User
 
     // public long? AddressId { get; set; }
     //Shadow foreign key
-    public virtual Address?
-        Address { get; set; } // need to be optional to prevent cascade delete in many-to-many relationship
+    public virtual Address? Address { get; set; }
 
     public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
+
+    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
     public virtual ICollection<Survey> Surveys { get; set; } = new List<Survey>();
 
@@ -76,7 +77,7 @@ public class User
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual ICollection<PointPurchase> PointPurchases { get; set; } = new List<PointPurchase>();
+    public virtual ICollection<Transaction> PointPurchases { get; set; } = new List<Transaction>();
 
     public virtual ICollection<PackPurchase> PackPurchases { get; set; } = new List<PackPurchase>();
 

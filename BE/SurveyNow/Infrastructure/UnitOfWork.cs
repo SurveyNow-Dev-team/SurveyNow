@@ -10,57 +10,77 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;
-    private ILogger<UnitOfWork> _logger;
+    private readonly ILogger<UnitOfWork> _logger;
 
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }
+    public IAnswerOptionRepository AnswerOptionRepository { get; }
     public ICityRepository CityRepository { get; }
+    public IColumnOptionRepository ColumnOptionRepository { get; }
     public IDistrictRepository DistrictRepository { get; }
     public IFieldRepository FieldRepository { get; }
     public IHobbyRepository HobbyRepository { get; }
     public IPackPurchaseRepository PackPurchaseRepository { get; }
     public IPaymentRepository PaymentRepository { get; }
     public IPointHistoryRepository PointHistoryRepository { get; }
-    public IPointPurchaseRepository PointPurchase { get; }
+    public ITransactionRepository TransactionRepository { get; }
     public IPositionRepository PositionRepository { get; }
     public IProvinceRepository ProvinceRepository { get; }
     public IQuestionRepository QuestionRepository { get; }
-    public IQuestionDetailRepository QuestionDetailRepository { get; }
+    public IRowOptionRepository RowOptionRepository { get; }
+    public ISectionRepository SectionRepository { get; }
     public ISurveyRepository SurveyRepository { get; }
     public IUserRepository UserRepository { get; }
     public IUserReportRepository UserReportRepository { get; }
     public IUserSurveyRepository UserSurveyRepository { get; }
+    public IAreaCriterionRepository AreaCriterionRepository { get; }
+    public ICriterionRepository CriterionRepository { get; }
+    public IFieldCriterionRepository FieldCriterionRepository { get; }
+    public IGenderCriterionRepository GenderCriterionRepository { get; }
+    public IRelationshipCriterionRepository RelationshipCriterionRepository { get; set; }
 
     public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, IAddressRepository addressRepository,
-        IAnswerRepository answerRepository, ICityRepository cityRepository, IDistrictRepository districtRepository,
-        IFieldRepository fieldRepository, IHobbyRepository hobbyRepository,
+        IAnswerRepository answerRepository, IAnswerOptionRepository answerOptionRepository,
+        ICityRepository cityRepository, IColumnOptionRepository columnOptionRepository,
+        IDistrictRepository districtRepository, IFieldRepository fieldRepository, IHobbyRepository hobbyRepository,
         IPackPurchaseRepository packPurchaseRepository, IPaymentRepository paymentRepository,
-        IPointHistoryRepository pointHistoryRepository, IPointPurchaseRepository pointPurchase,
+        IPointHistoryRepository pointHistoryRepository, ITransactionRepository transactionRepository,
         IPositionRepository positionRepository, IProvinceRepository provinceRepository,
-        IQuestionRepository questionRepository, IQuestionDetailRepository questionDetailRepository,
-        ISurveyRepository surveyRepository, IUserRepository userRepository, IUserReportRepository userReportRepository,
-        IUserSurveyRepository userSurveyRepository)
+        IQuestionRepository questionRepository, IRowOptionRepository rowOptionRepository,
+        ISectionRepository sectionRepository, ISurveyRepository surveyRepository, IUserRepository userRepository,
+        IUserReportRepository userReportRepository, IUserSurveyRepository userSurveyRepository,
+        IAreaCriterionRepository areaCriterionRepository, ICriterionRepository criterionRepository,
+        IFieldCriterionRepository fieldCriterionRepository, IGenderCriterionRepository genderCriterionRepository,
+        IRelationshipCriterionRepository relationshipCriterionRepository)
     {
         _context = context;
         _logger = logger;
         AddressRepository = addressRepository;
         AnswerRepository = answerRepository;
+        AnswerOptionRepository = answerOptionRepository;
         CityRepository = cityRepository;
+        ColumnOptionRepository = columnOptionRepository;
         DistrictRepository = districtRepository;
         FieldRepository = fieldRepository;
         HobbyRepository = hobbyRepository;
         PackPurchaseRepository = packPurchaseRepository;
         PaymentRepository = paymentRepository;
         PointHistoryRepository = pointHistoryRepository;
-        PointPurchase = pointPurchase;
+        TransactionRepository = transactionRepository;
         PositionRepository = positionRepository;
         ProvinceRepository = provinceRepository;
         QuestionRepository = questionRepository;
-        QuestionDetailRepository = questionDetailRepository;
+        RowOptionRepository = rowOptionRepository;
+        SectionRepository = sectionRepository;
         SurveyRepository = surveyRepository;
         UserRepository = userRepository;
         UserReportRepository = userReportRepository;
         UserSurveyRepository = userSurveyRepository;
+        AreaCriterionRepository = areaCriterionRepository;
+        CriterionRepository = criterionRepository;
+        FieldCriterionRepository = fieldCriterionRepository;
+        GenderCriterionRepository = genderCriterionRepository;
+        RelationshipCriterionRepository = relationshipCriterionRepository;
     }
 
     public async Task<int> SaveChangeAsync()

@@ -2,12 +2,13 @@
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
 public class UserRepository : BaseRepository<User>, IUserRepository
 {
-    public UserRepository(AppDbContext context) : base(context)
+    public UserRepository(AppDbContext context, ILogger<BaseRepository<User>> logger) : base(context, logger)
     {
     }
 
@@ -25,6 +26,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             if (BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash))
                 return user;
         }
+
         return null;
     }
 

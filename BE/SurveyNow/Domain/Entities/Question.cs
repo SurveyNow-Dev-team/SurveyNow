@@ -5,25 +5,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities;
 
-[PrimaryKey(nameof(SurveyId), nameof(Order))]
+[Index(nameof(SectionId), nameof(Order), IsUnique = true)]
 public class Question
 {
-    public long SurveyId { get; set; }
-    
-    [Range(1, 1000)]
-    public int Order { get; set; } 
-    
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
+
+    public long SectionId { get; set; }
+
+    [Range(1, 100)] public int Order { get; set; }
+
     public QuestionType Type { get; set; }
 
-    public bool IsRequire { get; set; } 
+    public bool IsRequire { get; set; }
 
-    [Column (TypeName = "nvarchar(500)")]
-    public string Title { get; set; } = null!;
+    public int TotalAnswer { get; set; } = 0;
 
-    public string? ResourceUrl { get; set; }
-    
-    [ForeignKey("SurveyId")] 
-    public virtual Survey Survey { get; set; } = null!;
+    public MultipleOptionType? MultipleOptionType { get; set; }
 
-    public virtual ICollection<QuestionDetail> QuestionDetails { get; set; } = new List<QuestionDetail>();
+    [Range(1, 20)] public int? LimitNumber { get; set; }
+
+    [Column(TypeName = "nvarchar(500)")] public string Title { get; set; } = null!;
+
+    [Column(TypeName = "nvarchar(100)")] public string? ResourceUrl { get; set; }
+
+    [ForeignKey(nameof(SectionId))] public virtual Section Section { get; set; } = null!;
+
+    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+
+    public virtual ICollection<ColumnOption> ColumnOptions { get; set; } = new List<ColumnOption>();
+
+    public virtual ICollection<RowOption> RowOptions { get; set; } = new List<RowOption>();
 }

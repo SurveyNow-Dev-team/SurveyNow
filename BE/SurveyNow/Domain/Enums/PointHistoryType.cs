@@ -2,10 +2,12 @@
 
 public enum PointHistoryType
 {
-    Purchase,
+    PurchasePoint,
     DoSurvey,
-    Gift,
-    Refund,
-    Redeem,
-    PackPurchase
+    GiftPoint,
+    RefundPoint,
+    RedeemPoint,
+    PackPurchase,
+    ReceiveGift,
+    None,
 }

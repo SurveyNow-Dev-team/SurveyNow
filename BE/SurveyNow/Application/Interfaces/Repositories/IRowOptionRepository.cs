@@ -2,7 +2,7 @@
 
 namespace Application.Interfaces.Repositories;
 
-public interface IQuestionDetailRepository: IBaseRepository<QuestionDetail>
+public interface IRowOptionRepository: IBaseRepository<RowOption>
 {
     
 }

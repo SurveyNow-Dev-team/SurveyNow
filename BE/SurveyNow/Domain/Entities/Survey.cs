@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,10 @@ public class Survey
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
-    [Column(TypeName = "nvarchar(100)")]
-    public string Name { get; set; } = null!;
+    [Column(TypeName = "nvarchar(300)")]
+    public string Title { get; set; } = null!;
     
-    [Column(TypeName = "nvarchar(1000)")]
+    [Column(TypeName = "nvarchar(3000)")]
     public string? Description { get; set; }
 
     [Range(0, 1000)] public int TotalQuestion { get; set; } = 0;
@@ -29,6 +30,9 @@ public class Survey
     
     public PackType? PackType { get; set; }
     
+    //need to check here
+    [Precision(6, 1)] [Range(0, 100000)] public decimal? Point { get; set; } 
+
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
     [Precision(2)]
@@ -39,9 +43,6 @@ public class Survey
     [Precision(2)]
     public DateTime? ExpiredDate { get; set; }
 
-    //need to check here
-    [Precision(6, 1)] [Range(0, 100000)] public decimal? Point { get; set; } 
-    
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
     [Precision(2)]
@@ -58,7 +59,9 @@ public class Survey
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public virtual User CreatedBy { get; set; } = null!;
 
-    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
-
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+    
     public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
+
+    public virtual ICollection<Criterion> Criteria { get; set; } = new List<Criterion>();
 }

@@ -18,9 +18,10 @@ public class PointHistory
 
     [Column(TypeName = "nvarchar(500)")] public string? Description { get; set; }
 
-    public PointHistoryType Type { get; set; }
+    public PointHistoryType PointHistoryType { get; set; }
 
-    public int Point { get; set; }
+    [Precision(6,1)]
+    public decimal Point { get; set; }
 
     public TransactionStatus Status { get; set; }
 
@@ -30,7 +31,7 @@ public class PointHistory
 
     public long? PointPurchaseId { get; set; }
 
-    [ForeignKey(nameof(PointPurchaseId))] public virtual PointPurchase? PointPurchase { get; set; }
+    [ForeignKey(nameof(PointPurchaseId))] public virtual Transaction? PointPurchase { get; set; }
 
     public long? PackPurchaseId { get; set; }
 

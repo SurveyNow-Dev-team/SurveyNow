@@ -56,20 +56,79 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Answer", b =>
                 {
-                    b.Property<long>("QuestionDetailId")
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("RateNumber")
+                        .HasColumnType("int");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("QuestionDetailId", "UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("QuestionId", "UserId")
+                        .IsUnique();
+
                     b.ToTable("Answers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnswerOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AnswerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("ColumnOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerId");
+
+                    b.ToTable("AnswerOptions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AreaCriterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CriterionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProvinceId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriterionId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.ToTable("AreaCriterion");
                 });
 
             modelBuilder.Entity("Domain.Entities.City", b =>
@@ -92,6 +151,58 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("Cities");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ColumnOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId", "Order")
+                        .IsUnique();
+
+                    b.ToTable("ColumnOptions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Criterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("ExpertParticipant")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MinAge")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SurveyId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("Criteria");
                 });
 
             modelBuilder.Entity("Domain.Entities.District", b =>
@@ -131,6 +242,50 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Fields");
+                });
+
+            modelBuilder.Entity("Domain.Entities.FieldCriterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CriterionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FieldId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriterionId");
+
+                    b.HasIndex("FieldId");
+
+                    b.ToTable("FieldCriterion");
+                });
+
+            modelBuilder.Entity("Domain.Entities.GenderCriterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CriterionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriterionId");
+
+                    b.ToTable("GenderCriterion");
                 });
 
             modelBuilder.Entity("Domain.Entities.Hobby", b =>
@@ -198,43 +353,19 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Account")
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<decimal?>("Amount")
-                        .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)");
-
-                    b.Property<string>("Currency")
-                        .HasColumnType("varchar(20)");
-
                     b.Property<DateTime>("Date")
                         .HasPrecision(2)
                         .HasColumnType("datetime2(2)");
 
-                    b.Property<string>("DestinationAccount")
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<bool>("IsUsePoint")
-                        .HasColumnType("bit");
-
                     b.Property<int>("PackType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Point")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PurchaseCode")
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -296,7 +427,11 @@ namespace Infrastructure.Migrations
                     b.Property<long?>("PackPurchaseId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Point")
+                    b.Property<decimal>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
+
+                    b.Property<int>("PointHistoryType")
                         .HasColumnType("int");
 
                     b.Property<long?>("PointPurchaseId")
@@ -307,9 +442,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<long?>("SurveyId")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -325,58 +457,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PointHistories");
-                });
-
-            modelBuilder.Entity("Domain.Entities.PointPurchase", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Account")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("Date")
-                        .HasPrecision(2)
-                        .HasColumnType("datetime2(2)");
-
-                    b.Property<string>("DestinationAccount")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<int>("Point")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PurchaseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PointPurchases");
                 });
 
             modelBuilder.Entity("Domain.Entities.Position", b =>
@@ -416,31 +496,70 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.Property<long>("SurveyId")
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<bool>("IsRequire")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("LimitNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MultipleOptionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<string>("ResourceUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<long>("SectionId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("TotalAnswer")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("SurveyId", "Order");
+                    b.HasKey("Id");
+
+                    b.HasIndex("SectionId", "Order")
+                        .IsUnique();
 
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
+            modelBuilder.Entity("Domain.Entities.RelationshipCriterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CriterionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("RelationshipStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriterionId");
+
+                    b.ToTable("RelationshipCriterion");
+                });
+
+            modelBuilder.Entity("Domain.Entities.RowOption", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -451,27 +570,55 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("DetailOrder")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsCustom")
                         .HasColumnType("bit");
 
-                    b.Property<int>("QuestionOrder")
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TotalChoose")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId", "Order")
+                        .IsUnique();
+
+                    b.ToTable("RowOptions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Section", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<long>("SurveyId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("TotalAnswer")
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("TotalQuestion")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SurveyId", "QuestionOrder", "DetailOrder")
+                    b.HasIndex("SurveyId", "Order")
                         .IsUnique();
 
-                    b.ToTable("QuestionDetails");
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("Domain.Entities.Survey", b =>
@@ -490,7 +637,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(3000)");
 
                     b.Property<DateTime?>("ExpiredDate")
                         .HasPrecision(2)
@@ -502,10 +649,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("ModifiedDate")
                         .HasPrecision(2)
                         .HasColumnType("datetime2(2)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("PackType")
                         .HasColumnType("int");
@@ -521,6 +664,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<int>("TotalAnswer")
                         .HasColumnType("int");
 
@@ -535,6 +682,61 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CreatedUserId");
 
                     b.ToTable("Surveys");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Transaction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("decimal(9,2)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("Date")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
+
+                    b.Property<string>("DestinationAccount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
+
+                    b.Property<string>("PurchaseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("SourceAccount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -675,33 +877,35 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.UserSurvey", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasPrecision(2)
+                        .HasColumnType("datetime2(2)");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Point")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("decimal(6,1)");
+
                     b.Property<long>("SurveyId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasPrecision(2)
-                        .HasColumnType("datetime2(2)");
-
-                    b.Property<bool>("IsModified")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsValid")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasPrecision(2)
-                        .HasColumnType("datetime2(2)");
-
-                    b.Property<decimal>("Point")
-                        .HasPrecision(6, 1)
-                        .HasColumnType("decimal(6,1)");
-
-                    b.HasKey("SurveyId", "UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("SurveyId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("UserSurveys");
                 });
@@ -729,21 +933,47 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Answer", b =>
                 {
-                    b.HasOne("Domain.Entities.QuestionDetail", "QuestionDetail")
+                    b.HasOne("Domain.Entities.Question", "Question")
                         .WithMany("Answers")
-                        .HasForeignKey("QuestionDetailId")
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Answers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("QuestionDetail");
+                    b.Navigation("Question");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnswerOption", b =>
+                {
+                    b.HasOne("Domain.Entities.Answer", "Answer")
+                        .WithMany("AnswerOptions")
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Answer");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AreaCriterion", b =>
+                {
+                    b.HasOne("Domain.Entities.Criterion", null)
+                        .WithMany("AreaCriteria")
+                        .HasForeignKey("CriterionId");
+
+                    b.HasOne("Domain.Entities.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Province");
                 });
 
             modelBuilder.Entity("Domain.Entities.City", b =>
@@ -757,6 +987,28 @@ namespace Infrastructure.Migrations
                     b.Navigation("Province");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ColumnOption", b =>
+                {
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany("ColumnOptions")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Criterion", b =>
+                {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany("Criteria")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Survey");
+                });
+
             modelBuilder.Entity("Domain.Entities.District", b =>
                 {
                     b.HasOne("Domain.Entities.City", "City")
@@ -766,6 +1018,28 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Domain.Entities.FieldCriterion", b =>
+                {
+                    b.HasOne("Domain.Entities.Criterion", null)
+                        .WithMany("FieldCriteria")
+                        .HasForeignKey("CriterionId");
+
+                    b.HasOne("Domain.Entities.Field", "Field")
+                        .WithMany()
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Field");
+                });
+
+            modelBuilder.Entity("Domain.Entities.GenderCriterion", b =>
+                {
+                    b.HasOne("Domain.Entities.Criterion", null)
+                        .WithMany("GenderCriteria")
+                        .HasForeignKey("CriterionId");
                 });
 
             modelBuilder.Entity("Domain.Entities.Hobby", b =>
@@ -822,7 +1096,7 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("PackPurchaseId");
 
-                    b.HasOne("Domain.Entities.PointPurchase", "PointPurchase")
+                    b.HasOne("Domain.Entities.Transaction", "PointPurchase")
                         .WithMany()
                         .HasForeignKey("PointPurchaseId");
 
@@ -845,17 +1119,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PointPurchase", b =>
-                {
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("PointPurchases")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Entities.Position", b =>
                 {
                     b.HasOne("Domain.Entities.Field", "Field")
@@ -869,24 +1132,42 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.HasOne("Domain.Entities.Survey", "Survey")
+                    b.HasOne("Domain.Entities.Section", "Section")
                         .WithMany("Questions")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
+                });
+
+            modelBuilder.Entity("Domain.Entities.RelationshipCriterion", b =>
+                {
+                    b.HasOne("Domain.Entities.Criterion", null)
+                        .WithMany("RelationshipCriteria")
+                        .HasForeignKey("CriterionId");
+                });
+
+            modelBuilder.Entity("Domain.Entities.RowOption", b =>
+                {
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany("RowOptions")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Section", b =>
+                {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany("Sections")
                         .HasForeignKey("SurveyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Survey");
-                });
-
-            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
-                {
-                    b.HasOne("Domain.Entities.Question", "Question")
-                        .WithMany("QuestionDetails")
-                        .HasForeignKey("SurveyId", "QuestionOrder")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("Domain.Entities.Survey", b =>
@@ -898,6 +1179,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Transaction", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("PointPurchases")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -957,9 +1249,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Answer", b =>
+                {
+                    b.Navigation("AnswerOptions");
+                });
+
             modelBuilder.Entity("Domain.Entities.City", b =>
                 {
                     b.Navigation("Districts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Criterion", b =>
+                {
+                    b.Navigation("AreaCriteria");
+
+                    b.Navigation("FieldCriteria");
+
+                    b.Navigation("GenderCriteria");
+
+                    b.Navigation("RelationshipCriteria");
                 });
 
             modelBuilder.Entity("Domain.Entities.Field", b =>
@@ -974,23 +1282,31 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.Navigation("QuestionDetails");
+                    b.Navigation("Answers");
+
+                    b.Navigation("ColumnOptions");
+
+                    b.Navigation("RowOptions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.QuestionDetail", b =>
+            modelBuilder.Entity("Domain.Entities.Section", b =>
                 {
-                    b.Navigation("Answers");
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
-                    b.Navigation("Questions");
+                    b.Navigation("Criteria");
+
+                    b.Navigation("Sections");
 
                     b.Navigation("UserSurveys");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
+                    b.Navigation("Answers");
+
                     b.Navigation("Hobbies");
 
                     b.Navigation("PackPurchases");

@@ -1,12 +1,12 @@
 ﻿using Application.DTOs.Request.Point;
 using Application.DTOs.Request;
 using Domain.Entities;
+using Application.DTOs.Response;
+using Domain.Enums;
 
 namespace Application.Interfaces.Repositories;
 
 public interface IPointHistoryRepository: IBaseRepository<PointHistory>
 {
-    Task<PointHistory?> GetPointPurchaseDetailAsync(long id);
-    Task<PointHistory?> GetPointRedeemDetailAsync(long id);
-    Task<List<PointHistory>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId);
+    Task<PagingResponse<PointHistory>?> GetPointHistoryPaginatedAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest);
 }

@@ -2,7 +2,7 @@
 
 namespace Application.Interfaces.Repositories;
 
-public interface IPointPurchaseRepository: IBaseRepository<PointPurchase>
+public interface ISectionRepository:IBaseRepository<Section>
 {
     
 }

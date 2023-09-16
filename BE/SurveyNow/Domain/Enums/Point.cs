@@ -2,8 +2,8 @@
 {
     public enum PaymentMethod
     {
-        None = 0,
         Momo = 1,
+        VnPay = 2,
     }
 
     public enum PointSortingOrder
