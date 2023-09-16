@@ -8,7 +8,7 @@ namespace Infrastructure.Repositories;
 
 public class UserRepository : BaseRepository<User>, IUserRepository
 {
-    public UserRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public UserRepository(AppDbContext context, ILogger<BaseRepository<User>> logger) : base(context, logger)
     {
     }
 
@@ -26,6 +26,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             if (BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash))
                 return user;
         }
+
         return null;
     }
 

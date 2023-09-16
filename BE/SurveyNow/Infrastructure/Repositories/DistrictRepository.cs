@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class DistrictRepository: BaseRepository<District>, IDistrictRepository
 {
-    public DistrictRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public DistrictRepository(AppDbContext context, ILogger<BaseRepository<District>> logger) : base(context, logger)
     {
     }
 }

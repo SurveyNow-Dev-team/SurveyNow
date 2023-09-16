@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class FieldCriterionRepository:BaseRepository<FieldCriterion>, IFieldCriterionRepository
 {
-    public FieldCriterionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public FieldCriterionRepository(AppDbContext context, ILogger<BaseRepository<FieldCriterion>> logger) : base(context, logger)
     {
     }
 }

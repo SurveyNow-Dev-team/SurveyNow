@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class QuestionRepository: BaseRepository<Question>, IQuestionRepository
 {
-    public QuestionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public QuestionRepository(AppDbContext context, ILogger<BaseRepository<Question>> logger) : base(context, logger)
     {
     }
 }

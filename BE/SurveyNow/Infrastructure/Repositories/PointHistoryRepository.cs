@@ -12,18 +12,19 @@ namespace Infrastructure.Repositories;
 
 public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistoryRepository
 {
-
-    public PointHistoryRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public PointHistoryRepository(AppDbContext context, ILogger<BaseRepository<PointHistory>> logger) : base(context,
+        logger)
     {
     }
 
     public async Task<PointHistory?> GetPointPurchaseDetailAsync(long id)
     {
         return await _dbSet.Include(p => p.PointPurchase)
-                        .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task<List<PointHistory>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId)
+    public async Task<List<PointHistory>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter,
+        PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId)
     {
         // Get and combine filter expressions
         Expression<Func<PointHistory, bool>> userIdExp = (p => p.UserId == userId);
@@ -66,6 +67,7 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
 
             return result;
         }
+
         return null;
     }
 
@@ -76,6 +78,7 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
             dateFilter.ChangeValues();
             return (p => p.Date >= dateFilter.GetFromDate() && p.Date <= dateFilter.GetToDate());
         }
+
         return null;
     }
 
@@ -86,6 +89,7 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
             valueFilter.ChangeValues();
             return (p => p.Point >= valueFilter.MinPoint && p.Point <= valueFilter.MaxPoint);
         }
+
         return null;
     }
 
@@ -94,7 +98,8 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
         return (p => p.PointHistoryType == type);
     }
 
-    private Func<IQueryable<PointHistory>, IOrderedQueryable<PointHistory>> GetOrderByFunction(PointSortOrderRequest sortOrder)
+    private Func<IQueryable<PointHistory>, IOrderedQueryable<PointHistory>> GetOrderByFunction(
+        PointSortOrderRequest sortOrder)
     {
         switch (sortOrder.SortingOrder)
         {
@@ -114,8 +119,6 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
     public async Task<PointHistory?> GetPointRedeemDetailAsync(long id)
     {
         return await _dbSet.Include(p => p.PointPurchase)
-                        .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
-
-    
 }

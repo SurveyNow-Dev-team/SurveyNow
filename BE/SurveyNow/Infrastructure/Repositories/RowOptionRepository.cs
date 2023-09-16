@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class RowOptionRepository:BaseRepository<RowOption>, IRowOptionRepository
 {
-    public RowOptionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public RowOptionRepository(AppDbContext context, ILogger<BaseRepository<RowOption>> logger) : base(context, logger)
     {
     }
 }

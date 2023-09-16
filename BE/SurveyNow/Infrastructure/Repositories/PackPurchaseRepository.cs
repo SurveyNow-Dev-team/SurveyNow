@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class PackPurchaseRepository: BaseRepository<PackPurchase>, IPackPurchaseRepository
 {
-    public PackPurchaseRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public PackPurchaseRepository(AppDbContext context, ILogger<BaseRepository<PackPurchase>> logger) : base(context, logger)
     {
     }
 }

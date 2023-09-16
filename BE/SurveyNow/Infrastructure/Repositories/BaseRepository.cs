@@ -11,9 +11,9 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     protected readonly AppDbContext _context;
     protected readonly DbSet<T> _dbSet;
-    protected readonly ILogger _logger;
+    protected readonly ILogger<BaseRepository<T>> _logger;
 
-    public BaseRepository(AppDbContext context, ILogger logger)
+    public BaseRepository(AppDbContext context, ILogger<BaseRepository<T>> logger)
     {
         _context = context;
         _dbSet = _context.Set<T>();

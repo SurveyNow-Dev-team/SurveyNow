@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class RelationshipCriterionRepository:BaseRepository<RelationshipCriterion>, IRelationshipCriterionRepository
 {
-    public RelationshipCriterionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public RelationshipCriterionRepository(AppDbContext context, ILogger<BaseRepository<RelationshipCriterion>> logger) : base(context, logger)
     {
     }
 }

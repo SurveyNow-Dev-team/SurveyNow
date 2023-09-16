@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class PaymentRepository: BaseRepository<Payment>, IPaymentRepository
 {
-    public PaymentRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public PaymentRepository(AppDbContext context, ILogger<BaseRepository<Payment>> logger) : base(context, logger)
     {
     }
 }

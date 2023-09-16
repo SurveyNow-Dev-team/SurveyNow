@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class SurveyRepository: BaseRepository<Survey>, ISurveyRepository
 {
-    public SurveyRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public SurveyRepository(AppDbContext context, ILogger<BaseRepository<Survey>> logger) : base(context, logger)
     {
     }
 }

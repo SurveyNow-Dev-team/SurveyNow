@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class CityRepository : BaseRepository<City>, ICityRepository
 {
-    public CityRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public CityRepository(AppDbContext context, ILogger<BaseRepository<City>> logger) : base(context, logger)
     {
     }
 }

@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class OccupationRepository: BaseRepository<Occupation>, IOccupationRepository
 {
-    public OccupationRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public OccupationRepository(AppDbContext context, ILogger<BaseRepository<Occupation>> logger) : base(context, logger)
     {
     }
 }

@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class TransactionRepository: BaseRepository<Domain.Entities.Transaction>, ITransactionRepository
 {
-    public TransactionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public TransactionRepository(AppDbContext context, ILogger<BaseRepository<Transaction>> logger) : base(context, logger)
     {
     }
 }

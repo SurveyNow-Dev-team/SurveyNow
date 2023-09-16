@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class UserReportRepository: BaseRepository<UserReport>, IUserReportRepository
 {
-    public UserReportRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public UserReportRepository(AppDbContext context, ILogger<BaseRepository<UserReport>> logger) : base(context, logger)
     {
     }
 }

@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class AnswerOptionRepository : BaseRepository<AnswerOption>, IAnswerOptionRepository
 {
-    public AnswerOptionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public AnswerOptionRepository(AppDbContext context, ILogger<BaseRepository<AnswerOption>> logger) : base(context, logger)
     {
     }
 }

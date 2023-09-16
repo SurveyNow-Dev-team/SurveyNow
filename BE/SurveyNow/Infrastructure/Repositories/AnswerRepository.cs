@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class AnswerRepository: BaseRepository<Answer>, IAnswerRepository
 {
-    public AnswerRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public AnswerRepository(AppDbContext context, ILogger<BaseRepository<Answer>> logger) : base(context, logger)
     {
     }
 }

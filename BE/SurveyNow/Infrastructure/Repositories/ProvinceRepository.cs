@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class ProvinceRepository: BaseRepository<Province>, IProvinceRepository
 {
-    public ProvinceRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public ProvinceRepository(AppDbContext context, ILogger<BaseRepository<Province>> logger) : base(context, logger)
     {
     }
 }

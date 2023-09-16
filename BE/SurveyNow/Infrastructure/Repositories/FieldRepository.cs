@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class FieldRepository: BaseRepository<Field>, IFieldRepository
 {
-    public FieldRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public FieldRepository(AppDbContext context, ILogger<BaseRepository<Field>> logger) : base(context, logger)
     {
     }
 }

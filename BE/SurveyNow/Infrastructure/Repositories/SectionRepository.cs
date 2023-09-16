@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class SectionRepository : BaseRepository<Section>, ISectionRepository
 {
-    public SectionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public SectionRepository(AppDbContext context, ILogger<BaseRepository<Section>> logger) : base(context, logger)
     {
     }
 }

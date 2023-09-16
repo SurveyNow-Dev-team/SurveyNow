@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class GenderCriterionRepository:BaseRepository<GenderCriterion>, IGenderCriterionRepository
 {
-    public GenderCriterionRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public GenderCriterionRepository(AppDbContext context, ILogger<BaseRepository<GenderCriterion>> logger) : base(context, logger)
     {
     }
 }

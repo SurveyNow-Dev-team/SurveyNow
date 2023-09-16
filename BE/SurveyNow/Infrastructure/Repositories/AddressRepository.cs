@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class AddressRepository: BaseRepository<Address>, IAddressRepository
 {
-    public AddressRepository(AppDbContext context, ILogger logger) : base(context, logger)
+    public AddressRepository(AppDbContext context, ILogger<BaseRepository<Address>> logger) : base(context, logger)
     {
     }
 }
