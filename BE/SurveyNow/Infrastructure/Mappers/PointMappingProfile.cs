@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Response.Pack;
+﻿using Application.DTOs.Response;
+using Application.DTOs.Response.Pack;
 using Application.DTOs.Response.Point;
 using Application.DTOs.Response.Point.History;
 using Application.DTOs.Response.Survey;
@@ -29,6 +30,8 @@ namespace Infrastructure.Mappers
                 src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
                 .ForMember(dest => dest.Status,
                 src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PagingResponse<PointHistory>, PagingResponse<ShortPointHistoryResponse>>();
 
             CreateMap<PointHistory, Application.DTOs.Response.Point.History.PointPurchaseDetailResponse>()
                 .ForMember(dest => dest.Date,
@@ -84,27 +87,6 @@ namespace Infrastructure.Mappers
                 .ForMember(dest => dest.PackType,
                 src => src.MapFrom(src => Enum.GetName(src.PackType)));
 
-            #endregion
-
-            #region Purchase
-            CreateMap<PointHistory, PointPurchaseResponse>()
-                .ForMember(dest => dest.Date,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
-
-            CreateMap<PointHistory, Application.DTOs.Response.Point.PointPurchaseDetailResponse>()
-                .ForMember(dest => dest.Date,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
-            #endregion
-
-            #region Redeem
-            CreateMap<PointHistory, Application.DTOs.Response.Point.PointRedeemDetailResponse>()
-                .ForMember(dest => dest.Date,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
-
-            #endregion
-
-            #region PointPurchase/Transaction
-            CreateMap<Transaction, ShortPointPurchaseResponse>();
             #endregion
         }
     }

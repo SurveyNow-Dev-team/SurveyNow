@@ -2,9 +2,14 @@
 using Application.DTOs.Request;
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
-using Application.DTOs.Response.Point;
+using Application.DTOs.Response.Pack;
+using Application.DTOs.Response.Point.History;
+using Application.DTOs.Response.Survey;
+using Application.DTOs.Response.Transaction;
 using Application.Interfaces.Services;
 using AutoMapper;
+using Domain.Entities;
+using Domain.Enums;
 
 namespace Infrastructure.Services
 {
@@ -19,63 +24,56 @@ namespace Infrastructure.Services
             _mapper = mapper;
         }
 
-
-
-        #region Purchase
-        public async Task<PointPurchaseDetailResponse?> GetPointPurchaseDetailAsync(long id)
+        public async Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest)
         {
-            var pointHistory = await _unitOfWork.PointHistoryRepository.GetPointPurchaseDetailAsync(id);
-            if(pointHistory != null)
-            {
-                var result = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
-
-                var pointPurchase = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
-                var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
-                result.PointPurchase = shortPointPurchase;
-
-                return result;
-            }
-            return null;
-        }
-
-        public async Task<PagingResponse<PointPurchaseResponse>?> GetPointPurchasesFilteredAsync(PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest, long userId)
-        {
-            var itemsList = await _unitOfWork.PointHistoryRepository.GetPointPurchasesFilteredAsync(dateFilter, valueFilter, sortOrder, pagingRequest, userId);
-            if(itemsList != null)
-            {
-                var listResult = _mapper.Map<List<PointPurchaseResponse>>(itemsList);
-                var pagingResult = new PagingResponse<PointPurchaseResponse>()
-                {
-                    CurrentPage = (int)pagingRequest.Page,
-                    RecordsPerPage = (int)pagingRequest.RecordsPerPage,
-                    Results = listResult,
-                };
-                return pagingResult;
-            }
-            else
+            var pageHistories = await _unitOfWork.PointHistoryRepository.GetPointHistoryPaginatedAsync(userId, type, dateFilter, valueFilter, sortOrder, pagingRequest);
+            if(pageHistories == null)
             {
                 return null;
             }
-            
+            PagingResponse<ShortPointHistoryResponse> result = _mapper.Map<PagingResponse<ShortPointHistoryResponse>>(pageHistories);
+            return result;
         }
-        #endregion
 
-        #region Redeem
-        public async Task<PointRedeemDetailResponse?> GetPointRedeemDetailAsync(long id)
+        public async Task<BasePointHistoryResponse?> GetPointHistoryDetailAsync(long id)
         {
-            var pointHistory = await _unitOfWork.PointHistoryRepository.GetPointRedeemDetailAsync(id);
-            if(pointHistory != null)
+            PointHistory? pointHistory = await _unitOfWork.PointHistoryRepository.GetByIdAsync(id);
+            if(pointHistory == null)
             {
-                var result = _mapper.Map<PointRedeemDetailResponse>(pointHistory);
-
-                var pointPurchase = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
-                var shortPointPurchase = _mapper.Map<ShortPointPurchaseResponse>(pointPurchase);
-                result.PointPurchase = shortPointPurchase;
-
-                return result;
+                return null;
             }
-            return null;
+            switch (pointHistory.PointHistoryType)
+            {
+                case PointHistoryType.PurchasePoint:
+                    Transaction? transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
+                    TransactionResponse transactionResponse = _mapper.Map<TransactionResponse>(transaction);
+                    PointPurchaseDetailResponse purchaseResult = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
+                    purchaseResult.Transaction = transactionResponse;
+                    return purchaseResult;
+                case PointHistoryType.RedeemPoint:
+                    transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(pointHistory.PointPurchaseId);
+                    transactionResponse = _mapper.Map<TransactionResponse>(transaction);
+                    PointPurchaseDetailResponse redeemResult = _mapper.Map<PointPurchaseDetailResponse>(pointHistory);
+                    redeemResult.Transaction = transactionResponse;
+                    return redeemResult;
+                case PointHistoryType.DoSurvey:
+                    Survey? survey = await _unitOfWork.SurveyRepository.GetByIdAsync(pointHistory.SurveyId);
+                    ShortSurveyResponse surveyResponse = _mapper.Map<ShortSurveyResponse>(survey);
+                    PointDoSurveyDetailResponse surveyResult = _mapper.Map<PointDoSurveyDetailResponse>(pointHistory);
+                    surveyResult.Survey = surveyResponse;
+                    return surveyResult;
+                case PointHistoryType.PackPurchase:
+                    PackPurchase? packPurchase = await _unitOfWork.PackPurchaseRepository.GetByIdAsync(pointHistory.PackPurchaseId);
+                    PackPurchaseResponse packPurchaseResponse = _mapper.Map<PackPurchaseResponse>(packPurchase);
+                    PointPackPurchaseDetailResponse packResult = _mapper.Map<PointPackPurchaseDetailResponse>(pointHistory);
+                    packResult.PackPurchase = packPurchaseResponse;
+                    return packResult;
+                default:
+                    // Refund point, Gift point and Receiving Point
+                    // will be added later on
+                    return null;
+            }
         }
-        #endregion
+
     }
 }
