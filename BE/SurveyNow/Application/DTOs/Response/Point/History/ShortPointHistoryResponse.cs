@@ -2,15 +2,12 @@
 
 namespace Application.DTOs.Response.Point.History
 {
-    public class BasePointHistoryResponse
+    public class ShortPointHistoryResponse
     {
-        // 1
         public long Id { get; set; }
 
         // dd/mm/yyyy HH:mm:ss
         public required string Date { get; set; }
-
-        public string? Description { get; set; }
 
         public required string PointHistoryType { get; set; }
 
@@ -19,7 +16,5 @@ namespace Application.DTOs.Response.Point.History
         public decimal Point { get; set; }
 
         public required string Status { get; set; }
-
-        public long UserId { get; set; }
     }
 }

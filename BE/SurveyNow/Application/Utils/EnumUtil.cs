@@ -41,5 +41,36 @@ namespace Application.Utils
                     return "";
             }
         }
+
+        public static string ConvertSurveyStatusToString(SurveyStatus surveyStatus)
+        {
+            switch (surveyStatus)
+            {
+                case SurveyStatus.Active:
+                    return "Active";
+                case SurveyStatus.InActive:
+                    return "Inactive";
+                case SurveyStatus.Draft:
+                    return "Draft";
+                case SurveyStatus.Expired:
+                    return "Expired";
+                default:
+                    return "";
+            }
+        }
+
+        public static string ConvertTransactionStatusToString(TransactionStatus transactionStatus)
+        {
+            switch (transactionStatus)
+            {
+                case TransactionStatus.Fail:
+                    return "Failed";
+                case TransactionStatus.Success:
+                    return "Success";
+                default:
+                    return "";
+            }
+        }
+
     }
 }

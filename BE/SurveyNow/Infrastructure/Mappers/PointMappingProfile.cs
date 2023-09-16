@@ -1,4 +1,8 @@
-﻿using Application.DTOs.Response.Point;
+﻿using Application.DTOs.Response.Pack;
+using Application.DTOs.Response.Point;
+using Application.DTOs.Response.Point.History;
+using Application.DTOs.Response.Survey;
+using Application.DTOs.Response.Transaction;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
@@ -9,18 +13,91 @@ namespace Infrastructure.Mappers
     {
         public PointMappingProfile()
         {
+            #region History
+            CreateMap<PointHistory, BasePointHistoryResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PointHistory, ShortPointHistoryResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PointHistory, Application.DTOs.Response.Point.History.PointPurchaseDetailResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PointHistory, Application.DTOs.Response.Point.History.PointRedeemDetailResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PointHistory, Application.DTOs.Response.Point.History.PointDoSurveyDetailResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<PointHistory, Application.DTOs.Response.Point.History.PointPackPurchaseDetailResponse>()
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PointHistoryType,
+                src => src.MapFrom(src => EnumUtil.ConvertPointHistoryTypeToString(src.PointHistoryType)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)));
+
+            CreateMap<Transaction, TransactionResponse>()
+                .ForMember(dest => dest.TransactionType,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionTypeToString(src.TransactionType)))
+                .ForMember(dest => dest.PaymentMethod,
+                src => src.MapFrom(src => Enum.GetName(src.PaymentMethod)))
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)))
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)));
+
+            CreateMap<Survey, ShortSurveyResponse>()
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertSurveyStatusToString(src.Status)));
+
+            CreateMap<PackPurchase, PackPurchaseResponse>()
+                .ForMember(dest => dest.Status,
+                src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)))
+                .ForMember(dest => dest.Date,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.PackType,
+                src => src.MapFrom(src => Enum.GetName(src.PackType)));
+
+            #endregion
+
             #region Purchase
             CreateMap<PointHistory, PointPurchaseResponse>()
                 .ForMember(dest => dest.Date,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
 
-            CreateMap<PointHistory, PointPurchaseDetailResponse>()
-                .ForMember(dest => dest.Date, 
+            CreateMap<PointHistory, Application.DTOs.Response.Point.PointPurchaseDetailResponse>()
+                .ForMember(dest => dest.Date,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
             #endregion
 
             #region Redeem
-            CreateMap<PointHistory, PointRedeemDetailResponse>()
+            CreateMap<PointHistory, Application.DTOs.Response.Point.PointRedeemDetailResponse>()
                 .ForMember(dest => dest.Date,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.Date)));
 
