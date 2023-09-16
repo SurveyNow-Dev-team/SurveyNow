@@ -28,7 +28,7 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
     {
         // Get and combine filter expressions
         Expression<Func<PointHistory, bool>> userIdExp = (p => p.UserId == userId);
-        Expression<Func<PointHistory, bool>> typeExp = GetPointHistoryTypeFilterExpression(PointHistoryType.Purchase);
+        Expression<Func<PointHistory, bool>> typeExp = GetPointHistoryTypeFilterExpression(PointHistoryType.PurchasePoint);
         Expression<Func<PointHistory, bool>>? dateExp = GetDateFilterExpression(dateFilter);
         Expression<Func<PointHistory, bool>>? pointRangeExp = GetPointRangeFilterExpression(valueFilter);
 
