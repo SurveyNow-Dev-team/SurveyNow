@@ -14,6 +14,8 @@ namespace Application.Interfaces.Services
         Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
         Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
         Task<User?> GetCurrentUserAsync();
+        Task UpdatePhoneNumber(string phoneNumber);
+        Task VerifyPhoneNumber(string confirmedOtp)
         Task ChangePasswordAsync(PasswordChangeRequest request);
         Task Remove();
     }

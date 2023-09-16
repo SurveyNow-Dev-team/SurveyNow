@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using Application;
 using Application.DTOs.Request;
@@ -10,7 +11,6 @@ using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Application.Utils;
 using AutoMapper;
-using BCrypt.Net;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -69,10 +69,6 @@ namespace Infrastructure.Services
             }
 
             user = _mapper.Map<UserRequest, User>(request, user);
-            if(request.PhoneNumber != null)
-            {
-                await _phoneNumberService.SendSmsAsync($"Your SurveyNow verification code is: {GenerateOTP()}", request.PhoneNumber);
-            }
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
             return _mapper.Map<UserResponse>(user);
@@ -162,6 +158,44 @@ namespace Infrastructure.Services
             user.IsDelete = true;
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task UpdatePhoneNumber(string phoneNumber)
+        {
+            var user = await GetLoggedInUserAsync();
+            if (user.PhoneNumber == null || !user.PhoneNumber.Equals(phoneNumber))
+            {
+                user.PhoneNumber = phoneNumber;
+                var otp = GenerateOTP();
+                await _phoneNumberService.SendSmsAsync($"Your SurveyNow verification code is: {otp}", phoneNumber);
+                var session = _httpContextAccessor.HttpContext.Session;
+                session.Set("OTP", Encoding.UTF8.GetBytes(otp));
+                session.Set("PhoneNumber", Encoding.UTF8.GetBytes(phoneNumber));
+            }
+            else
+            {
+                throw new BadRequestException("Your phone number is still the same");
+            }
+        }
+
+        public async Task VerifyPhoneNumber(string confirmedOtp)
+        {
+            var session = _httpContextAccessor.HttpContext.Session;
+            session.TryGetValue("OTP", out byte[] otp);
+            session.TryGetValue("PhoneNumber", out byte[] phoneNumber);
+            if(confirmedOtp.Equals(Encoding.UTF8.GetString(otp)))
+            {
+                var user = await GetLoggedInUserAsync();
+                user.PhoneNumber = Encoding.UTF8.GetString(phoneNumber);
+                _unitOfWork.UserRepository.Update(user);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            else
+            {
+                throw new BadRequestException("Wrong OTP");
+            }
+            session.Remove("OTP");
+            session.Remove("PhoneNumber");
         }
 
         public async Task ChangePasswordAsync(PasswordChangeRequest request)

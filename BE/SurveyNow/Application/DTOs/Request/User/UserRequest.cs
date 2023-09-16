@@ -13,9 +13,6 @@ namespace Application.DTOs.Request.User
         [EmailAddress]
         public string? Email { get; set; }
 
-        [RegularExpression(@"^(84|0[3|5|7|8|9])[0-9]{8}$", ErrorMessage = "We currently support Vietnam phone number")]
-        public string? PhoneNumber { get; set; }
-
         public string? AvatarUrl { get; set; }
 
         public decimal Point { get; set; }
