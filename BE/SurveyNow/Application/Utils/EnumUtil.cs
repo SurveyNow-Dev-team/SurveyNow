@@ -72,7 +72,7 @@ namespace Application.Utils
             }
         }
 
-        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point, long? surveyId)
+        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point, long surveyId = 0, PackType packType = PackType.Basic)
         {
             switch (type)
             {
@@ -104,8 +104,9 @@ namespace Application.Utils
                 case PointHistoryType.PackPurchase:
                     return $"User purchase pack for posting survey. " +
                         $"User ID: {userId}; " +
-                        $"Pack type: ; " +
-                        $"Survey ID: {surveyId}; ";
+                        $"Pack type: {Enum.GetName(packType)}; " +
+                        $"Survey ID: {surveyId}; " +
+                        $"Point Amount: {point}";
 
                 case PointHistoryType.ReceiveGift:
                     return "";

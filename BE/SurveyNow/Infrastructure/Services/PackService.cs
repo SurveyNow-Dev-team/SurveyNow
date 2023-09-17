@@ -4,6 +4,7 @@ using Application.DTOs.Response.Pack;
 using Application.Interfaces.Services;
 using Application.Utils;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Infrastructure.Services
@@ -84,6 +85,81 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest)
+        {
+            // Calculate pack price
+            decimal cost = await CalculatePackPriceAsync(purchaseRequest.PackType, purchaseRequest.TotalParticipants);
+
+            // Check for survey conditions
+            Survey survey = await _unitOfWork.SurveyRepository.GetByIdAsync(purchaseRequest.SurveyId);
+            if (survey == null)
+            {
+                throw new ArgumentNullException("Failed to located the associated survey.");
+            }
+            else if (survey.Status == SurveyStatus.PackPurchased)
+            {
+                throw new OperationCanceledException($"A pack has been purchase for this survey. Survey's ID: {survey.Id}");
+            }
+
+            // Check user point balance
+            if (user.Point < cost)
+            {
+                throw new OperationCanceledException($"Insufficient user point. Required: {cost}; Balance: {user.Point}");
+            }
+
+            try
+            {
+                
+
+                PointHistory pointHistory = new PointHistory() 
+                {
+                    UserId = user.Id,
+                    SurveyId = purchaseRequest.SurveyId,
+                    Point = cost,
+                    PointHistoryType = PointHistoryType.PackPurchase,
+                    Date = DateTime.UtcNow,
+                    Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.PackPurchase, user.Id, cost, purchaseRequest.SurveyId, purchaseRequest.PackType),
+                    Status = TransactionStatus.Success,
+                };
+
+                PackPurchase packPurchase = new PackPurchase()
+                {
+                    UserId = user.Id,
+                    Date = DateTime.UtcNow,
+                    PackType = purchaseRequest.PackType,
+                    Point = cost,
+                    Status = TransactionStatus.Success,
+                    SurveyId = survey.Id,
+                };
+
+                // Begin transaction
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Update user point
+                await _unitOfWork.UserRepository.UpdateUserPoint(user.Id, UserPointAction.DecreasePoint, cost);
+                // Adding PackPurchase
+                var packPurchaseEntity = await _unitOfWork.PackPurchaseRepository.AddPackPurchaseAsync(packPurchase);
+                await _unitOfWork.SaveChangeAsync();
+                // Adding PointHistory
+                pointHistory.PackPurchaseId = packPurchaseEntity.Id;
+                await _unitOfWork.PointHistoryRepository.AddPointHistoryAsync(pointHistory);
+                // Change survey's status
+                survey.Status = SurveyStatus.PackPurchased;
+                survey.PackType = purchaseRequest.PackType;
+                survey.Point = cost;
+                _unitOfWork.SurveyRepository.Update(survey);
+
+                // Commit transaction
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new InvalidOperationException($"Failed to process user's pack purchase request\n{ex.Message}");
             }
         }
     }
