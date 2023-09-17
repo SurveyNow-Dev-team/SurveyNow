@@ -1,7 +1,5 @@
-﻿using Application.DTOs.Request.Point.PointHistoryTransactions;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Response;
 using Application.DTOs.Response.Pack;
-using Application.DTOs.Response.Point;
 using Application.DTOs.Response.Point.History;
 using Application.DTOs.Response.Survey;
 using Application.DTOs.Response.Transaction;
