@@ -13,11 +13,13 @@ namespace SurveyNow.Controllers
     {
         private readonly IPackService _packService;
         private readonly ILogger<PacksController> _logger;
+        private readonly IUserService _userService;
 
-        public PacksController(IPackService packService, ILogger<PacksController> logger)
+        public PacksController(IPackService packService, ILogger<PacksController> logger, IUserService userService)
         {
             _packService = packService;
             _logger = logger;
+            _userService = userService;
         }
 
         [HttpGet("all")]
@@ -56,6 +58,37 @@ namespace SurveyNow.Controllers
             {
                 _logger.LogError(ex, "An error occurred while trying to retrieve recommeded packs data");
                 return StatusCode(500, "An error occurred while trying to retrieve recommeded packs data");
+            }
+        }
+
+        [HttpPost("purchase")]
+        public async Task<ActionResult> ProcessPackPurchaseRequest(PackPurchaseRequest purchaseRequest)
+        {
+            var user = await _userService.GetCurrentUserAsync();
+            if(user == null)
+            {
+                return Unauthorized("Cannot retreive user's identity");
+            }
+            try
+            {
+                await _packService.PurchasePackAsync(user, purchaseRequest);
+                return Ok("Successfully purchase pack");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (OperationCanceledException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
