@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,5 +35,41 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     {
         var user = await GetByEmailAsync(email);
         return user != null;
+    }
+
+    public async Task UpdateUserPoint(long userId, UserPointAction pointAction, decimal pointAmount)
+    {
+        if (userId <= 0)
+        {
+            throw new ArgumentException("Invalid UserId");
+        }
+        if (pointAmount <= 0)
+        {
+            throw new ArgumentException("Point must be a positive value");
+        }
+        var user = await GetByIdAsync(userId);
+        if(user == null)
+        {
+            throw new NullReferenceException($"Cannot find user with the given ID: {userId}");
+        }
+
+        switch (pointAction)
+        {
+            case UserPointAction.IncreasePoint:
+                user.Point += pointAmount;
+                Update(user);
+                break;
+            case UserPointAction.DecreasePoint:
+                user.Point -= pointAmount;
+                if (user.Point < 0)
+                {
+                    user.Point = 0;
+                }
+                Update(user);
+                break;
+            // Handle additional actions here
+            default:
+                throw new ArgumentException("Invalid point action");
+        }
     }
 }
