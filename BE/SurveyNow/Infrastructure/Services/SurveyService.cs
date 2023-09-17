@@ -12,10 +12,4 @@ public class SurveyService : ISurveyService
     {
         _unitOfWork = unitOfWork;
     }
-
-    public  Task<long> CreateSurveyAsync(CreateSurveyRequest request)
-    {
-        // await _unitOfWork.BeginTransactionAsync();
-        return null;
-    }
 }
