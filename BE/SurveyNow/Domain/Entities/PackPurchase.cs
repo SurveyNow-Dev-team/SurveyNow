@@ -28,4 +28,9 @@ public class PackPurchase
 
     [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
+
+    public long SurveyId { get; set; }
+
+    [ForeignKey(nameof(SurveyId))]
+    public virtual Survey Survey { get; set; } = null!;
 }
