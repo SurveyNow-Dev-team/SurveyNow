@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using Application.DTOs.Response;
 using Application.Utils;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Repositories;
 
@@ -60,6 +61,23 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
             return result;
         }
         return null;
+    }
+
+    public async Task<PointHistory> AddPointHistoryAsync(PointHistory pointHistory)
+    {
+        if (pointHistory == null)
+        {
+            throw new ArgumentNullException("Point History information is invalid");
+        }
+        try
+        {
+            EntityEntry<PointHistory> result = await _dbSet.AddAsync(pointHistory);
+            return result.Entity;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Adding Point History Task failed.", ex);
+        }
     }
 
     private Expression<Func<PointHistory, bool>>? GetDateFilterExpression(PointDateFilterRequest dateFilter)

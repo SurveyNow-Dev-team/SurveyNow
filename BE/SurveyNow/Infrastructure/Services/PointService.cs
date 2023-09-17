@@ -7,6 +7,7 @@ using Application.DTOs.Response.Point.History;
 using Application.DTOs.Response.Survey;
 using Application.DTOs.Response.Transaction;
 using Application.Interfaces.Services;
+using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
@@ -24,10 +25,58 @@ namespace Infrastructure.Services
             _mapper = mapper;
         }
 
+        public async Task<bool> AddDoSurveyPointAsync(long userId, long surveyId, decimal pointAmount)
+        {
+            if(userId <= 0 || surveyId <= 0 || pointAmount <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Paramater(s) is out of range. All parameters range must be larger than 0");
+            }
+            try
+            {
+                // Create point history record
+                PointHistory pointHistory = new PointHistory()
+                {
+                    UserId = userId,
+                    SurveyId = surveyId,
+                    Point = pointAmount,
+                    PointHistoryType = PointHistoryType.DoSurvey,
+                    Date = DateTime.UtcNow,
+                    Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.DoSurvey, userId, pointAmount, surveyId),
+                    Status = TransactionStatus.Success,
+                };
+
+                // Begin transaction
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Add record of point history
+                await _unitOfWork.PointHistoryRepository.AddPointHistoryAsync(pointHistory);
+
+                // Add point to user
+                await _unitOfWork.UserRepository.UpdateUserPoint(userId, UserPointAction.IncreasePoint, pointAmount);
+
+                // Save changes
+                var result = await _unitOfWork.SaveChangeAsync();
+                
+
+                if(result <= 0)
+                {
+                    throw new Exception("Failed add do survey point transaction");
+                }
+
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new OperationCanceledException($"Failed to add point for user survey completion\n{ex.Message}");
+            }
+        }
+
         public async Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest)
         {
             var pageHistories = await _unitOfWork.PointHistoryRepository.GetPointHistoryPaginatedAsync(userId, type, dateFilter, valueFilter, sortOrder, pagingRequest);
-            if(pageHistories == null)
+            if (pageHistories == null)
             {
                 return null;
             }
@@ -38,7 +87,7 @@ namespace Infrastructure.Services
         public async Task<BasePointHistoryResponse?> GetPointHistoryDetailAsync(long id)
         {
             PointHistory? pointHistory = await _unitOfWork.PointHistoryRepository.GetByIdAsync(id);
-            if(pointHistory == null)
+            if (pointHistory == null)
             {
                 return null;
             }

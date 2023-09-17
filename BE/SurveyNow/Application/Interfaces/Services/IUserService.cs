@@ -3,6 +3,7 @@ using Application.DTOs.Response;
 using Application.DTOs.Request.User;
 using Application.DTOs.Response.User;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Interfaces.Services
 {
@@ -15,7 +16,7 @@ namespace Application.Interfaces.Services
         Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
         Task<User?> GetCurrentUserAsync();
         Task UpdatePhoneNumber(string phoneNumber);
-        Task VerifyPhoneNumber(string confirmedOtp)
+        Task VerifyPhoneNumber(string confirmedOtp);
         Task ChangePasswordAsync(PasswordChangeRequest request);
         Task Remove();
     }
