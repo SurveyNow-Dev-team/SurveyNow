@@ -29,7 +29,7 @@ public interface IUnitOfWork : IDisposable
     public ICriterionRepository CriterionRepository { get; }
     public IFieldCriterionRepository FieldCriterionRepository { get; }
     public IGenderCriterionRepository GenderCriterionRepository { get; }
-    public IRelationshipCriterionRepository RelationshipCriterionRepository { get; set; }
+    public IRelationshipCriterionRepository RelationshipCriterionRepository { get; }
 
     public Task<int> SaveChangeAsync();
 
