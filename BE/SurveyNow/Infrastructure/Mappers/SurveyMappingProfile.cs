@@ -9,9 +9,16 @@ public class SurveyMappingProfile : Profile
 {
     public SurveyMappingProfile()
     {
-        
+        CreateMap<RowOptionRequest, RowOption>();
+        CreateMap<ColumnOptionRequest, ColumnOption>();
+        CreateMap<QuestionRequest, Question>();
+        CreateMap<SectionRequest, Section>();
+        CreateMap<SurveyRequest, Survey>();
+        CreateMap<SectionRequest, Section>();
     }
 }
+
+
 //
 // public class QuestionDetailResolver : IValueResolver<SurveyQuestionDetailRequest, QuestionDetail, int>
 // {

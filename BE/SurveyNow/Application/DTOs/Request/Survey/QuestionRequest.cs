@@ -29,7 +29,7 @@ public class QuestionRequest
     public string? ResourceUrl { get; set; }
 
     //Need to check validate here
-    public ICollection<RowOptionRequest> RowOptions { get; set; } = new List<RowOptionRequest>();
+    public ICollection<RowOptionRequest>? RowOptions { get; set; } = new List<RowOptionRequest>();
 
-    public ICollection<ColumnOptionRequest> ColumnOptions { get; set; } = new List<ColumnOptionRequest>();
+    public ICollection<ColumnOptionRequest>? ColumnOptions { get; set; } = new List<ColumnOptionRequest>();
 }
