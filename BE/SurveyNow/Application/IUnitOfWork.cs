@@ -2,7 +2,7 @@
 
 namespace Application;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IAsyncDisposable
 {
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }

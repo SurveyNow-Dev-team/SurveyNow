@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public class UnitOfWork : IUnitOfWork, IAsyncDisposable
+public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;

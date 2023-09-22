@@ -10,29 +10,29 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Occupation> Occupations { get; set; }
-    public DbSet<Field> Fields { get; set; }
-    public DbSet<Position> Positions { get; set; }
-    public DbSet<Address> Addresses { get; set; }
-    public DbSet<Province> Provinces { get; set; }
-    public DbSet<City> Cities { get; set; }
-    public DbSet<District> Districts { get; set; }
-    public DbSet<Hobby> Hobbies { get; set; }
-    public DbSet<Payment> Payments { get; set; }
-    public DbSet<Transaction> Transactions { get; set; }
-    public DbSet<PackPurchase> PackPurchases { get; set; }
-    public DbSet<PointHistory> PointHistories { get; set; }
-    public DbSet<Survey> Surveys { get; set; }
-    public DbSet<Section> Sections { get; set; }
-    public DbSet<Question> Questions { get; set; }
-    public DbSet<RowOption> RowOptions { get; set; }
-    public DbSet<ColumnOption> ColumnOptions { get; set; }
-    public DbSet<UserSurvey> UserSurveys { get; set; }
-    public DbSet<Answer> Answers { get; set; }
-    public DbSet<AnswerOption> AnswerOptions { get; set; }
-    public DbSet<UserReport> UserReports { get; set; }
-    public DbSet<Criterion> Criteria { get; set; }
+    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Occupation> Occupations { get; set; }
+    public virtual DbSet<Field> Fields { get; set; }
+    public virtual DbSet<Position> Positions { get; set; }
+    public virtual DbSet<Address> Addresses { get; set; }
+    public virtual DbSet<Province> Provinces { get; set; }
+    public virtual DbSet<City> Cities { get; set; }
+    public virtual DbSet<District> Districts { get; set; }
+    public virtual DbSet<Hobby> Hobbies { get; set; }
+    public virtual DbSet<Payment> Payments { get; set; }
+    public virtual DbSet<Transaction> Transactions { get; set; }
+    public virtual DbSet<PackPurchase> PackPurchases { get; set; }
+    public virtual DbSet<PointHistory> PointHistories { get; set; }
+    public virtual DbSet<Survey> Surveys { get; set; }
+    public virtual DbSet<Section> Sections { get; set; }
+    public virtual DbSet<Question> Questions { get; set; }
+    public virtual DbSet<RowOption> RowOptions { get; set; }
+    public virtual DbSet<ColumnOption> ColumnOptions { get; set; }
+    public virtual DbSet<UserSurvey> UserSurveys { get; set; }
+    public virtual DbSet<Answer> Answers { get; set; }
+    public virtual DbSet<AnswerOption> AnswerOptions { get; set; }
+    public virtual DbSet<UserReport> UserReports { get; set; }
+    public virtual DbSet<Criterion> Criteria { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
