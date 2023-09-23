@@ -32,8 +32,8 @@ public class GlobalExceptionMiddleware
         var response = new ErrorDetail()
         {
             StatusCode = context.Response.StatusCode,
-            Message = GetMessage(exception),
-            Error = exception.Message
+            Title = GetTitle(exception),
+            Message = exception.Message
         };
 
         // var jsonResponse = JsonConvert.SerializeObject(response);
@@ -43,17 +43,9 @@ public class GlobalExceptionMiddleware
     private static int GetStatusCode(Exception exception)
     {
         // Customize status codes based on exception types
-        if (exception is NotFoundException)
+        if (exception is BaseException baseException)
         {
-            return (int)HttpStatusCode.NotFound;
-        }
-        else if (exception is BadRequestException)
-        {
-            return (int)HttpStatusCode.BadRequest;
-        }
-        else if (exception is ConflictException)
-        {
-            return (int)HttpStatusCode.Conflict;
+            return baseException.StatusCode;
         }
         else
         {
@@ -61,24 +53,16 @@ public class GlobalExceptionMiddleware
         }
     }
 
-    private static string GetMessage(Exception exception)
+    private static string GetTitle(Exception exception)
     {
         // Customize error messages based on exception types
-        if (exception is NotFoundException)
+        if (exception is BaseException baseException)
         {
-            return "Resource not found.";
-        }
-        else if (exception is BadRequestException)
-        {
-            return "Bad request.";
-        }
-        else if (exception is ConflictException)
-        {
-            return "Resource conflict.";
+            return baseException?.Title ?? "";
         }
         else
         {
             return "Internal server error.";
-        } 
+        }
     }
 }

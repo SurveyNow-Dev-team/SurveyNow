@@ -73,5 +73,22 @@ namespace SurveyNow.Controllers
                 return StatusCode(500, "An error occurred while trying to retrieve point history");
             }
         }
+
+        // Test end-point
+        [HttpPost("do-survey/")]
+        public async Task<ActionResult<BasePointHistoryResponse>> AddPointDoSurveyAsync([FromQuery]decimal pointAmount, [FromQuery]long surveyId)
+        {
+            try
+            {
+                var user = await _userService.GetCurrentUserAsync();
+                var result = await _pointService.AddDoSurveyPointAsync(user.Id, surveyId, pointAmount);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred");
+                return StatusCode(500, "An error occurred");
+            }
+        }
     }
 }

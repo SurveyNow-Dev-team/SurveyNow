@@ -5,7 +5,6 @@ using SurveyNow.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Add dependency injection
 var configuration = builder.Configuration.Get<AppConfiguration>();
 if (configuration != null)
 {
@@ -19,13 +18,14 @@ if (configuration != null)
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Configure the HTTPS redirection middleware with the obtained port
+// app.UseHttpsRedirection();
 
 app.UseCors();
 

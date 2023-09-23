@@ -5,5 +5,6 @@ public enum SurveyStatus
     Active,
     InActive,
     Draft,
-    Expired
+    Expired,
+    PackPurchased
 }

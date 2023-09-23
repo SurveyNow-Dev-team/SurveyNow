@@ -13,4 +13,10 @@
         PointDescending = 3,
         PointAscending = 4,
     }
+
+    public enum UserPointAction
+    {
+        DecreasePoint = 0,
+        IncreasePoint = 1,
+    }
 }

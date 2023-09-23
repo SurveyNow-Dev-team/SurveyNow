@@ -3,6 +3,7 @@ using Application.DTOs.Response;
 using Application.DTOs.Request.User;
 using Application.DTOs.Response.User;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Interfaces.Services
 {

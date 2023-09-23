@@ -367,10 +367,15 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<long>("SurveyId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SurveyId");
 
                     b.HasIndex("UserId");
 
@@ -1070,11 +1075,19 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.PackPurchase", b =>
                 {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany()
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("PackPurchases")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Survey");
 
                     b.Navigation("User");
                 });

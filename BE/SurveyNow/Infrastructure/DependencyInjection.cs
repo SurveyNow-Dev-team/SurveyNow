@@ -54,6 +54,8 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPhoneNumberService, PhoneNumberService>();
         services.AddScoped<IPointService, PointService>();
+        services.AddScoped<IPackService, PackService>();
+        services.AddScoped<ISurveyService, SurveyService>();
 
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

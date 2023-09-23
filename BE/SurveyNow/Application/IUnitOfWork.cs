@@ -2,7 +2,7 @@
 
 namespace Application;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IAsyncDisposable
 {
     public IAddressRepository AddressRepository { get; }
     public IAnswerRepository AnswerRepository { get; }
@@ -29,11 +29,13 @@ public interface IUnitOfWork : IDisposable
     public ICriterionRepository CriterionRepository { get; }
     public IFieldCriterionRepository FieldCriterionRepository { get; }
     public IGenderCriterionRepository GenderCriterionRepository { get; }
-    public IRelationshipCriterionRepository RelationshipCriterionRepository { get; set; }
+    public IRelationshipCriterionRepository RelationshipCriterionRepository { get; }
 
     public Task<int> SaveChangeAsync();
 
     public Task BeginTransactionAsync();
     public Task CommitAsync();
     public Task RollbackAsync();
+
+    public ValueTask DisposeAsync();
 }

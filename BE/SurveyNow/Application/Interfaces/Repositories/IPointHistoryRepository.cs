@@ -8,5 +8,6 @@ namespace Application.Interfaces.Repositories;
 
 public interface IPointHistoryRepository: IBaseRepository<PointHistory>
 {
-    Task<PagingResponse<PointHistory>?> GetPointHistoryPaginatedAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest);
+    Task<PagingResponse<PointHistory>> GetPointHistoryPaginatedAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest);
+    Task<PointHistory?> AddPointHistoryAsync(PointHistory pointHistory);
 }

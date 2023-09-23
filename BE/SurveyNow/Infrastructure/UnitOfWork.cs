@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
-public class UnitOfWork : IUnitOfWork, IAsyncDisposable
+public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;
@@ -95,28 +95,32 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 
     public async Task CommitAsync()
     {
-        try
-        {
-            await _transaction.CommitAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"Error when commit transaction.\nDate:{DateTime.UtcNow}");
-            throw;
-        }
+        // try
+        // {
+        //     await _transaction.CommitAsync();
+        // }
+        // catch (Exception e)
+        // {
+        //     _logger.LogError(e, $"Error when commit transaction.\nDate:{DateTime.UtcNow}");
+        //     throw;
+        // }
+        
+        await _transaction.CommitAsync();
     }
 
     public async Task RollbackAsync()
     {
-        try
-        {
-            await _transaction.RollbackAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"Error when roll back transaction.\nDate:{DateTime.UtcNow}");
-            throw;
-        }
+        // try
+        // {
+        //     await _transaction.RollbackAsync();
+        // }
+        // catch (Exception e)
+        // {
+        //     _logger.LogError(e, $"Error when roll back transaction.\nDate:{DateTime.UtcNow}");
+        //     throw;
+        // }
+        
+        await _transaction.RollbackAsync();
     }
 
     //implement Dispose pattern

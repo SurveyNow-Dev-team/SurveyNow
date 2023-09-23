@@ -12,6 +12,7 @@ using Application.Interfaces.Services;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
