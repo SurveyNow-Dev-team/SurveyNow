@@ -26,9 +26,10 @@ namespace Infrastructure.Services
         private readonly IJwtService _jwtService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPhoneNumberService _phoneNumberService;
+        private readonly IFileService _fileService;
 
         public UserService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UserService> logger, IJwtService jwtService,
-            IHttpContextAccessor httpContextAccessor, IPhoneNumberService phoneNumberService)
+            IHttpContextAccessor httpContextAccessor, IPhoneNumberService phoneNumberService, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -36,6 +37,7 @@ namespace Infrastructure.Services
             _jwtService = jwtService;
             _httpContextAccessor = httpContextAccessor;
             _phoneNumberService = phoneNumberService;
+            _fileService = fileService;
         }
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest)
@@ -222,5 +224,13 @@ namespace Infrastructure.Services
             return otp;
         }
 
+        public async Task UpdateAvatar(Stream stream, string fileName)
+        {
+            var user = await GetLoggedInUserAsync();
+            string url = await _fileService.UploadFileAsync(stream, fileName);
+            user.AvatarUrl = url;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+        }
     }
 }

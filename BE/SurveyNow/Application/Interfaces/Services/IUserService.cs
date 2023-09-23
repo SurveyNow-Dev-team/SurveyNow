@@ -19,5 +19,6 @@ namespace Application.Interfaces.Services
         Task VerifyPhoneNumber(string confirmedOtp);
         Task ChangePasswordAsync(PasswordChangeRequest request);
         Task Remove();
+        Task UpdateAvatar(Stream stream, string fileName);
     }
 }

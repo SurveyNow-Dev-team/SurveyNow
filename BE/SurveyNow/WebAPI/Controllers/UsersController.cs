@@ -23,10 +23,10 @@ namespace SurveyNow.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery]UserRequest filter, [FromQuery]PagingRequest pagingRequest)
+        public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery] UserRequest filter, [FromQuery] PagingRequest pagingRequest)
         {
             var users = await _userService.GetUsers(filter, pagingRequest);
-            if(users == null)
+            if (users == null)
             {
                 return NotFound();
             }
@@ -62,7 +62,7 @@ namespace SurveyNow.Controllers
         }
 
         [HttpPut("phone-number-verification")]
-        public async Task VerifyPhoneNumber([RegularExpression(@"^\d{6}$")]string confirmedOtp)
+        public async Task VerifyPhoneNumber([RegularExpression(@"^\d{6}$")] string confirmedOtp)
         {
             await _userService.VerifyPhoneNumber(confirmedOtp);
         }
@@ -77,7 +77,7 @@ namespace SurveyNow.Controllers
         [HttpPost("avatar")]
         public async Task UploadAvatar(IFormFile formFile)
         {
-
+            await _userService.UpdateAvatar(formFile.OpenReadStream(), formFile.FileName);
         }
     }
 }

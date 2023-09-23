@@ -33,7 +33,7 @@ public class User
     [Precision(2)]
     public DateTime? DateOfBirth { get; set; }
 
-    [Column(TypeName = "nvarchar(100)")] public string? AvatarUrl { get; set; }
+    [Column(TypeName = "nvarchar(150)")] public string? AvatarUrl { get; set; }
 
     [Precision(6, 1)] [Range(0, 100000)] public decimal Point { get; set; } = 0;
 
