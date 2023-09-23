@@ -73,5 +73,11 @@ namespace SurveyNow.Controllers
         {
             await _userService.Remove();
         }
+
+        [HttpPost("avatar")]
+        public async Task UploadAvatar(IFormFile formFile)
+        {
+
+        }
     }
 }
