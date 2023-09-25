@@ -1,9 +1,11 @@
 ﻿using Application;
 using Application.DTOs.Request.Survey;
+using Application.DTOs.Response.Survey;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
@@ -72,11 +74,10 @@ public class SurveyService : ISurveyService
 
                     await Task.WhenAll(rowOptionTask, columnOptionTask);
                 }
-
             }
 
             await _unitOfWork.SaveChangeAsync();
-            
+
             await _unitOfWork.CommitAsync();
         }
         catch (Exception e)
@@ -90,5 +91,14 @@ public class SurveyService : ISurveyService
         }
 
         return surveyObject.Id;
+    }
+
+    public async Task<SurveyDetailResponse> GetByIdAsync(long id)
+    {
+        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(id);
+        if (surveyObj == null)
+            throw new NotFoundException($"Survey {id} does not exist.");
+        var result = _mapper.Map<SurveyDetailResponse>(surveyObj);
+        return result;
     }
 }

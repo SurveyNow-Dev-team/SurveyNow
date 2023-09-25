@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.DTOs.Request.Survey;
+using Application.DTOs.Response.Survey;
 using Application.Interfaces.Services;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -28,4 +29,11 @@ public class SurveyController : ControllerBase
         var result = await _surveyService.CreateSurveyAsync(request);
         return Ok(result);
     }
+
+    [HttpGet("{id}")]
+    public async Task<SurveyDetailResponse> GetByIdAsync(long id)
+    {
+        return await _surveyService.GetByIdAsync(id);
+    }
+    
 }
