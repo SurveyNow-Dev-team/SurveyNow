@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Request.Survey;
+using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
 using Application.Utils;
 using AutoMapper;
@@ -25,10 +26,22 @@ public class SurveyMappingProfile : Profile
             .ForMember(dest => dest.CreatedDate,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.CreatedDate)))
             .ForMember(dest => dest.ModifiedDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ModifiedDate)));
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ModifiedDate)))
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName));
         CreateMap<Section, SectionResponse>();
         CreateMap<Question, QuestionResponse>();
         CreateMap<RowOption, RowOptionResponse>();
         CreateMap<ColumnOption, ColumnOptionResponse>();
+        CreateMap<Survey, SurveyResponse>()
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName))
+            .ForMember(dest => dest.CreatedDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.CreatedDate)))
+            .ForMember(dest => dest.ModifiedDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ModifiedDate)))
+            .ForMember(dest => dest.StartDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.StartDate)))
+            .ForMember(dest => dest.ExpiredDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ExpiredDate)));
+        CreateMap<PagingResponse<Survey>, PagingResponse<SurveyResponse>>();
     }
 }

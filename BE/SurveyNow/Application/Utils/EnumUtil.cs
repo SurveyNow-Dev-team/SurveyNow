@@ -72,41 +72,42 @@ namespace Application.Utils
             }
         }
 
-        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point, long surveyId = 0, PackType packType = PackType.Basic)
+        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point,
+            long surveyId = 0, PackType packType = PackType.Basic)
         {
             switch (type)
             {
                 case PointHistoryType.PurchasePoint:
                     return $"User purchase point to their account. " +
-                        $"User ID: {userId}; " +
-                        $"Point Amount: {point}; ";
+                           $"User ID: {userId}; " +
+                           $"Point Amount: {point}; ";
 
                 case PointHistoryType.DoSurvey:
                     return $"User received point from survey completion. " +
-                        $"User ID: {userId}; " +
-                        $"Point Amount: {point}; " +
-                        $"Survey ID: {surveyId}; ";
+                           $"User ID: {userId}; " +
+                           $"Point Amount: {point}; " +
+                           $"Survey ID: {surveyId}; ";
 
                 case PointHistoryType.GiftPoint:
                     return "";
 
                 case PointHistoryType.RefundPoint:
                     return $"User received refunded point. " +
-                        $"User ID: {userId}; " +
-                        $"Point Amount: {point}; " +
-                        $"Reason: ; ";
+                           $"User ID: {userId}; " +
+                           $"Point Amount: {point}; " +
+                           $"Reason: ; ";
 
                 case PointHistoryType.RedeemPoint:
                     return $"User redeem point. " +
-                        $"User ID: {userId}; " +
-                        $"Point Amount: {point}; ";
+                           $"User ID: {userId}; " +
+                           $"Point Amount: {point}; ";
 
                 case PointHistoryType.PackPurchase:
                     return $"User purchase pack for posting survey. " +
-                        $"User ID: {userId}; " +
-                        $"Pack type: {Enum.GetName(packType)}; " +
-                        $"Survey ID: {surveyId}; " +
-                        $"Point Amount: {point}";
+                           $"User ID: {userId}; " +
+                           $"Pack type: {Enum.GetName(packType)}; " +
+                           $"Survey ID: {surveyId}; " +
+                           $"Point Amount: {point}";
 
                 case PointHistoryType.ReceiveGift:
                     return "";
@@ -114,6 +115,17 @@ namespace Application.Utils
                 default:
                     return "";
             }
+        }
+
+        public static T? ConvertStringToEnum<T>(string? input) where T : struct, Enum
+        {
+            if (string.IsNullOrEmpty(input))
+                return null;
+
+            if (Enum.TryParse<T>(input, out T result))
+                return result;
+
+            return null;
         }
     }
 }

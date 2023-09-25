@@ -10,12 +10,12 @@ public interface IBaseRepository<T> where T : class
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties);
 
-    Task<PagingResponse<T>> GetPaginate(
+    Task<PagingResponse<T>> GetPaginateAsync(
         Expression<Func<T, bool>>? filter,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
-        int page,
-        int size
+        int? page,
+        int? size
     );
 
     Task<T?> GetByIdAsync(object id);

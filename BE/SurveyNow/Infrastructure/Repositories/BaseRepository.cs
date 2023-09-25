@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Application.DTOs.Response;
+using Application.ErrorHandlers;
 using Application.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -56,12 +57,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
     }
 
-    public virtual async Task<PagingResponse<T>> GetPaginate(
+    public virtual async Task<PagingResponse<T>> GetPaginateAsync(
         Expression<Func<T, bool>>? filter,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
-        int page,
-        int size)
+        int? page,
+        int? size)
     {
         IQueryable<T> query = _dbSet;
         PagingResponse<T> result = new PagingResponse<T>();
@@ -76,27 +77,42 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             foreach (var includeProperty in includeProperties.Split
                          (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                query = query.Include(includeProperty);
+                // query = query.Include(includeProperty);
+                query = IncludeNested(query, includeProperty);
             }
 
             result.TotalRecords = await query.CountAsync();
 
             if (orderBy != null)
             {
-                orderBy(query);
+                query = orderBy(query);
             }
 
-            query.Skip(page * size).Take(size);
-            result.CurrentPage = page;
-            result.RecordsPerPage = size;
-            result.TotalPages = (int)Math.Ceiling((double)result.TotalRecords / size);
+            if (page.HasValue && size.HasValue)
+            {
+                if (page.Value <= 0)
+                {
+                    throw new BadRequestException("Page must be greater than 0.");
+                }
+
+                if (size.Value <= 0)
+                {
+                    throw new BadRequestException("Size must be greater than 0.");
+                }
+
+                query.Skip((page.Value - 1) * size.Value).Take(size.Value);
+                result.CurrentPage = page.Value;
+                result.RecordsPerPage = size.Value;
+                result.TotalPages = (int)Math.Ceiling((double)result.TotalRecords / size.Value);
+            }
+
             result.Results = await query.ToListAsync();
             return result;
         }
         catch (Exception e)
         {
             _logger.LogError(e, $"Error when filter data of {typeof(T)} entity.");
-            throw;
+            throw new Exception(e.Message);
         }
     }
 
@@ -150,7 +166,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         foreach (var includeProperty in includeProperties.Split
                      (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
-            query = query.Include(includeProperty);
+            // query = query.Include(includeProperty);
+            query = IncludeNested(query, includeProperty);
         }
 
         if (orderBy != null)
@@ -161,5 +178,26 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         {
             return await query.ToListAsync();
         }
+    }
+
+    private static IQueryable<T> IncludeNested<T>(IQueryable<T> query, string includeProperty) where T : class
+    {
+        var includeProperties = includeProperty.Split('.');
+        IQueryable<T> result = query;
+
+        try
+        {
+            foreach (var prop in includeProperties)
+            {
+                var navigationProp = typeof(T).GetProperty(prop);
+                result = result.Include(navigationProp.Name);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new BadRequestException("Some include properties does not exist.");
+        }
+
+        return result;
     }
 }

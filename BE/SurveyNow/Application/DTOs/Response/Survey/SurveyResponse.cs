@@ -2,7 +2,7 @@
 
 namespace Application.DTOs.Response.Survey;
 
-public class SurveyDetailResponse
+public class SurveyResponse
 {
     public long Id { get; set; }
 
@@ -16,12 +16,13 @@ public class SurveyDetailResponse
 
     public int TotalValidAnswer { get; set; } = 0; //store the number of valid users that did the survey
 
-    public SurveyStatus Status { get; set; }
+    public SurveyStatus? Status { get; set; }
 
     public bool IsDelete { get; set; }
 
     public PackType? PackType { get; set; }
 
+    //need to check here
     public decimal? Point { get; set; }
 
     public string? StartDate { get; set; }
@@ -33,7 +34,6 @@ public class SurveyDetailResponse
     public string? ModifiedDate { get; set; }
 
     public long CreatedUserId { get; set; }
+    
     public string CreatedUserFullName { get; set; } = null!;
-
-    public ICollection<SectionResponse> Sections { get; set; } = new List<SectionResponse>();
 }

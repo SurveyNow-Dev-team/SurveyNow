@@ -12,18 +12,26 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
     {
     }
 
-    public Task<Survey?> GetByIdAsync(object id)
+    public async Task<Survey?> GetByIdAsync(object id)
     {
         if (id is long longId)
         {
-            return _dbSet.Include(s => s.Sections).ThenInclude(s => s.Questions)
+            return await _dbSet.Include(s => s.Sections).ThenInclude(s => s.Questions)
                 .ThenInclude(q => q.RowOptions)
                 .Include(s => s.Sections)
                 .ThenInclude(s => s.Questions)
                 .ThenInclude(q => q.ColumnOptions)
+                .Include(s => s.CreatedBy)
                 .FirstOrDefaultAsync(s => s.Id == longId);
         }
 
         return null;
+    }
+
+    public async Task<List<Survey>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(s => s.CreatedBy)
+            .ToListAsync();
     }
 }
