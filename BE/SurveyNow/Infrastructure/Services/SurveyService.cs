@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -164,7 +165,7 @@ public class SurveyService : ISurveyService
                 );
             }
 
-            Func<IQueryable<Survey>, IOrderedQueryable<Survey>> orderBy = q => q.OrderByDescending(s => s.Id);
+            Func<IQueryable<Survey>, IOrderedQueryable<Survey>> orderBy = q => q.OrderBy(s => s.Id);
 
             if (sortTitle != null && sortTitle.Trim().ToLower().Equals("asc"))
             {
