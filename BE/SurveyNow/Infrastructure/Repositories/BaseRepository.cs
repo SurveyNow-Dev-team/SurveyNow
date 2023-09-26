@@ -100,13 +100,18 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                     throw new BadRequestException("Size must be greater than 0.");
                 }
 
-                query.Skip((page.Value - 1) * size.Value).Take(size.Value);
+                query = query.Skip((page.Value - 1) * size.Value).Take(size.Value);
                 result.CurrentPage = page.Value;
                 result.RecordsPerPage = size.Value;
+                result.Results = await query.ToListAsync();
                 result.TotalPages = (int)Math.Ceiling((double)result.TotalRecords / size.Value);
             }
+            else
+            {
+                result.Results = await query.ToListAsync();
+            }
 
-            result.Results = await query.ToListAsync();
+            
             return result;
         }
         catch (Exception e)

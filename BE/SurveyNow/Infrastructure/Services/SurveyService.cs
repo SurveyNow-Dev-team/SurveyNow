@@ -219,4 +219,106 @@ public class SurveyService : ISurveyService
             throw new BadRequestException(e.Message);
         }
     }
+
+    public async Task<PagingResponse<CommonSurveyResponse>> FilterCommonSurveyAsync(
+        string? status,
+        string? title,
+        string? sortTitle,
+        string? sortTotalQuestion,
+        string? sortPoint,
+        string? sortStartDate,
+        string? sortExpiredDate,
+        int? page,
+        int? size
+    )
+    {
+        var statusEnum = EnumUtil.ConvertStringToEnum<SurveyStatus>(status);
+
+        var parameter = Expression.Parameter(typeof(Survey));
+        Expression filter = Expression.Constant(true); // default is "where true"
+
+        try
+        {
+            if (statusEnum.HasValue)
+            {
+                if (!(statusEnum.Value.Equals(SurveyStatus.Active) && statusEnum.Value.Equals(SurveyStatus.Expired)))
+                {
+                    throw new BadRequestException("Invalid status. Only 'Active' or 'Expired' status are allowed.");
+                }
+
+                filter = Expression.AndAlso(filter,
+                    Expression.Equal(Expression.Property(parameter, "Status"), Expression.Constant(statusEnum.Value)));
+            }
+
+            //only survey that is not deleted
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(Expression.Property(parameter, "IsDelete"), Expression.Constant(false)));
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                var titleToLower = title.ToLower();
+                filter = Expression.AndAlso(filter,
+                    Expression.Call(
+                        Expression.Call(Expression.Property(parameter, "Title"),
+                            typeof(string).GetMethod("ToLower", Type.EmptyTypes)),
+                        typeof(string).GetMethod("Contains", new[] { typeof(string) }),
+                        Expression.Constant(titleToLower)
+                    )
+                );
+            }
+
+            Func<IQueryable<Survey>, IOrderedQueryable<Survey>> orderBy = q => q.OrderBy(s => s.Id);
+
+            if (sortTitle != null && sortTitle.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.Title);
+            }
+            else if (sortTitle != null && sortTitle.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.Title);
+            }
+            else if (sortTotalQuestion != null && sortTotalQuestion.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.TotalQuestion);
+            }
+            else if (sortTotalQuestion != null && sortTotalQuestion.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.TotalQuestion);
+            }
+            else if (sortStartDate != null && sortStartDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.StartDate);
+            }
+            else if (sortStartDate != null && sortStartDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.StartDate);
+            }
+            else if (sortExpiredDate != null && sortExpiredDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.ExpiredDate);
+            }
+            else if (sortExpiredDate != null && sortExpiredDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.ExpiredDate);
+            }
+            else if (sortPoint != null && sortPoint.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.Point);
+            }
+            else if (sortPoint != null && sortPoint.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.Point);
+            }
+
+            var surveys = await _unitOfWork.SurveyRepository.GetPaginateAsync(
+                Expression.Lambda<Func<Survey, bool>>(filter, parameter), orderBy, "CreatedBy", page, size);
+            var result = _mapper.Map<PagingResponse<CommonSurveyResponse>>(surveys);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            throw new BadRequestException(e.Message);
+        }
+    }
 }

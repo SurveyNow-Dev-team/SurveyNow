@@ -23,4 +23,16 @@ public interface ISurveyService
         string? sortModifiedDate,
         int? page,
         int? size);
+
+    Task<PagingResponse<CommonSurveyResponse>> FilterCommonSurveyAsync(
+        string? status,
+        string? title,
+        string? sortTitle,
+        string? sortTotalQuestion,
+        string? sortPoint,
+        string? sortStartDate,
+        string? sortExpiredDate,
+        int? page,
+        int? size
+        );
 }

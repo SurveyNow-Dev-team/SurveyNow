@@ -4,7 +4,6 @@ using Application.DTOs.Response.Survey;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Enums;
 
 namespace Infrastructure.Mappers;
 
@@ -42,6 +41,15 @@ public class SurveyMappingProfile : Profile
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.StartDate)))
             .ForMember(dest => dest.ExpiredDate,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ExpiredDate)));
+
+        CreateMap<Survey, CommonSurveyResponse>()
+            .ForMember(dest => dest.StartDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDateV1(src.StartDate)))
+            .ForMember(dest => dest.ExpiredDate,
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDateV1(src.ExpiredDate)))
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName));
+
         CreateMap<PagingResponse<Survey>, PagingResponse<SurveyResponse>>();
+        CreateMap<PagingResponse<Survey>, PagingResponse<CommonSurveyResponse>>();
     }
 }

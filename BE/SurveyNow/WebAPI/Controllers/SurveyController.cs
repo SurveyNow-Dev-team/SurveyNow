@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Application.DTOs.Request.Survey;
+﻿using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
 using Application.Interfaces.Services;
-using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers;
@@ -38,6 +36,24 @@ public class SurveyController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<ActionResult<PagingResponse<CommonSurveyResponse>>> CommonFilterAsync(
+        [FromQuery] string? status,
+        [FromQuery] string? title,
+        [FromQuery] string? sortTitle,
+        [FromQuery] string? sortTotalQuestion,
+        [FromQuery] string? sortPoint,
+        [FromQuery] string? sortStartDate,
+        [FromQuery] string? sortExpiredDate,
+        [FromQuery] int? page,
+        [FromQuery] int? size
+    )
+    {
+        return Ok(await _surveyService.FilterCommonSurveyAsync(status, title, sortTitle, sortTotalQuestion, sortPoint,
+            sortStartDate, sortExpiredDate, page, size));
+    }
+
+    [HttpGet("/api/v1/admin/surveys")]
+    [Authorize(Policy = "Admin")]
     public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAsync(
         [FromQuery] string? status,
         [FromQuery] bool? isDelete,
