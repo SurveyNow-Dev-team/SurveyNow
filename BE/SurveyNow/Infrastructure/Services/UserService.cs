@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,8 +14,11 @@ using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Twilio.Jwt.AccessToken;
 
 namespace Infrastructure.Services
 {
@@ -27,9 +31,10 @@ namespace Infrastructure.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPhoneNumberService _phoneNumberService;
         private readonly IFileService _fileService;
+        private readonly IConfiguration _configuration;
 
         public UserService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UserService> logger, IJwtService jwtService,
-            IHttpContextAccessor httpContextAccessor, IPhoneNumberService phoneNumberService, IFileService fileService)
+            IHttpContextAccessor httpContextAccessor, IPhoneNumberService phoneNumberService, IFileService fileService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -38,6 +43,7 @@ namespace Infrastructure.Services
             _httpContextAccessor = httpContextAccessor;
             _phoneNumberService = phoneNumberService;
             _fileService = fileService;
+            _configuration = configuration;
         }
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest)
@@ -224,13 +230,62 @@ namespace Infrastructure.Services
             return otp;
         }
 
-        public async Task UpdateAvatar(Stream stream, string fileName)
+        public async Task<string> UpdateAvatar(Stream stream, string fileName)
         {
             var user = await GetLoggedInUserAsync();
             string url = await _fileService.UploadFileAsync(stream, fileName);
             user.AvatarUrl = url;
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
+            return url;
+        }
+
+        public async Task ChangeRole(long id, string role)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+            user.Role = _mapper.Map<Role>(role);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task ChangeStatus(long id, string status)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+            user.Status = _mapper.Map<UserStatus>(status);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+        }
+
+        public async Task<UserResponse> GetLoggedInUser()
+        {
+            User user = await GetLoggedInUserAsync();
+            return _mapper.Map<UserResponse>(user);
+        }
+
+        public async Task<LoginUserResponse> LoginWithGoogle(string idToken)
+        {
+            GoogleJsonWebSignature.ValidationSettings settings = new GoogleJsonWebSignature.ValidationSettings();
+            settings.Audience = new List<string> { _configuration.GetSection("Authentication:Google:ClientId").Value};
+            GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+            var user = await _unitOfWork.UserRepository.GetByEmailAsync(payload.Email); 
+            if (user == null)
+            {
+                user = new User() { 
+                    Email = payload.Email,
+                    FullName = payload.Name
+                };
+                await _unitOfWork.UserRepository.AddAsync(user);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            return _mapper.Map<LoginUserResponse>(user);
         }
     }
 }

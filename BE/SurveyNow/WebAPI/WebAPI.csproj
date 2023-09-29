@@ -5,7 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>SurveyNow</RootNamespace>
-    </PropertyGroup>
+      <UserSecretsId>f685d242-e667-40a8-a695-844d8ffea045</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />

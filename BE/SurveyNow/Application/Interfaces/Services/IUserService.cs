@@ -14,11 +14,15 @@ namespace Application.Interfaces.Services
         Task<UserResponse> UpdateUser(long id, UserRequest request);
         Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
         Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
+        Task<LoginUserResponse> LoginWithGoogle(string idToken);
         Task<User?> GetCurrentUserAsync();
         Task UpdatePhoneNumber(string phoneNumber);
         Task VerifyPhoneNumber(string confirmedOtp);
         Task ChangePasswordAsync(PasswordChangeRequest request);
         Task Remove();
-        Task UpdateAvatar(Stream stream, string fileName);
+        Task<string> UpdateAvatar(Stream stream, string fileName);
+        Task ChangeRole(long id, string role);
+        Task ChangeStatus(long id, string status);
+        Task<UserResponse> GetLoggedInUser();
     }
 }
