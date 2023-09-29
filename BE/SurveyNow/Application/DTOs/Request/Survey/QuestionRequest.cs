@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.DTOs.Request.Survey;
@@ -14,7 +12,7 @@ public class QuestionRequest
     [Required(ErrorMessage = "Question type is required.")]
     public QuestionType Type { get; set; }
 
-    public bool IsRequire { get; set; }
+    public bool? IsRequire { get; set; }
 
     public MultipleOptionType? MultipleOptionType { get; set; }
 

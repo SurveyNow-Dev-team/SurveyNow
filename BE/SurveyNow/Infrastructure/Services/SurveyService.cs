@@ -1,5 +1,4 @@
-﻿using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -44,12 +43,14 @@ public class SurveyService : ISurveyService
             surveyObject.CreatedUserId = currentUser.Id;
             await _unitOfWork.SurveyRepository.AddAsync(surveyObject);
             //Create Survey object
+            int totalQuestion = 0;
 
             foreach (var s in surveyObject.Sections)
             {
                 //Add Section 
                 s.SurveyId = surveyObject.Id;
                 s.TotalQuestion = s.Questions.Count;
+                totalQuestion += s.TotalQuestion;
                 await _unitOfWork.SectionRepository.AddAsync(s);
                 //Add Section 
 
@@ -82,12 +83,23 @@ public class SurveyService : ISurveyService
 
             await _unitOfWork.SaveChangeAsync();
 
+            var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyObject.Id);
+            if (surveyObj == null)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Survey has not been created yet.");
+            }
+
+            surveyObj.TotalQuestion = totalQuestion;
+            _unitOfWork.SurveyRepository.Update(surveyObj);
+            await _unitOfWork.SaveChangeAsync();
+
             await _unitOfWork.CommitAsync();
         }
         catch (Exception e)
         {
             await _unitOfWork.RollbackAsync();
-            throw new Exception("Error when create survey");
+            throw new Exception(e.Message);
         }
         finally
         {
