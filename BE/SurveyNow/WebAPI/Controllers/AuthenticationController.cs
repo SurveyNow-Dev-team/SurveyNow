@@ -42,7 +42,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("google-authentication")]
-    public async Task<ActionResult<LoginUserResponse>> LoginWithGoogle([FromHeader] string token)
+    public async Task<ActionResult<LoginUserResponse>> LoginWithGoogle([FromQuery] string token)
     {
         var user = await _userService.LoginWithGoogle(token);
         return Ok(user);

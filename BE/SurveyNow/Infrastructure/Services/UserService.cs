@@ -273,19 +273,23 @@ namespace Infrastructure.Services
         public async Task<LoginUserResponse> LoginWithGoogle(string idToken)
         {
             GoogleJsonWebSignature.ValidationSettings settings = new GoogleJsonWebSignature.ValidationSettings();
-            settings.Audience = new List<string> { _configuration.GetSection("Authentication:Google:ClientId").Value};
+            settings.Audience = new List<string> { _configuration.GetSection("Authentication:Google:ClientId").Value, "407408718192.apps.googleusercontent.com" };
             GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
             var user = await _unitOfWork.UserRepository.GetByEmailAsync(payload.Email); 
             if (user == null)
             {
                 user = new User() { 
                     Email = payload.Email,
-                    FullName = payload.Name
+                    FullName = payload.Name,
+                    Role = Role.User,
+                    AvatarUrl = payload.Picture
                 };
                 await _unitOfWork.UserRepository.AddAsync(user);
                 await _unitOfWork.SaveChangeAsync();
             }
-            return _mapper.Map<LoginUserResponse>(user);
+            var response = _mapper.Map<LoginUserResponse>(user);
+            response.Token = await _jwtService.GenerateAccessTokenAsync(user);
+            return response;
         }
     }
 }
