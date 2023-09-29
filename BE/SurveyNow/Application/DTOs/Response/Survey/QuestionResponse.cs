@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Application.DTOs.Request.Survey;
-using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace Application.DTOs.Response.Survey;
 

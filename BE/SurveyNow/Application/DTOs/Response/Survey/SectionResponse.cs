@@ -10,5 +10,5 @@ public class SectionResponse
 
     public int TotalQuestion { get; set; }
 
-    public virtual ICollection<QuestionResponse> Questions { get; set; } = new List<QuestionResponse>();
+    public ICollection<QuestionResponse> Questions { get; set; } = new List<QuestionResponse>();
 }
