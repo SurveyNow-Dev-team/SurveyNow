@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics;
+using System.Linq.Expressions;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -443,6 +444,38 @@ public class SurveyService : ISurveyService
         {
             _logger.LogError("Can not  data on FilterAccountSurveyAsync method.", e.Message);
             throw new BadRequestException(e.Message);
+        }
+    }
+
+    //Need to check more validation
+    public async Task DeleteSurveyAsync(long id)
+    {
+        var currentUser = await _userService.GetCurrentUserAsync();
+        if (currentUser == null)
+        {
+            throw new UnAuthorizedException("User has not logged in yet.");
+        }
+
+        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(id);
+        if (surveyObj == null)
+            throw new NotFoundException($"Survey {id} is not exist.");
+
+        //Only owner can delete the survey,,mmm
+        //The survey is deleted can not be undone
+        if (currentUser.Id != surveyObj.CreatedUserId)
+            throw new ForbiddenException(
+                "Only owner can delete the survey. If you are admin, try to change status instead.");
+
+        surveyObj.IsDelete = true;
+        _unitOfWork.SurveyRepository.Update(surveyObj);
+        try
+        {
+            await _unitOfWork.SaveChangeAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error when save the updated survey.", e.Message);
+            throw new Exception("Error when save the updated survey.");
         }
     }
 }

@@ -3,7 +3,6 @@ using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers;
@@ -27,7 +26,6 @@ public class SurveyController : ControllerBase
     {
         var result = await _surveyService.CreateSurveyAsync(request);
         return CreatedAtAction(nameof(CommonFilterAsync), new { id = result }, result);
-        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -73,7 +71,6 @@ public class SurveyController : ControllerBase
     }
 
     [HttpGet("/api/v1/account/surveys")]
-    [Authorize]
     public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAccountSurveyAsync(
         [FromQuery] string? status,
         [FromQuery] string? packType,
@@ -89,5 +86,12 @@ public class SurveyController : ControllerBase
     {
         return Ok(await _surveyService.FilterAccountSurveyAsync(status, packType, title, sortTitle, sortCreatedDate,
             sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteSurvey(long id)
+    {
+        await _surveyService.DeleteSurveyAsync(id);
+        return Ok();
     }
 }

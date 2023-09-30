@@ -48,4 +48,6 @@ public interface ISurveyService
         int? page,
         int? size
     );
+
+    Task DeleteSurveyAsync(long id);
 }
