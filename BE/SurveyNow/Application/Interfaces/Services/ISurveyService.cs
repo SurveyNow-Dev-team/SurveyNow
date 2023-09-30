@@ -35,4 +35,17 @@ public interface ISurveyService
         int? page,
         int? size
         );
+
+    Task<PagingResponse<SurveyResponse>> FilterAccountSurveyAsync(
+        string? status,
+        string? packType,
+        string? title,
+        string? sortTitle,
+        string? sortCreatedDate,
+        string? sortStartDate,
+        string? sortExpiredDate,
+        string? sortModifiedDate,
+        int? page,
+        int? size
+    );
 }

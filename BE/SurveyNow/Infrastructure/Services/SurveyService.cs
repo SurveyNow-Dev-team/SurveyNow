@@ -86,6 +86,7 @@ public class SurveyService : ISurveyService
             var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyObject.Id);
             if (surveyObj == null)
             {
+                _logger.LogError("Survey has not been created yet.");
                 await _unitOfWork.RollbackAsync();
                 throw new Exception("Survey has not been created yet.");
             }
@@ -98,6 +99,7 @@ public class SurveyService : ISurveyService
         }
         catch (Exception e)
         {
+            _logger.LogError("Error when creating survey", e.Message);
             await _unitOfWork.RollbackAsync();
             throw new Exception(e.Message);
         }
@@ -228,6 +230,7 @@ public class SurveyService : ISurveyService
         }
         catch (Exception e)
         {
+            _logger.LogError("Can not  data on FilterSurveyAsync method.", e.Message);
             throw new BadRequestException(e.Message);
         }
     }
@@ -330,6 +333,115 @@ public class SurveyService : ISurveyService
         }
         catch (Exception e)
         {
+            _logger.LogError("Can not  data on FilterCommonSurveyAsync method.", e.Message);
+            throw new BadRequestException(e.Message);
+        }
+    }
+
+    public async Task<PagingResponse<SurveyResponse>> FilterAccountSurveyAsync(string? status, string? packType,
+        string? title, string? sortTitle,
+        string? sortCreatedDate, string? sortStartDate, string? sortExpiredDate, string? sortModifiedDate, int? page,
+        int? size)
+    {
+        var currentUser = await _userService.GetCurrentUserAsync();
+        if (currentUser == null)
+        {
+            throw new UnAuthorizedException("User has not logged in yet.");
+        }
+
+        var statusEnum = EnumUtil.ConvertStringToEnum<SurveyStatus>(status);
+        var packTypeEnum = EnumUtil.ConvertStringToEnum<PackType>(packType);
+
+        var parameter = Expression.Parameter(typeof(Survey));
+        Expression filter = Expression.Constant(true); // default is "where true"
+
+        try
+        {
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(Expression.Property(parameter, "CreatedUserId"), Expression.Constant(currentUser.Id)));
+
+            if (statusEnum.HasValue)
+            {
+                filter = Expression.AndAlso(filter,
+                    Expression.Equal(Expression.Property(parameter, "Status"), Expression.Constant(statusEnum.Value)));
+            }
+
+            if (packTypeEnum.HasValue)
+            {
+                filter = Expression.AndAlso(filter,
+                    Expression.Equal(Expression.Property(parameter, "PackType"),
+                        Expression.Constant(packTypeEnum.Value)));
+            }
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                var titleToLower = title.ToLower();
+                filter = Expression.AndAlso(filter,
+                    Expression.Call(
+                        Expression.Call(Expression.Property(parameter, "Title"),
+                            typeof(string).GetMethod("ToLower", Type.EmptyTypes)),
+                        typeof(string).GetMethod("Contains", new[] { typeof(string) }),
+                        Expression.Constant(titleToLower)
+                    )
+                );
+            }
+
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(Expression.Property(parameter, "IsDelete"),
+                    Expression.Constant(false)));
+
+            Func<IQueryable<Survey>, IOrderedQueryable<Survey>> orderBy = q => q.OrderBy(s => s.Id);
+
+            if (sortTitle != null && sortTitle.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.Title);
+            }
+            else if (sortTitle != null && sortTitle.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.Title);
+            }
+            else if (sortCreatedDate != null && sortCreatedDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.CreatedDate);
+            }
+            else if (sortCreatedDate != null && sortCreatedDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.CreatedDate);
+            }
+            else if (sortStartDate != null && sortStartDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.StartDate);
+            }
+            else if (sortStartDate != null && sortStartDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.StartDate);
+            }
+            else if (sortExpiredDate != null && sortExpiredDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.ExpiredDate);
+            }
+            else if (sortExpiredDate != null && sortExpiredDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.ExpiredDate);
+            }
+            else if (sortModifiedDate != null && sortModifiedDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.ModifiedDate);
+            }
+            else if (sortModifiedDate != null && sortModifiedDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.ModifiedDate);
+            }
+
+            var surveys = await _unitOfWork.SurveyRepository.GetPaginateAsync(
+                Expression.Lambda<Func<Survey, bool>>(filter, parameter), orderBy, "CreatedBy", page, size);
+            var result = _mapper.Map<PagingResponse<SurveyResponse>>(surveys);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Can not  data on FilterAccountSurveyAsync method.", e.Message);
             throw new BadRequestException(e.Message);
         }
     }

@@ -26,6 +26,7 @@ public class SurveyController : ControllerBase
     public async Task<ActionResult<long>> CreateSurveyAsync([FromBody] SurveyRequest request)
     {
         var result = await _surveyService.CreateSurveyAsync(request);
+        return CreatedAtAction(nameof(CommonFilterAsync), new { id = result }, result);
         return Ok(result);
     }
 
@@ -68,6 +69,25 @@ public class SurveyController : ControllerBase
         [FromQuery] int? size)
     {
         return Ok(await _surveyService.FilterSurveyAsync(status, isDelete, packType, title, sortTitle, sortCreatedDate,
+            sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
+    }
+
+    [HttpGet("/api/v1/account/surveys")]
+    [Authorize]
+    public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAccountSurveyAsync(
+        [FromQuery] string? status,
+        [FromQuery] string? packType,
+        [FromQuery] string? title,
+        [FromQuery] string? sortTitle,
+        [FromQuery] string? sortCreatedDate,
+        [FromQuery] string? sortStartDate,
+        [FromQuery] string? sortExpiredDate,
+        [FromQuery] string? sortModifiedDate,
+        [FromQuery] int? page,
+        [FromQuery] int? size
+    )
+    {
+        return Ok(await _surveyService.FilterAccountSurveyAsync(status, packType, title, sortTitle, sortCreatedDate,
             sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
     }
 }
