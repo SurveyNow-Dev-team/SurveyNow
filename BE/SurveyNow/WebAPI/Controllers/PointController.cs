@@ -5,7 +5,9 @@ using Application.DTOs.Response.Point.History;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Twilio.Jwt.Taskrouter;
 
 namespace SurveyNow.Controllers
 {
@@ -24,6 +26,7 @@ namespace SurveyNow.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet("history/{id}")]
         public async Task<ActionResult<BasePointHistoryResponse>> GetPointHistoryDetailAsync(long id)
         {
@@ -47,6 +50,7 @@ namespace SurveyNow.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("history")]
         public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery]PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
         {

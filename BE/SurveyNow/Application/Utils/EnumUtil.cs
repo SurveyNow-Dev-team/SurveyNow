@@ -72,14 +72,16 @@ namespace Application.Utils
             }
         }
 
-        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point, long surveyId = 0, PackType packType = PackType.Basic)
+        public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point,
+            long surveyId = 0, PackType packType = PackType.Basic, PaymentMethod paymentMethod = PaymentMethod.Momo)
         {
             switch (type)
             {
                 case PointHistoryType.PurchasePoint:
                     return $"User purchase point to their account. " +
-                        $"User ID: {userId}; " +
-                        $"Point Amount: {point}; ";
+                           $"User ID: {userId}; " +
+                           $"Point Amount: {point}; " +
+                           $"With method: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.DoSurvey:
                     return $"User received point from survey completion. " +
@@ -114,6 +116,17 @@ namespace Application.Utils
                 default:
                     return "";
             }
+        }
+
+        public static T? ConvertStringToEnum<T>(string? input) where T : struct, Enum
+        {
+            if (string.IsNullOrEmpty(input))
+                return null;
+
+            if (Enum.TryParse<T>(input, out T result))
+                return result;
+
+            return null;
         }
     }
 }
