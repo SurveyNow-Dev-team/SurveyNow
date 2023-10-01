@@ -12,7 +12,7 @@ public class SurveyRequest
     [StringLength(3000, ErrorMessage = "Description can not exceed 3000 character.")]
     public string? Description { get; set; }
 
-    public PackType? PackType { get; set; }
+    // public PackType? PackType { get; set; }
 
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm:ss}")]

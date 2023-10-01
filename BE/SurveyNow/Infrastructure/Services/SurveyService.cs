@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -42,6 +41,13 @@ public class SurveyService : ISurveyService
             var currentUser = await _userService.GetCurrentUserAsync();
             surveyObject.CreatedBy = currentUser ?? throw new UnAuthorizedException("User does not log in.");
             surveyObject.CreatedUserId = currentUser.Id;
+            //Update status to PackPurchase if user bought a pack
+            surveyObject.Status = SurveyStatus.Draft;
+            // if (surveyObject.PackType.HasValue)
+            // {
+            //     surveyObject.Status = SurveyStatus.PackPurchased;
+            // }
+
             await _unitOfWork.SurveyRepository.AddAsync(surveyObject);
             //Create Survey object
             int totalQuestion = 0;
@@ -460,7 +466,7 @@ public class SurveyService : ISurveyService
         if (surveyObj == null)
             throw new NotFoundException($"Survey {id} is not exist.");
 
-        //Only owner can delete the survey,,mmm
+        //Only owner can delete the survey
         //The survey is deleted can not be undone
         if (currentUser.Id != surveyObj.CreatedUserId)
             throw new ForbiddenException(
@@ -476,6 +482,118 @@ public class SurveyService : ISurveyService
         {
             _logger.LogError("Error when save the updated survey.", e.Message);
             throw new Exception("Error when save the updated survey.");
+        }
+    }
+
+    public async Task<SurveyDetailResponse> UpdateSurveyAsync(long id, SurveyRequest request)
+    {
+        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(id);
+        if (surveyObj == null)
+        {
+            throw new NotFoundException($"Survey {id} does not exist.");
+        }
+
+        var currentUser = await _userService.GetCurrentUserAsync();
+        if (currentUser == null)
+        {
+            throw new UnAuthorizedException("User does not log in.");
+        }
+
+        if (surveyObj.CreatedUserId != currentUser.Id)
+        {
+            throw new ForbiddenException("Only owner can update survey.");
+        }
+
+        // if (!(surveyObj.Status.Equals(SurveyStatus.Draft) || surveyObj.Status.Equals(SurveyStatus.PackPurchased)))
+        // {
+        //     throw new BadRequestException("Can only update survey that has not been published.");
+        // }
+
+        //begin transaction
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
+        {
+            var updateSurveyObj = _mapper.Map<Survey>(request);
+            surveyObj.Title = updateSurveyObj.Title;
+            surveyObj.Description = updateSurveyObj.Description;
+            surveyObj.PackType = updateSurveyObj.PackType;
+            surveyObj.Status = surveyObj.PackType != null ? SurveyStatus.PackPurchased : SurveyStatus.Draft;
+
+            surveyObj.ModifiedDate = DateTime.UtcNow;
+
+            //Need to add validation for start date and end date
+            surveyObj.StartDate = updateSurveyObj.StartDate;
+            surveyObj.ExpiredDate = updateSurveyObj.ExpiredDate;
+            //Need to add validation for start date and end date
+
+            int totalQuestion = 0;
+
+            //Delete all old section and question
+            foreach (var section in surveyObj.Sections)
+            {
+                //need to check here
+                await _unitOfWork.SectionRepository.DeleteByIdAsync(section.Id);
+            }
+
+            //add new list section for survey
+            foreach (var s in updateSurveyObj.Sections)
+            {
+                //Add Section 
+                s.SurveyId = surveyObj.Id;
+                s.TotalQuestion = s.Questions.Count;
+                totalQuestion += s.TotalQuestion;
+                await _unitOfWork.SectionRepository.AddAsync(s);
+                //Add Section 
+
+                foreach (var q in s.Questions)
+                {
+                    q.SectionId = s.Id;
+                    await _unitOfWork.QuestionRepository.AddAsync(q);
+
+                    var rowOptionTask = Task.Run(async () =>
+                    {
+                        foreach (var ro in q.RowOptions)
+                        {
+                            ro.QuestionId = q.Id;
+                            await _unitOfWork.RowOptionRepository.AddAsync(ro);
+                        }
+                    });
+
+                    var columnOptionTask = Task.Run(async () =>
+                    {
+                        foreach (var co in q.ColumnOptions)
+                        {
+                            co.QuestionId = q.Id;
+                            await _unitOfWork.ColumnOptionRepository.AddAsync(co);
+                        }
+                    });
+
+                    await Task.WhenAll(rowOptionTask, columnOptionTask);
+                }
+            }
+
+            surveyObj.TotalQuestion = totalQuestion;
+            //Update survey Obj
+            _unitOfWork.SurveyRepository.Update(surveyObj);
+            //Update survey Obj
+
+            await _unitOfWork.SaveChangeAsync();
+
+            await _unitOfWork.CommitAsync();
+            surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(id);
+            var result = _mapper.Map<SurveyDetailResponse>(surveyObj);
+            return result;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error when updating survey.", e.Message);
+            await _unitOfWork.RollbackAsync();
+            throw new Exception(e.Message);
+        }
+        finally
+        {
+            await _unitOfWork.DisposeAsync();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
-using Domain.Enums;
 
 namespace Application.Interfaces.Services;
 
@@ -34,7 +33,7 @@ public interface ISurveyService
         string? sortExpiredDate,
         int? page,
         int? size
-        );
+    );
 
     Task<PagingResponse<SurveyResponse>> FilterAccountSurveyAsync(
         string? status,
@@ -50,4 +49,6 @@ public interface ISurveyService
     );
 
     Task DeleteSurveyAsync(long id);
+
+    Task<SurveyDetailResponse> UpdateSurveyAsync(long id, SurveyRequest request);
 }

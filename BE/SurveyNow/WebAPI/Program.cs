@@ -1,3 +1,4 @@
+using System.Net;
 using Application.Configurations;
 using Infrastructure;
 using SurveyNow;
@@ -15,6 +16,16 @@ if (configuration != null)
     builder.Services.AddSingleton(configuration);
 }
 
+//Config Https redirect port for production
+/*if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.RedirectStatusCode = (int)HttpStatusCode.PermanentRedirect;
+        options.HttpsPort = 443;
+    });
+}*/
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,6 +34,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+/*if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}*/
 
 // Configure the HTTPS redirection middleware with the obtained port
 // app.UseHttpsRedirection();
