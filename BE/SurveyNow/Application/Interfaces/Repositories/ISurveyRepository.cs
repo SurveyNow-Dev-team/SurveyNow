@@ -2,7 +2,7 @@
 
 namespace Application.Interfaces.Repositories;
 
-public interface ISurveyRepository: IBaseRepository<Survey>
+public interface ISurveyRepository : IBaseRepository<Survey>
 {
-    
+    public Task<Survey> GetByIdWithoutTrackingAsync(long id);
 }

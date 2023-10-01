@@ -34,7 +34,7 @@ public interface ISurveyService
         string? sortExpiredDate,
         int? page,
         int? size
-        );
+    );
 
     Task<PagingResponse<SurveyResponse>> FilterAccountSurveyAsync(
         string? status,
@@ -50,4 +50,7 @@ public interface ISurveyService
     );
 
     Task DeleteSurveyAsync(long id);
+
+    Task<SurveyDetailResponse> UpdateSurveyAsync(long id, SurveyRequest request);
+    Task<SurveyDetailResponse> ChangeSurveyStatusAsync(long id);
 }
