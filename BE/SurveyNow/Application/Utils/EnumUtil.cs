@@ -73,14 +73,15 @@ namespace Application.Utils
         }
 
         public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point,
-            long surveyId = 0, PackType packType = PackType.Basic)
+            long surveyId = 0, PackType packType = PackType.Basic, PaymentMethod paymentMethod = PaymentMethod.Momo)
         {
             switch (type)
             {
                 case PointHistoryType.PurchasePoint:
                     return $"User purchase point to their account. " +
                            $"User ID: {userId}; " +
-                           $"Point Amount: {point}; ";
+                           $"Point Amount: {point}; " +
+                           $"With method: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.DoSurvey:
                     return $"User received point from survey completion. " +
