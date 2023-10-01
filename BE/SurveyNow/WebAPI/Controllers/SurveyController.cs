@@ -25,7 +25,7 @@ public class SurveyController : ControllerBase
     public async Task<ActionResult<long>> CreateSurveyAsync([FromBody] SurveyRequest request)
     {
         var result = await _surveyService.CreateSurveyAsync(request);
-        return Created(nameof(CommonFilterAsync), new { id = result });
+        return Created(nameof(CommonFilterAsync), result);
     }
 
     [HttpGet("{id}")]

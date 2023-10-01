@@ -30,7 +30,7 @@ public class SurveyService : ISurveyService
         _userService = userService;
     }
 
-    public async Task<long> CreateSurveyAsync(SurveyRequest request)
+    public async Task<SurveyDetailResponse> CreateSurveyAsync(SurveyRequest request)
     {
         //begin transaction
         await _unitOfWork.BeginTransactionAsync();
@@ -91,7 +91,7 @@ public class SurveyService : ISurveyService
 
             await _unitOfWork.SaveChangeAsync();
 
-            var surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(surveyObject.Id);
+            var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyObject.Id);
             if (surveyObj == null)
             {
                 _logger.LogError("Survey has not been created yet.");
@@ -104,6 +104,10 @@ public class SurveyService : ISurveyService
             await _unitOfWork.SaveChangeAsync();
 
             await _unitOfWork.CommitAsync();
+
+            surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(surveyObject.Id);
+            var result = _mapper.Map<SurveyDetailResponse>(surveyObj);
+            return result;
         }
         catch (Exception e)
         {
@@ -115,8 +119,6 @@ public class SurveyService : ISurveyService
         {
             await _unitOfWork.DisposeAsync();
         }
-
-        return surveyObject.Id;
     }
 
     public async Task<SurveyDetailResponse> GetByIdAsync(long id)

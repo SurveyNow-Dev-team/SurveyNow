@@ -7,7 +7,7 @@ namespace Application.Interfaces.Services;
 
 public interface ISurveyService
 {
-    Task<long> CreateSurveyAsync(SurveyRequest request);
+    Task<SurveyDetailResponse> CreateSurveyAsync(SurveyRequest request);
     Task<SurveyDetailResponse> GetByIdAsync(long id);
     Task<List<SurveyResponse>> GetAllAsync();
 
