@@ -73,6 +73,11 @@ namespace Infrastructure.Services
             }
         }
 
+        public Task<string?> CreatePurchasePointOrder(User? user, PointPurchaseRequest purchaseRequest)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest)
         {
             var pageHistories = await _unitOfWork.PointHistoryRepository.GetPointHistoryPaginatedAsync(userId, type, dateFilter, valueFilter, sortOrder, pagingRequest);
