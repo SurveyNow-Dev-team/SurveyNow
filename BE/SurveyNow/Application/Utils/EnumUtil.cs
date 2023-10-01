@@ -81,6 +81,7 @@ namespace Application.Utils
                     return $"User purchase point to their account. " +
                            $"User ID: {userId}; " +
                            $"Point Amount: {point}; " +
+                           $"Total Amount: {point * BusinessData.BasePointVNDPrice} VND; " +
                            $"With method: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.DoSurvey:

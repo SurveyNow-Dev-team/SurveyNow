@@ -2,6 +2,7 @@
 using Application.DTOs.Request;
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
+using Application.DTOs.Response.Momo;
 using Application.DTOs.Response.Pack;
 using Application.DTOs.Response.Point.History;
 using Application.DTOs.Response.Survey;
@@ -18,16 +19,18 @@ namespace Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IMomoService _momoService;
 
-        public PointService(IUnitOfWork unitOfWork, IMapper mapper)
+        public PointService(IUnitOfWork unitOfWork, IMapper mapper, IMomoService momoService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _momoService = momoService;
         }
 
         public async Task<bool> AddDoSurveyPointAsync(long userId, long surveyId, decimal pointAmount)
         {
-            if(userId <= 0 || surveyId <= 0 || pointAmount <= 0)
+            if (userId <= 0 || surveyId <= 0 || pointAmount <= 0)
             {
                 throw new ArgumentOutOfRangeException("Paramater(s) is out of range. All parameters range must be larger than 0");
             }
@@ -56,9 +59,9 @@ namespace Infrastructure.Services
 
                 // Save changes
                 var result = await _unitOfWork.SaveChangeAsync();
-                
 
-                if(result <= 0)
+
+                if (result <= 0)
                 {
                     throw new Exception("Failed add do survey point transaction");
                 }
@@ -73,9 +76,14 @@ namespace Infrastructure.Services
             }
         }
 
-        public Task<string?> CreatePurchasePointOrder(User? user, PointPurchaseRequest purchaseRequest)
+        public async Task<MomoPaymentMethodResponse?> CreateMomoPurchasePointOrder(User? user, PointPurchaseRequest purchaseRequest)
         {
-            throw new NotImplementedException();
+            var momoPaymentMethod = await _momoService.CreateMomoPaymentAsync(purchaseRequest);
+            if (momoPaymentMethod == null)
+            {
+                return null;
+            }
+            return _mapper.Map<MomoPaymentMethodResponse>(momoPaymentMethod);
         }
 
         public async Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest)

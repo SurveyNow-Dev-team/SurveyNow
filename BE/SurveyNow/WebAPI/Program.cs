@@ -1,5 +1,6 @@
 using System.Net;
 using Application.Configurations;
+using Application.Utils;
 using Infrastructure;
 using SurveyNow;
 using SurveyNow.Middlewares;
@@ -15,6 +16,9 @@ if (configuration != null)
     builder.Services.AddApiServices(configuration.Key);
     builder.Services.AddSingleton(configuration);
 }
+
+// Add momo configuration
+builder.Services.Configure<MomoConfig>(builder.Configuration.GetSection("MomoAPI"));
 
 //Config Https redirect port for production
 /*if (!builder.Environment.IsDevelopment())

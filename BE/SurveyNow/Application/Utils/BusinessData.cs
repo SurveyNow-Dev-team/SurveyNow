@@ -51,5 +51,8 @@ namespace Application.Utils
 
         public static readonly List<PackInformation> Packs = new List<PackInformation>() { BasicPack, MediumPack, AdvancedPack, ExpertPack };
         #endregion
+        #region Point
+        public static readonly decimal BasePointVNDPrice = 1000m;
+        #endregion
     }
 }
