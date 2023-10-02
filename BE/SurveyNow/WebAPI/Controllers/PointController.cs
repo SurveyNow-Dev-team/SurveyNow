@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Request;
+using Application.DTOs.Request.Momo;
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Momo;
@@ -53,7 +54,7 @@ namespace SurveyNow.Controllers
 
         [Authorize]
         [HttpGet("history")]
-        public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery]PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
+        public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery] PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
         {
             try
             {
@@ -81,7 +82,7 @@ namespace SurveyNow.Controllers
 
         // Test end-point
         [HttpPost("do-survey/")]
-        public async Task<ActionResult<BasePointHistoryResponse>> AddPointDoSurveyAsync([FromQuery]decimal pointAmount, [FromQuery]long surveyId)
+        public async Task<ActionResult<BasePointHistoryResponse>> AddPointDoSurveyAsync([FromQuery] decimal pointAmount, [FromQuery] long surveyId)
         {
             try
             {
@@ -108,7 +109,7 @@ namespace SurveyNow.Controllers
             try
             {
                 var result = await _pointService.CreateMomoPurchasePointOrder(user, purchaseRequest);
-                if(result == null)
+                if (result == null)
                 {
                     return NotFound("Failed to retrieve momo payment method");
                 }
@@ -119,6 +120,16 @@ namespace SurveyNow.Controllers
                 _logger.LogError(ex, "An exception occurred when trying to create point purchase order with Momo");
                 return StatusCode(500, "An exception occurred when trying to create point purchase order with Momo");
             }
+        }
+
+        //[Authorize]
+        [HttpGet]
+        [Route("purchase/momo/return")]
+        public async Task<ActionResult> OnReceivingMomoTransactionResult([FromQuery] MomoCreatePaymentResultRequest payload, [FromQuery] long userId)
+        {
+            _logger.LogInformation("Receive momo transaction result from client");
+            var result = await _pointService.ProcessMomoPaymentResultAsync(userId, payload);
+            return Ok(result);
         }
     }
 }
