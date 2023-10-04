@@ -18,7 +18,8 @@ namespace SurveyNow.Controllers
         [Route("ipn")]
         public async Task<ActionResult> OnReceivingMomoIpn([FromBody] MomoCreatePaymentResultRequest payload)
         {
-            _logger.LogInformation("Receive momo ipn for transaction result");
+            _logger.LogInformation("Receive momo ipn for transaction result".ToUpper());
+            _logger.LogInformation("Transction result:\n" + payload.ToString());
             return NoContent();
         }
     }
