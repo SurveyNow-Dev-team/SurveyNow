@@ -38,7 +38,7 @@ namespace Infrastructure.Services
                 options.Value.Language);
             if (purchaseRequest.Platform == Platform.Mobile)
             {
-                paymentRequest.redirectUrl = options.Value.MobilebReturnUrl;
+                paymentRequest.redirectUrl = options.Value.MobileReturnUrl;
             }
 
             paymentRequest.MakeSignature(options.Value.AccessKey, options.Value.SecretKey);
