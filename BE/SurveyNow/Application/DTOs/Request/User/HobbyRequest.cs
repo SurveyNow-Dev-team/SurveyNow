@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Request
+namespace Application.DTOs.Request.User
 {
     public class HobbyRequest
     {

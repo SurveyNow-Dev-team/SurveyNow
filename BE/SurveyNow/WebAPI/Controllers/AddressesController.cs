@@ -1,5 +1,5 @@
-﻿using Application.DTOs.Request;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
 {
-    [Route("api/address")]
+    [Route("api/v1/addresses")]
     [ApiController]
     public class AddressesController : ControllerBase
     {

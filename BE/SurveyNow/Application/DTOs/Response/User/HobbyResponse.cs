@@ -1,6 +1,4 @@
-﻿using Application.DTOs.Response.User;
-
-namespace Application.DTOs.Response
+﻿namespace Application.DTOs.Response.User
 {
     public class HobbyResponse
     {

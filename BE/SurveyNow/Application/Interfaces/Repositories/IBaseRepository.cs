@@ -23,7 +23,11 @@ public interface IBaseRepository<T> where T : class
 
     Task<T?> GetByIdAsync(object id);
 
+    Task<T?> GetByIdAsync(object id, string includeProperties = "");
+
     Task<List<T>> GetAllAsync();
+
+    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null, string? includeProperties = "");
 
     Task AddAsync(T entity);
 

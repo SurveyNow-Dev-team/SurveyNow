@@ -1,5 +1,5 @@
-﻿using Application.DTOs.Request;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
