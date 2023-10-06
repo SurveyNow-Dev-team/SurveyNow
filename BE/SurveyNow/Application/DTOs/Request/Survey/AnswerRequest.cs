@@ -13,5 +13,5 @@ public record AnswerRequest
     [Range(1, 20, ErrorMessage = "Rate number can not exceed 20.")]
     public int? RateNumber { get; set; }
 
-    public virtual ICollection<AnswerOptionRequest> AnswerOptions { get; set; } = new List<AnswerOptionRequest>();
+    public virtual ICollection<AnswerOptionRequest>? AnswerOptions { get; set; } = new List<AnswerOptionRequest>();
 }

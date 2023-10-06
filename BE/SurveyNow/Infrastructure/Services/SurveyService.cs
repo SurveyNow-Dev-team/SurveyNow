@@ -476,6 +476,7 @@ public class SurveyService : ISurveyService
             throw new ForbiddenException(
                 "Only owner can delete the survey. If you are admin, try to change status instead.");
 
+        //Need to check more before delete survey
         surveyObj.IsDelete = true;
         _unitOfWork.SurveyRepository.Update(surveyObj);
         try
@@ -620,7 +621,7 @@ public class SurveyService : ISurveyService
 
         if (!(currentUser.Role == Role.Admin || surveyObj.CreatedUserId.Equals(currentUser.Id)))
         {
-            throw new ForbiddenException("you do not have authority to modify this resource.");
+            throw new ForbiddenException("You do not have authority to modify this resource.");
         }
 
         if (surveyObj.Status.Equals(SurveyStatus.Active))
@@ -661,16 +662,34 @@ public class SurveyService : ISurveyService
         // Check if user did the survey before
         if (await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(request.SurveyId, currentUser.Id))
         {
-            throw new BadRequestException("you did the survey before.");
+            throw new BadRequestException("You did the survey before.");
         }
 
-        var answerList = _mapper.Map<List<Answer>>(request.Answers);
+        var answerList = _mapper.Map<List<Answer>>(request.Answers).Select(a =>
+        {
+            a.UserId = currentUser.Id;
+            return a;
+        }).ToList();
 
         //Begin transaction
         await _unitOfWork.BeginTransactionAsync();
 
         try
         {
+            var tasks = answerList.Select(a => _unitOfWork.AnswerRepository.AddAsync(a));
+            await Task.WhenAll(tasks);
+            var userSurvey = new UserSurvey
+            {
+                SurveyId = surveyObj.Id,
+                UserId = currentUser.Id,
+                Point = surveyObj.Point,
+                IsValid = true,
+                Date = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserSurveyRepository.AddAsync(userSurvey);
+            await _unitOfWork.SaveChangeAsync();
+            await _unitOfWork.CommitAsync();
         }
         catch (Exception e)
         {
@@ -683,7 +702,5 @@ public class SurveyService : ISurveyService
             _logger.LogInformation("Call dispose method.");
             await _unitOfWork.DisposeAsync();
         }
-
-        throw new NotImplementedException();
     }
 }

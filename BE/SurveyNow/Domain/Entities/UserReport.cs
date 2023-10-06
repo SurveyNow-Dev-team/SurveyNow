@@ -7,6 +7,8 @@ namespace Domain.Entities;
 
 public class UserReport
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
     [Column(TypeName = "nvarchar(100)")] public string? Type { get; set; }
