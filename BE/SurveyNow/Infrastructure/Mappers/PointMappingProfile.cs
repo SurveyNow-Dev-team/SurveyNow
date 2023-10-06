@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Response;
+using Application.DTOs.Response.Momo;
 using Application.DTOs.Response.Pack;
 using Application.DTOs.Response.Point.History;
 using Application.DTOs.Response.Survey;
@@ -86,6 +87,9 @@ namespace Infrastructure.Mappers
                 .ForMember(dest => dest.PackType,
                 src => src.MapFrom(src => Enum.GetName(src.PackType)));
 
+            #endregion
+            #region Momo
+            CreateMap<MomoCreatePaymentResponse, MomoPaymentMethodResponse>();
             #endregion
         }
     }

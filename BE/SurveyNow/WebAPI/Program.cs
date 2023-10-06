@@ -1,4 +1,6 @@
+using System.Net;
 using Application.Configurations;
+using Application.Utils;
 using Infrastructure;
 using SurveyNow;
 using SurveyNow.Middlewares;
@@ -15,6 +17,19 @@ if (configuration != null)
     builder.Services.AddSingleton(configuration);
 }
 
+// Add momo configuration
+builder.Services.Configure<MomoConfig>(builder.Configuration.GetSection("MomoAPI"));
+
+//Config Https redirect port for production
+/*if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.RedirectStatusCode = (int)HttpStatusCode.PermanentRedirect;
+        options.HttpsPort = 443;
+    });
+}*/
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,6 +41,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
         o.SwaggerEndpoint("/swagger/v1/swagger.yaml", "SurveyNow V1");
     });
 }
+
+/*if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}*/
 
 // Configure the HTTPS redirection middleware with the obtained port
 // app.UseHttpsRedirection();

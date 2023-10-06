@@ -33,4 +33,6 @@ public interface IBaseRepository<T> where T : class
     Task DeleteByIdAsync(object id);
 
     Task<bool> ExistById(object id);
+
+    Task<T> AddAsyncReturnEntity(T entity);
 }

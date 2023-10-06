@@ -3,8 +3,10 @@ using System.Reflection;
 using Application.DTOs.Response;
 using Application.ErrorHandlers;
 using Application.Interfaces.Repositories;
+using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 namespace Infrastructure.Repositories;
@@ -271,5 +273,11 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
 
         return result;
+    }
+
+    public async Task<T> AddAsyncReturnEntity(T entity)
+    {
+        EntityEntry<T> resultEntity = await _dbSet.AddAsync(entity);
+        return resultEntity.Entity;
     }
 }

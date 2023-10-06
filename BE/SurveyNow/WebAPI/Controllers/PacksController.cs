@@ -3,10 +3,14 @@ using Application.DTOs.Response.Pack;
 using Application.Interfaces.Services;
 using Application.Utils;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
 {
+    /// <summary>
+    /// Api for pack related resource
+    /// </summary>
     [Route("api/v1/packs")]
     [ApiController]
     public class PacksController : ControllerBase
@@ -22,6 +26,7 @@ namespace SurveyNow.Controllers
             _userService = userService;
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<ActionResult<List<PackInformation>>> GetAllPacksAsync()
         {
@@ -43,6 +48,12 @@ namespace SurveyNow.Controllers
             return await _packService.CalculatePackPriceAsync(packType, participants);
         }
 
+        /// <summary>
+        /// Get recommended pack(s) based on given survey's information
+        /// </summary>
+        /// <param name="recommendRequest"></param>
+        /// <returns></returns>
+        [Authorize]
         [HttpGet("recommend")]
         public async Task<ActionResult<List<PackInformation>>> GetRecommendedPacksAsync([FromQuery]PackRecommendRequest recommendRequest)
         {
@@ -61,6 +72,7 @@ namespace SurveyNow.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("purchase")]
         public async Task<ActionResult> ProcessPackPurchaseRequest(PackPurchaseRequest purchaseRequest)
         {

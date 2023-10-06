@@ -19,4 +19,16 @@
         DecreasePoint = 0,
         IncreasePoint = 1,
     }
+
+    public enum Currency
+    {
+        VND,
+        USD
+    }
+
+    public enum Platform
+    {
+        Mobile,
+        Web
+    }
 }

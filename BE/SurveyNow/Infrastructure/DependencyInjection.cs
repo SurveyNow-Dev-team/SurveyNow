@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<IPointService, PointService>();
         services.AddScoped<IPackService, PackService>();
         services.AddScoped<ISurveyService, SurveyService>();
+        services.AddScoped<IMomoService, MomoService>();
 
         //Unit of work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

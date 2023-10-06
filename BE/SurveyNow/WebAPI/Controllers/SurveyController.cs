@@ -3,7 +3,6 @@ using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers;
@@ -26,7 +25,7 @@ public class SurveyController : ControllerBase
     public async Task<ActionResult<long>> CreateSurveyAsync([FromBody] SurveyRequest request)
     {
         var result = await _surveyService.CreateSurveyAsync(request);
-        return Ok(result);
+        return Created(nameof(CommonFilterAsync), result);
     }
 
     [HttpGet("{id}")]
@@ -69,5 +68,43 @@ public class SurveyController : ControllerBase
     {
         return Ok(await _surveyService.FilterSurveyAsync(status, isDelete, packType, title, sortTitle, sortCreatedDate,
             sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
+    }
+
+    [HttpGet("/api/v1/account/surveys")]
+    public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAccountSurveyAsync(
+        [FromQuery] string? status,
+        [FromQuery] string? packType,
+        [FromQuery] string? title,
+        [FromQuery] string? sortTitle,
+        [FromQuery] string? sortCreatedDate,
+        [FromQuery] string? sortStartDate,
+        [FromQuery] string? sortExpiredDate,
+        [FromQuery] string? sortModifiedDate,
+        [FromQuery] int? page,
+        [FromQuery] int? size
+    )
+    {
+        return Ok(await _surveyService.FilterAccountSurveyAsync(status, packType, title, sortTitle, sortCreatedDate,
+            sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<SurveyDetailResponse>> UpdateSurveyAsync(long id, [FromBody] SurveyRequest request)
+    {
+        var result = await _surveyService.UpdateSurveyAsync(id, request);
+        return Ok(result);
+    }
+
+    [HttpPatch("status/{id}")]
+    public async Task<ActionResult<SurveyDetailResponse>> ChangeStatusAsync(long id)
+    {
+        return Ok(await _surveyService.ChangeSurveyStatusAsync(id));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteSurvey(long id)
+    {
+        await _surveyService.DeleteSurveyAsync(id);
+        return Ok();
     }
 }

@@ -9,7 +9,7 @@ public class RowOptionRequest
     public int Order { get; set; }
 
     //For Other choice type
-    public bool IsCustom { get; set; }
+    public bool? IsCustom { get; set; }
 
     [StringLength(500, ErrorMessage = "Content can not exceed 500 character.")]
     public string? Content { get; set; }

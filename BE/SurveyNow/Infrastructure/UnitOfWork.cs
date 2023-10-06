@@ -97,17 +97,16 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task CommitAsync()
     {
-        // try
-        // {
-        //     await _transaction.CommitAsync();
-        // }
-        // catch (Exception e)
-        // {
-        //     _logger.LogError(e, $"Error when commit transaction.\nDate:{DateTime.UtcNow}");
-        //     throw;
-        // }
+        try
+        {
+            await _transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error when commit transaction.\nDate:{DateTime.UtcNow}");
+            throw new Exception("Transaction has not been created yet.");
+        }
         
-        await _transaction.CommitAsync();
     }
 
     public async Task RollbackAsync()
