@@ -4,6 +4,7 @@ using Application.DTOs.Response.Survey;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
+using Answer = Domain.Answer;
 
 namespace Infrastructure.Mappers;
 
@@ -51,5 +52,8 @@ public class SurveyMappingProfile : Profile
 
         CreateMap<PagingResponse<Survey>, PagingResponse<SurveyResponse>>();
         CreateMap<PagingResponse<Survey>, PagingResponse<CommonSurveyResponse>>();
+
+        CreateMap<AnswerRequest, Answer>();
+        CreateMap<AnswerOptionRequest, AnswerOption>();
     }
 }

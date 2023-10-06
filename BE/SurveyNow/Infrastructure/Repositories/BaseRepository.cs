@@ -26,12 +26,19 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     public virtual async Task<IEnumerable<T>> Get(
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        string includeProperties = "")
+        string includeProperties = "",
+        bool disableTracking = true
+    )
     {
         IQueryable<T> query = _dbSet;
 
         try
         {
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -64,13 +71,19 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
         int? page,
-        int? size)
+        int? size,
+        bool disableTracking = true)
     {
         IQueryable<T> query = _dbSet;
         PagingResponse<T> result = new PagingResponse<T>();
 
         try
         {
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -113,7 +126,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 result.Results = await query.ToListAsync();
             }
 
-            
+
             return result;
         }
         catch (Exception e)

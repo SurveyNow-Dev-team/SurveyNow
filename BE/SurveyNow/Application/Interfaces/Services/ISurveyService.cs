@@ -53,4 +53,6 @@ public interface ISurveyService
 
     Task<SurveyDetailResponse> UpdateSurveyAsync(long id, SurveyRequest request);
     Task<SurveyDetailResponse> ChangeSurveyStatusAsync(long id);
+
+    Task DoSurveyAsync(DoSurveyRequest request);
 }

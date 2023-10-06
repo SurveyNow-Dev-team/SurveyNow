@@ -28,7 +28,7 @@ public class SurveyController : ControllerBase
         return Created(nameof(CommonFilterAsync), result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<SurveyDetailResponse>> GetByIdAsync(long id)
     {
         return Ok(await _surveyService.GetByIdAsync(id));

@@ -11,6 +11,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.Extensions.Logging;
+using Twilio.Http;
 
 namespace Infrastructure.Services;
 
@@ -639,5 +640,50 @@ public class SurveyService : ISurveyService
         var result = await _unitOfWork.SaveChangeAsync();
 
         return _mapper.Map<SurveyDetailResponse>(surveyObj);
+    }
+
+    public async Task DoSurveyAsync(DoSurveyRequest request)
+    {
+        var currentUser = await _userService.GetCurrentUserAsync().ContinueWith(
+            t => t.Result ?? throw new UnAuthorizedException("Can not extract user from token."));
+
+        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(request.SurveyId);
+        if (surveyObj == null)
+        {
+            throw new NotFoundException($"Survey {request.SurveyId} can not be found.");
+        }
+
+        if (currentUser.Id == surveyObj.CreatedUserId)
+        {
+            throw new BadRequestException("You can not do your survey.");
+        }
+
+        // Check if user did the survey before
+        if (await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(request.SurveyId, currentUser.Id))
+        {
+            throw new BadRequestException("you did the survey before.");
+        }
+
+        var answerList = _mapper.Map<List<Answer>>(request.Answers);
+
+        //Begin transaction
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
+        {
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error when saving answer.", e.Message);
+            await _unitOfWork.RollbackAsync();
+            throw new Exception(e.Message);
+        }
+        finally
+        {
+            _logger.LogInformation("Call dispose method.");
+            await _unitOfWork.DisposeAsync();
+        }
+
+        throw new NotImplementedException();
     }
 }
