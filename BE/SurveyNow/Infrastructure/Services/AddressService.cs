@@ -1,6 +1,6 @@
 ﻿using Application;
-using Application.DTOs.Request;
-using Application.DTOs.Response;
+using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using AutoMapper;
 using Domain.Entities;

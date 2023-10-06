@@ -30,6 +30,7 @@ public interface IUnitOfWork : IAsyncDisposable
     public IFieldCriterionRepository FieldCriterionRepository { get; }
     public IGenderCriterionRepository GenderCriterionRepository { get; }
     public IRelationshipCriterionRepository RelationshipCriterionRepository { get; }
+    public IOccupationRepository OccupationRepository { get; }
 
     public Task<int> SaveChangeAsync();
 
