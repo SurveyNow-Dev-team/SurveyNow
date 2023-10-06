@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Response
+namespace Application.DTOs.Response.User
 {
     public class AddressResponse
     {

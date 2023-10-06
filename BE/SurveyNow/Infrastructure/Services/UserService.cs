@@ -46,16 +46,15 @@ namespace Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task<PagingResponse<UserResponse>> GetUsers(UserRequest filter, PagingRequest pagingRequest)
+        public async Task<PagingResponse<UserResponse>> GetUsers(UserFilterRequest filter, PagingRequest pagingRequest)
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllAsync(entityFilter: _mapper.Map<User>(filter));
             if(users == null)
             {
-                throw new NotFoundException("There aren't any users");
+                throw new NotFoundException("There aren't any users satisfied the criteria");
             }
-            var userResponses = _mapper.Map<List<User>, List<UserResponse>>(users);
-            var filteredUsers = userResponses.AsQueryable().Filter(_mapper.Map<UserResponse>(filter));
-            var paginatedUsers = filteredUsers.ToList().Paginate(pagingRequest.Page, pagingRequest.RecordsPerPage);
+            var userResponses = _mapper.Map<IEnumerable<User>, IEnumerable<UserResponse>>(users);
+            var paginatedUsers = userResponses.ToList().Paginate(pagingRequest.Page, pagingRequest.RecordsPerPage);
             return paginatedUsers;
         }
 
@@ -148,7 +147,7 @@ namespace Infrastructure.Services
                 var token = _httpContextAccessor.HttpContext.Request.Headers.First(x => x.Key.Equals("Authorization")).Value;
                 var principle = _jwtService.ConvertToken(Regex.Replace(token, "Bearer ", ""));
                 var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId));
+                var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId), "Address,Occupation,Occupation.Field");
                 if (user == null)
                 {
                     throw new NotFoundException("User doesn't exist");

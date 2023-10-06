@@ -21,7 +21,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(o =>
+    {
+        o.SwaggerEndpoint("/swagger/v1/swagger.yaml", "SurveyNow V1");
+    });
 }
 
 // Configure the HTTPS redirection middleware with the obtained port

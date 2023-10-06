@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SurveyNow.Controllers
 {
-    [Route("api/users")]
+    [Route("api/v1/users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -26,13 +26,9 @@ namespace SurveyNow.Controllers
         // GET: api/<UsersController>
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery] UserRequest filter, [FromQuery] PagingRequest pagingRequest)
+        public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery] UserFilterRequest filter, [FromQuery] PagingRequest pagingRequest)
         {
             var users = await _userService.GetUsers(filter, pagingRequest);
-            if (users == null)
-            {
-                return NotFound();
-            }
             return Ok(users);
         }
 
@@ -45,7 +41,7 @@ namespace SurveyNow.Controllers
             return Ok(user);
         }
 
-        [HttpGet("logged-in-user")]
+        [HttpGet("login-user")]
         [Authorize]
         public async Task<ActionResult<UserResponse>> GetLoggedInUser()
         {

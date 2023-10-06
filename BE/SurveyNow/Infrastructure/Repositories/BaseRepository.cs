@@ -1,11 +1,12 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 using Application.DTOs.Response;
 using Application.ErrorHandlers;
 using Application.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
+using System.Linq.Dynamic.Core;
 namespace Infrastructure.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
@@ -126,9 +127,75 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await _dbSet.FindAsync(id);
     }
 
+    public async Task<T?> GetByIdAsync(object? id,  string includeProperties = "")
+    {
+        IQueryable<T> query = _dbSet;
+        foreach (var includeProperty in includeProperties.Split
+                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(includeProperty);
+        }
+        var result = query.FirstOrDefault(delegate (T t)
+        {
+            var currentId = typeof(T).GetProperty("Id").GetValue(t);
+            return currentId.Equals(id);
+        });
+        return result;
+    }
+
     public async Task<List<T>> GetAllAsync()
     {
         return await _dbSet.ToListAsync();
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null, string? includeProperties = "")
+    {
+        IQueryable<T> query = _dbSet;
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        if (entityFilter != null)
+        {
+            var properties = entityFilter.GetType().GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var data = entityFilter.GetType().GetProperty(property.Name)?.GetValue(entityFilter);
+                if (data != null)
+                {
+                    Type type = data.GetType();
+                    if (type == typeof(string))
+                    {
+                        query = query.Where(property.Name + ".ToLower().Contains(@0)", (data as string).ToLower());
+                    }
+                    else if (type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double))
+                    {
+                        query = query.Where(property.Name + " == @0", data);
+                    } else if (type == typeof(bool))
+                    {
+                        query = query.Where(property.Name + " == @0", data);
+                    } else if (type == typeof(DateTime))
+                    {
+                        DateTime date = (DateTime)data;
+                        query = query.Where(property.Name + "== @0", date);
+                    }
+                }
+            }
+        }
+
+        foreach (var includeProperty in includeProperties.Split
+                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(includeProperty);
+        }
+
+        if (orderBy != null)
+        {
+            query = orderBy(query);
+        }
+
+        return await query.ToListAsync();
     }
 
     public async Task AddAsync(T entity)

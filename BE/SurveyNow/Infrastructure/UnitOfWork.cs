@@ -38,6 +38,7 @@ public class UnitOfWork : IUnitOfWork
     public IFieldCriterionRepository FieldCriterionRepository { get; }
     public IGenderCriterionRepository GenderCriterionRepository { get; }
     public IRelationshipCriterionRepository RelationshipCriterionRepository { get; set; }
+    public IOccupationRepository OccupationRepository { get; set; }
 
     public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger, IAddressRepository addressRepository,
         IAnswerRepository answerRepository, IAnswerOptionRepository answerOptionRepository,
@@ -51,7 +52,7 @@ public class UnitOfWork : IUnitOfWork
         IUserReportRepository userReportRepository, IUserSurveyRepository userSurveyRepository,
         IAreaCriterionRepository areaCriterionRepository, ICriterionRepository criterionRepository,
         IFieldCriterionRepository fieldCriterionRepository, IGenderCriterionRepository genderCriterionRepository,
-        IRelationshipCriterionRepository relationshipCriterionRepository)
+        IRelationshipCriterionRepository relationshipCriterionRepository, IOccupationRepository occupationRepository)
     {
         _context = context;
         _logger = logger;
@@ -81,6 +82,7 @@ public class UnitOfWork : IUnitOfWork
         FieldCriterionRepository = fieldCriterionRepository;
         GenderCriterionRepository = genderCriterionRepository;
         RelationshipCriterionRepository = relationshipCriterionRepository;
+        OccupationRepository = occupationRepository;
     }
 
     public async Task<int> SaveChangeAsync()

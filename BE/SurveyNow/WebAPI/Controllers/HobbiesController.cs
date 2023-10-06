@@ -1,5 +1,5 @@
-﻿using Application.DTOs.Request;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
 {
-    [Route("api/hobby")]
+    [Route("api/v1/hobbies")]
     [ApiController]
     public class HobbiesController : ControllerBase
     {

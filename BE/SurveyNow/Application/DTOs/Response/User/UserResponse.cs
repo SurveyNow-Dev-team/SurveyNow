@@ -12,8 +12,6 @@ namespace Application.DTOs.Response.User
         public DateTime DateOfBirth {  get; set; }
         public string AvatarUrl { get; set; }
 
-        public decimal Point { get; set; }
-
         public UserStatus Status { get; set; } = UserStatus.Active;
 
         public Role Role { get; set; } = Role.User;
@@ -23,11 +21,7 @@ namespace Application.DTOs.Response.User
         public string? LangKey { get; set; }
 
         public string? Currency { get; set; }
-
-        public bool IsDelete { get; set; } = false;
-
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-
-        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        public AddressResponse? Address { get; set; }
+        public OccupationResponse? Occupation { get; set;}
     }
 }
