@@ -55,4 +55,13 @@ public interface ISurveyService
     Task<SurveyDetailResponse> ChangeSurveyStatusAsync(long id);
 
     Task DoSurveyAsync(DoSurveyRequest request);
+
+    Task<PagingResponse<CommonSurveyResponse>> FilterCompletedSurveyAsync(
+        string? title,
+        string? sortTitle,
+        string? sortDate,
+        int? page,
+        int? size,
+        bool disableTracking = true
+    );
 }

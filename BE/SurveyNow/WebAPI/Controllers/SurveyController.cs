@@ -1,4 +1,6 @@
-﻿using Application.DTOs.Request.Survey;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Formats.Tar;
+using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Survey;
 using Application.ErrorHandlers;
@@ -95,8 +97,10 @@ public class SurveyController : ControllerBase
         [FromQuery] string? sortPoint,
         [FromQuery] string? sortStartDate,
         [FromQuery] string? sortExpiredDate,
-        [FromQuery] int? page,
-        [FromQuery] int? size
+        [FromQuery] [Range(1, 1000, ErrorMessage = "Page can not less than 1.")]
+        int? page,
+        [FromQuery] [Range(1, 50, ErrorMessage = "Size can not less than 1 or exceed 50.")]
+        int? size
     )
     {
         return Ok(await _surveyService.FilterCommonSurveyAsync(status, title, sortTitle, sortTotalQuestion, sortPoint,
@@ -132,8 +136,11 @@ public class SurveyController : ControllerBase
         [FromQuery] string? sortStartDate,
         [FromQuery] string? sortExpiredDate,
         [FromQuery] string? sortModifiedDate,
-        [FromQuery] int? page,
-        [FromQuery] int? size)
+        [FromQuery] [Range(1, 1000, ErrorMessage = "Page can not less than 1.")]
+        int? page,
+        [FromQuery] [Range(1, 50, ErrorMessage = "Size can not less than 1 or exceed 50.")]
+        int? size
+    )
     {
         return Ok(await _surveyService.FilterSurveyAsync(status, isDelete, packType, title, sortTitle, sortCreatedDate,
             sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
@@ -166,12 +173,42 @@ public class SurveyController : ControllerBase
         [FromQuery] string? sortStartDate,
         [FromQuery] string? sortExpiredDate,
         [FromQuery] string? sortModifiedDate,
-        [FromQuery] int? page,
-        [FromQuery] int? size
+        [FromQuery] [Range(1, 1000, ErrorMessage = "Page can not less than 1.")]
+        int? page,
+        [FromQuery] [Range(1, 50, ErrorMessage = "Size can not less than 1 or exceed 50.")]
+        int? size
     )
     {
         return Ok(await _surveyService.FilterAccountSurveyAsync(status, packType, title, sortTitle, sortCreatedDate,
             sortStartDate, sortExpiredDate, sortModifiedDate, page, size));
+    }
+
+
+    /// <summary>
+    /// Dùng để lấy lịch sử khảo sát đã làm của người dùng hiện tại
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="sortTitle"></param>
+    /// <param name="sortDate"></param>
+    /// <param name="page"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    [HttpGet("/api/v1/account/history")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagingResponse<CommonSurveyResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetail))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErrorDetail))]
+    [ProducesResponseType(StatusCodes.Status501NotImplemented, Type = typeof(ErrorDetail))]
+    public async Task<ActionResult<PagingResponse<CommonSurveyResponse>>> FilterCompletedSurveyAsync(
+        [FromQuery] string? title,
+        [FromQuery] string? sortTitle,
+        [FromQuery] string? sortDate,
+        [FromQuery] [Range(1, 1000, ErrorMessage = "Page can not less than 1.")]
+        int? page,
+        [FromQuery] [Range(1, 50, ErrorMessage = "Size can not less than 1 or exceed 50.")]
+        int? size
+    )
+    {
+        return Ok(await _surveyService.FilterCompletedSurveyAsync(title, sortTitle, sortDate, page, size));
     }
 
     /// <summary>

@@ -366,11 +366,8 @@ public class SurveyService : ISurveyService
         string? sortCreatedDate, string? sortStartDate, string? sortExpiredDate, string? sortModifiedDate, int? page,
         int? size)
     {
-        var currentUser = await _userService.GetCurrentUserAsync();
-        if (currentUser == null)
-        {
-            throw new UnauthorizedException("User has not logged in yet.");
-        }
+        var currentUser = await _userService.GetCurrentUserAsync()
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("User has not logged in yet."));
 
         var statusEnum = EnumUtil.ConvertStringToEnum<SurveyStatus>(status);
         var packTypeEnum = EnumUtil.ConvertStringToEnum<PackType>(packType);
@@ -404,10 +401,10 @@ public class SurveyService : ISurveyService
                 filter = Expression.AndAlso(filter,
                     Expression.Call(
                         Expression.Call(Expression.Property(parameter, nameof(Survey.Title)),
-                            typeof(string).GetMethod("ToLower", Type.EmptyTypes) ??
+                            typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes) ??
                             throw new NotImplementException(
                                 $"{nameof(string.ToLower)} method is deprecated or not supported.")),
-                        typeof(string).GetMethod("Contains", new[] { typeof(string) }) ??
+                        typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) }) ??
                         throw new NotImplementException(
                             $"{nameof(string.Contains)} method is deprecated or not supported."),
                         Expression.Constant(titleToLower)
@@ -485,11 +482,15 @@ public class SurveyService : ISurveyService
         var surveyObj = await _unitOfWork.SurveyRepository.GetByIdAsync(id)
             .ContinueWith(t => t.Result ?? throw new NotFoundException($"Survey {id} is not exist."));
 
+
         //Only owner can delete the survey
         //The survey is deleted can not be undone
         if (currentUser.Id != surveyObj.CreatedUserId)
             throw new ForbiddenException(
                 "Only owner can delete the survey. If you are admin, try to change status instead.");
+
+        if (surveyObj.Status != SurveyStatus.Draft)
+            throw new BadRequestException($"Can only delete survey with status {SurveyStatus.Draft.ToString()}");
 
         //Need to check more before delete survey
         surveyObj.IsDelete = true;
@@ -694,6 +695,96 @@ public class SurveyService : ISurveyService
         {
             _logger.LogInformation("Call dispose method.");
             await _unitOfWork.DisposeAsync();
+        }
+    }
+
+    public async Task<PagingResponse<CommonSurveyResponse>> FilterCompletedSurveyAsync(
+        string? title,
+        string? sortTitle,
+        string? sortDate,
+        int? page,
+        int? size,
+        bool disableTracking = true)
+    {
+        var currentUser = await _userService.GetCurrentUserAsync()
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException($"Can not extract current user from toke."));
+
+        var parameter = Expression.Parameter(typeof(UserSurvey));
+        Expression filter = Expression.Constant(true); // default is "where true"
+
+        try
+        {
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(Expression.Property(parameter, nameof(UserSurvey.UserId)),
+                    Expression.Constant(currentUser.Id)));
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                var titleToLower = title.ToLower();
+                filter = Expression.AndAlso(filter,
+                    Expression.Call(
+                        Expression.Call(
+                            Expression.Property(Expression.Property(parameter, nameof(UserSurvey.Survey)),
+                                nameof(Survey.Title)),
+                            typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes) ??
+                            throw new NotImplementException(
+                                $"{nameof(string.ToLower)} method is deprecated or not supported.")),
+                        typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) }) ??
+                        throw new NotImplementException(
+                            $"{nameof(string.Contains)} method is deprecated or not supported."),
+                        Expression.Constant(titleToLower)
+                    )
+                );
+            }
+
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(
+                    Expression.Property(Expression.Property(parameter, nameof(UserSurvey.Survey)),
+                        nameof(Survey.IsDelete)),
+                    Expression.Constant(false)));
+
+            Func<IQueryable<UserSurvey>, IOrderedQueryable<UserSurvey>> orderBy = q => q.OrderBy(s => s.Id);
+
+            if (sortTitle != null && sortTitle.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.Survey.Title);
+            }
+            else if (sortTitle != null && sortTitle.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.Survey.Title);
+            }
+            if (string.IsNullOrEmpty(sortDate) || sortDate.Trim().ToLower().Equals("asc"))
+            {
+                orderBy = q => q.OrderBy(s => s.Date);
+            }
+            else if (sortDate.Trim().ToLower().Equals("desc"))
+            {
+                orderBy = q => q.OrderByDescending(s => s.Date);
+            }
+
+            var userSurveys = await _unitOfWork.UserSurveyRepository.GetPaginateAsync(
+                Expression.Lambda<Func<UserSurvey, bool>>(filter, parameter), orderBy,
+                $"{nameof(UserSurvey.Survey)}.{nameof(Survey.CreatedBy)}",
+                page,
+                size,
+                disableTracking
+            );
+
+            var surveys = userSurveys.Results.Select(us => _mapper.Map<CommonSurveyResponse>(us.Survey)).ToList();
+            var result = new PagingResponse<CommonSurveyResponse>
+            {
+                CurrentPage = userSurveys.CurrentPage,
+                RecordsPerPage = userSurveys.RecordsPerPage,
+                TotalPages = userSurveys.TotalPages,
+                TotalRecords = userSurveys.TotalRecords,
+                Results = surveys
+            };
+            return result;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Can not get data on FilterAccountSurveyAsync method {}.", e.Message);
+            throw new BadRequestException(e.Message);
         }
     }
 }

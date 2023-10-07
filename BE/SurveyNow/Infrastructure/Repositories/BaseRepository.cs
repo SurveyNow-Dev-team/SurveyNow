@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
+
 namespace Infrastructure.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
@@ -76,7 +77,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         bool disableTracking = true)
     {
         IQueryable<T> query = _dbSet;
-        PagingResponse<T> result = new PagingResponse<T>();
+        var result = new PagingResponse<T>();
 
         try
         {
@@ -90,12 +91,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                // query = query.Include(includeProperty);
-                query = IncludeNested(query, includeProperty);
-            }
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Aggregate(query,
+                (current, includeProperty) => IncludeNested(current, includeProperty));
 
             result.TotalRecords = await query.CountAsync();
 
@@ -142,15 +139,16 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await _dbSet.FindAsync(id);
     }
 
-    public async Task<T?> GetByIdAsync(object? id,  string includeProperties = "")
+    public async Task<T?> GetByIdAsync(object? id, string includeProperties = "")
     {
         IQueryable<T> query = _dbSet;
         foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             query = query.Include(includeProperty);
         }
-        var result = query.FirstOrDefault(delegate (T t)
+
+        var result = query.FirstOrDefault(delegate(T t)
         {
             var currentId = typeof(T).GetProperty("Id").GetValue(t);
             return currentId.Equals(id);
@@ -163,7 +161,9 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await _dbSet.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null, string? includeProperties = "")
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null,
+        string? includeProperties = "")
     {
         IQueryable<T> query = _dbSet;
         if (filter != null)
@@ -184,13 +184,16 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                     {
                         query = query.Where(property.Name + ".ToLower().Contains(@0)", (data as string).ToLower());
                     }
-                    else if (type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double))
+                    else if (type == typeof(int) || type == typeof(long) || type == typeof(float) ||
+                             type == typeof(double))
                     {
                         query = query.Where(property.Name + " == @0", data);
-                    } else if (type == typeof(bool))
+                    }
+                    else if (type == typeof(bool))
                     {
                         query = query.Where(property.Name + " == @0", data);
-                    } else if (type == typeof(DateTime))
+                    }
+                    else if (type == typeof(DateTime))
                     {
                         DateTime date = (DateTime)data;
                         query = query.Where(property.Name + "== @0", date);
@@ -200,7 +203,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
 
         foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             query = query.Include(includeProperty);
         }
@@ -270,15 +273,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     private static IQueryable<T> IncludeNested<T>(IQueryable<T> query, string includeProperty) where T : class
     {
         var includeProperties = includeProperty.Split('.');
-        IQueryable<T> result = query;
+        var result = query;
 
         try
         {
-            foreach (var prop in includeProperties)
-            {
-                var navigationProp = typeof(T).GetProperty(prop);
-                result = result.Include(navigationProp.Name);
-            }
+            result = includeProperties.Select(prop => typeof(T).GetProperty(prop)).Aggregate(result,
+                (current, navigationProp) => current.Include(navigationProp?.Name ?? ""));
         }
         catch (Exception e)
         {
