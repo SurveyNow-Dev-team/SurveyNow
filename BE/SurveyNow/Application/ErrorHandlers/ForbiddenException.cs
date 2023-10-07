@@ -4,15 +4,18 @@ namespace Application.ErrorHandlers;
 
 public class ForbiddenException : BaseException
 {
+    private const int _statusCode = (int)HttpStatusCode.Forbidden;
+    private const string? _title = "Access to resource is forbidden.";
+
     public ForbiddenException()
     {
-        StatusCode = (int)HttpStatusCode.Forbidden;
-        Title = "Access to resource is forbidden.";
+        StatusCode = _statusCode;
+        Title = _title;
     }
 
     public ForbiddenException(string? message) : base(message)
     {
-        StatusCode = (int)HttpStatusCode.Forbidden;
-        Title = "Access to resource is forbidden.";
+        StatusCode = _statusCode;
+        Title = _title;
     }
 }
