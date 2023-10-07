@@ -64,4 +64,6 @@ public interface ISurveyService
         int? size,
         bool disableTracking = true
     );
+
+    Task<SurveyDetailResponse> GetAnswerAsync(long surveyId);
 }

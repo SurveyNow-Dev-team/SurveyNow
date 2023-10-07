@@ -54,5 +54,9 @@ public class SurveyMappingProfile : Profile
 
         CreateMap<AnswerRequest, Answer>();
         CreateMap<AnswerOptionRequest, AnswerOption>();
+
+        CreateMap<AnswerOptionResponse, AnswerOption>();
+        CreateMap<AnswerResponse, Answer>();
+        
     }
 }

@@ -12,7 +12,7 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
     {
     }
 
-    public async Task<Survey?> GetByIdAsync(object id)
+    public new async Task<Survey?> GetByIdAsync(object id)
     {
         if (id is long longId)
         {
@@ -29,27 +29,39 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
         return null;
     }
 
-    public async Task<List<Survey>> GetAllAsync()
+    public new async Task<List<Survey>> GetAllAsync()
     {
         return await _dbSet
             .Include(s => s.CreatedBy)
             .ToListAsync();
     }
 
-    public async Task<Survey> GetByIdWithoutTrackingAsync(long id)
+    public async Task<Survey?> GetByIdWithoutTrackingAsync(long id)
     {
-        if (id is long longId)
-        {
-            return await _dbSet.AsNoTracking().Include(s => s.Sections.OrderBy(s => s.Order))
-                .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
-                .ThenInclude(q => q.RowOptions.OrderBy(ro => ro.Order))
-                .Include(s => s.Sections.OrderBy(s => s.Order))
-                .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
-                .ThenInclude(q => q.ColumnOptions.OrderBy(co => co.Order))
-                .Include(s => s.CreatedBy)
-                .FirstOrDefaultAsync(s => s.Id == longId);
-        }
+        return await _dbSet.AsNoTracking().Include(s => s.Sections.OrderBy(s => s.Order))
+            .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+            .ThenInclude(q => q.RowOptions.OrderBy(ro => ro.Order))
+            .Include(s => s.Sections.OrderBy(s => s.Order))
+            .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+            .ThenInclude(q => q.ColumnOptions.OrderBy(co => co.Order))
+            .Include(s => s.CreatedBy)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
 
-        return null;
+    public async Task<Survey?> GetSurveyAnswerAsync(long surveyId, long userId)
+    {
+        return await _dbSet.AsNoTracking()
+            .Include(s => s.Sections.OrderBy(s => s.Order))
+            .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+            .ThenInclude(q => q.RowOptions.OrderBy(ro => ro.Order))
+            .Include(s => s.Sections.OrderBy(s => s.Order))
+            .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+            .ThenInclude(q => q.ColumnOptions.OrderBy(co => co.Order))
+            .Include(s => s.Sections.OrderBy(s => s.Order))
+            .ThenInclude(s => s.Questions.OrderBy(q => q.Order))
+            .ThenInclude(q => q.Answers.Where(a => a.UserId == userId))
+            .ThenInclude(a => a.AnswerOptions.OrderBy(ao => ao.RowOrder).ThenBy(ao => ao.ColumnOrder))
+            .Include(s => s.CreatedBy)
+            .FirstOrDefaultAsync(s => s.Id == surveyId);
     }
 }

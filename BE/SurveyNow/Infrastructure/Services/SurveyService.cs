@@ -745,15 +745,16 @@ public class SurveyService : ISurveyService
 
             Func<IQueryable<UserSurvey>, IOrderedQueryable<UserSurvey>> orderBy = q => q.OrderBy(s => s.Id);
 
-            if (sortTitle != null && sortTitle.Trim().ToLower().Equals("asc"))
+
+            if (!string.IsNullOrEmpty(sortTitle) && sortTitle.Trim().ToLower().Equals("asc"))
             {
                 orderBy = q => q.OrderBy(s => s.Survey.Title);
             }
-            else if (sortTitle != null && sortTitle.Trim().ToLower().Equals("desc"))
+            else if (!string.IsNullOrEmpty(sortTitle) && sortTitle.Trim().ToLower().Equals("desc"))
             {
                 orderBy = q => q.OrderByDescending(s => s.Survey.Title);
             }
-            if (string.IsNullOrEmpty(sortDate) || sortDate.Trim().ToLower().Equals("asc"))
+            else if (string.IsNullOrEmpty(sortDate) || sortDate.Trim().ToLower().Equals("asc"))
             {
                 orderBy = q => q.OrderBy(s => s.Date);
             }
@@ -786,5 +787,21 @@ public class SurveyService : ISurveyService
             _logger.LogError("Can not get data on FilterAccountSurveyAsync method {}.", e.Message);
             throw new BadRequestException(e.Message);
         }
+    }
+
+    public async Task<SurveyDetailResponse> GetAnswerAsync(long surveyId)
+    {
+        var currentUser = await _userService.GetCurrentUserAsync()
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+
+        if (!(await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(surveyId, currentUser.Id)))
+        {
+            throw new BadRequestException($"You have not completed survey yet.");
+        }
+
+        return await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id)
+            .ContinueWith(t =>
+                _mapper.Map<SurveyDetailResponse>(t.Result ??
+                                                  throw new NotFoundException($"Survey {surveyId} does not exist.")));
     }
 }

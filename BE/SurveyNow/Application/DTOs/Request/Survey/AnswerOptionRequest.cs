@@ -10,4 +10,7 @@ public record AnswerOptionRequest
 
     [Range(1, 20, ErrorMessage = "Column order must be between 1 and 20.")]
     public int? ColumnOrder { get; init; }
+    
+    [StringLength(1000, ErrorMessage = "Content can not exceed 1000 character.")]
+    public string? Content { get; init; }
 }

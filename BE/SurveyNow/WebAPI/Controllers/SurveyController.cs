@@ -212,6 +212,17 @@ public class SurveyController : ControllerBase
     }
 
     /// <summary>
+    /// Lấy câu trả lời của người dùng hiện tại 
+    /// </summary>
+    /// <param name="surveyId"></param>
+    /// <returns></returns>
+    [HttpGet("/api/v1/account/surveys/{id:long}/answer")]
+    public async Task<ActionResult<SurveyDetailResponse>> GetSurveyAnswerAsync([FromRoute(Name = "id")] long surveyId)
+    {
+        return Ok(await _surveyService.GetAnswerAsync(surveyId));
+    }
+
+    /// <summary>
     /// Người dùng có thể update khảo sát có status là draft hoặc PackPurchase. Update ngày hết hạn cập nhật sau
     /// </summary>
     /// <param name="id"></param>

@@ -12,6 +12,9 @@ public class AnswerOption
     [Range(1, 20)] public int RowOrder { get; set; }
 
     [Range(1, 20)] public int? ColumnOrder { get; set; }
+    
+    [Column(TypeName = "nvarchar(1000)")]
+    public string? Content { get; set; }
 
     public long AnswerId { get; set; }
 

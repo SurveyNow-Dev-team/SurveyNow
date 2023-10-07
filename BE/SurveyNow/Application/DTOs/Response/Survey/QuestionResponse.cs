@@ -12,7 +12,7 @@ public class QuestionResponse
 
     public bool IsRequire { get; set; }
 
-    public int TotalAnswer { get; set; } = 0;
+    public int TotalAnswer { get; set; }
 
     public MultipleOptionType? MultipleOptionType { get; set; }
 
@@ -25,4 +25,5 @@ public class QuestionResponse
     public ICollection<RowOptionResponse> RowOptions { get; set; } = new List<RowOptionResponse>();
 
     public ICollection<ColumnOptionResponse> ColumnOptions { get; set; } = new List<ColumnOptionResponse>();
+    public ICollection<AnswerResponse>? Answers { get; set; }
 }
