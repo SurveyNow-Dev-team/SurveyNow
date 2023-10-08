@@ -74,4 +74,8 @@ public interface ISurveyService
         int? size,
         bool disableTracking = true
     );
+
+    Task<CommonSurveyResponse> PostSurveyAsync(long surveyId,
+        DateTime? startDate, 
+        DateTime expiredDate);
 }

@@ -260,6 +260,27 @@ public class SurveyController : ControllerBase
     }
 
     /// <summary>
+    /// Api đăng khảo sát. Khảo sát phải có status PackPurchase, tức là phải mua gói trước khi đăng.
+    /// Thêm tiêu chí khảo sát để làm sau
+    /// </summary>
+    /// <param name="surveyId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut("{id:long}/post-survey")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SurveyDetailResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetail))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErrorDetail))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ErrorDetail))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorDetail))]
+    public async Task<ActionResult<CommonSurveyResponse>> PostSurveyAsync(
+        [FromRoute(Name = "id")] long surveyId,
+        [FromBody] PostSurveyRequest request
+    )
+    {
+        return Ok(await _surveyService.PostSurveyAsync(surveyId, request.StartDate, request.ExpiredDate));
+    }
+
+    /// <summary>
     /// Người dùng có thể đổi status sang Active hoặc Deactive
     /// </summary>
     /// <param name="id"></param>

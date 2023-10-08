@@ -19,35 +19,35 @@ public class SurveyMappingProfile : Profile
         CreateMap<SectionRequest, Section>();
         CreateMap<Survey, SurveyDetailResponse>()
             .ForMember(dest => dest.StartDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.StartDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.StartDate)))
             .ForMember(dest => dest.ExpiredDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ExpiredDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.ExpiredDate)))
             .ForMember(dest => dest.CreatedDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.CreatedDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.CreatedDate)))
             .ForMember(dest => dest.ModifiedDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ModifiedDate)))
-            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName));
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.ModifiedDate)))
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(s => s.CreatedBy.FullName));
         CreateMap<Section, SectionResponse>();
         CreateMap<Question, QuestionResponse>();
         CreateMap<RowOption, RowOptionResponse>();
         CreateMap<ColumnOption, ColumnOptionResponse>();
         CreateMap<Survey, SurveyResponse>()
-            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName))
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(s => s.CreatedBy.FullName))
             .ForMember(dest => dest.CreatedDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.CreatedDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.CreatedDate)))
             .ForMember(dest => dest.ModifiedDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ModifiedDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.ModifiedDate)))
             .ForMember(dest => dest.StartDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.StartDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.StartDate)))
             .ForMember(dest => dest.ExpiredDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV2(src.ExpiredDate)));
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDatetimeV2(s.ExpiredDate)));
 
         CreateMap<Survey, CommonSurveyResponse>()
             .ForMember(dest => dest.StartDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDateV1(src.StartDate)))
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDateV1(s.StartDate)))
             .ForMember(dest => dest.ExpiredDate,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDateV1(src.ExpiredDate)))
-            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(src => src.CreatedBy.FullName));
+                src => src.MapFrom(s => DateUtil.FormatDateTimeToDateV1(s.ExpiredDate)))
+            .ForMember(dest => dest.CreatedUserFullName, src => src.MapFrom(s => s.CreatedBy.FullName));
 
         CreateMap<PagingResponse<Survey>, PagingResponse<SurveyResponse>>();
         CreateMap<PagingResponse<Survey>, PagingResponse<CommonSurveyResponse>>();

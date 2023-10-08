@@ -800,7 +800,7 @@ public class SurveyService : ISurveyService
 
         if (!(await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(surveyId, currentUser.Id)))
         {
-            throw new BadRequestException($"You have not completed survey yet.");
+            throw new BadRequestException("You have not completed survey yet.");
         }
 
         return await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id)
@@ -825,7 +825,7 @@ public class SurveyService : ISurveyService
 
         if (currentUser.Role != Role.Admin && currentUser.Id != survey.Id)
         {
-            throw new UnauthorizedException(
+            throw new ForbiddenException(
                 "Access denied. Only Admin or owner can view list user who completed the survey.");
         }
 
@@ -860,5 +860,69 @@ public class SurveyService : ISurveyService
             _logger.LogError("Can not get data on GetUserSurveyAsync method {}.", e.Message);
             throw new BadRequestException(e.Message);
         }
+    }
+
+    public async Task<CommonSurveyResponse> PostSurveyAsync(
+        long surveyId,
+        DateTime? startDate,
+        DateTime expiredDate
+    )
+    {
+        var currentUser = await _userService.GetCurrentUserAsync()
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+
+        var survey = await _unitOfWork.SurveyRepository.Get(
+                filter: s => s.Id == surveyId,
+                orderBy: null,
+                includeProperties: $"{nameof(Survey.CreatedBy)}",
+                disableTracking: false
+            )
+            .ContinueWith(t =>
+                t.Result.Any()
+                    ? t.Result.First()
+                    : throw new NotFoundException($"Survey {surveyId} does not exist."));
+
+        if (currentUser.Id != survey.CreatedUserId)
+        {
+            throw new ForbiddenException("Access denied: Only owner can post this survey.");
+        }
+
+        if (survey.Status != SurveyStatus.PackPurchased)
+        {
+            throw new BadRequestException("This survey has been posted before or you have not bought a pack yet.");
+        }
+
+        var now = DateTime.UtcNow;
+
+
+        if (startDate.HasValue)
+        {
+            if (startDate.Value.Date < now.Date)
+            {
+                throw new BadRequestException("Start date can not less than today.");
+            }
+
+            if (expiredDate.Date < startDate.Value.AddDays(14).Date)
+            {
+                throw new BadRequestException(
+                    "The expiration date must be at least 14 days from the start date.");
+            }
+        }
+        else
+        {
+            if (expiredDate.Date < now.AddDays(14).Date)
+            {
+                throw new BadRequestException(
+                    "The expiration date must be at least 14 days from today.");
+            }
+        }
+
+        survey.StartDate = startDate ?? now;
+        survey.ExpiredDate = expiredDate;
+        survey.Status = SurveyStatus.Active;
+        _unitOfWork.SurveyRepository.Update(survey);
+        await _unitOfWork.SaveChangeAsync();
+
+        return _mapper.Map<CommonSurveyResponse>(survey);
     }
 }
