@@ -124,7 +124,7 @@ public class SurveyController : ControllerBase
     /// <returns></returns>
     [HttpGet("/api/v1/admin/surveys")]
     [Authorize(Policy = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagingResponse<CommonSurveyResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagingResponse<SurveyResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetail))]
     public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAsync(
         [FromQuery] string? status,
@@ -180,7 +180,7 @@ public class SurveyController : ControllerBase
     /// <param name="size"></param>
     /// <returns></returns>
     [HttpGet("/api/v1/account/surveys")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagingResponse<CommonSurveyResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagingResponse<SurveyResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetail))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErrorDetail))]
     public async Task<ActionResult<PagingResponse<SurveyResponse>>> FilterAccountSurveyAsync(
@@ -267,7 +267,7 @@ public class SurveyController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPut("{id:long}/post-survey")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SurveyDetailResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CommonSurveyResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetail))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ErrorDetail))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ErrorDetail))]
