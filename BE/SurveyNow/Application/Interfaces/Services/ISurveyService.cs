@@ -66,4 +66,12 @@ public interface ISurveyService
     );
 
     Task<SurveyDetailResponse> GetAnswerAsync(long surveyId);
+
+    Task<PagingResponse<UserSurveyResponse>> GetUserSurveyAsync(
+        long surveyId,
+        bool? isValid,
+        int? page,
+        int? size,
+        bool disableTracking = true
+    );
 }

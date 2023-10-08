@@ -147,6 +147,25 @@ public class SurveyController : ControllerBase
     }
 
     /// <summary>
+    /// Lấy danh sách người dùng đã điền khảo sát. Chỉ có admin hoặc owner mới có quyền
+    /// </summary>
+    /// <param name="surveyId"></param>
+    /// <param name="isValid"></param>
+    /// <param name="page"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    [HttpGet("{id:long}/user-survey")]
+    public async Task<ActionResult<PagingResponse<UserSurveyResponse>>> GetUserSurveyAsync(
+        [FromRoute(Name = "id")] long surveyId,
+        [FromQuery] bool? isValid,
+        [FromQuery] int? page,
+        [FromQuery] int? size
+    )
+    {
+        return Ok(await _surveyService.GetUserSurveyAsync(surveyId, isValid, page, size));
+    }
+
+    /// <summary>
     /// Người dùng có thể filter các khảo sát đã tạo
     /// </summary>
     /// <param name="status"></param>

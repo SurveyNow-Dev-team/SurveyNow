@@ -659,6 +659,10 @@ public class SurveyService : ISurveyService
             throw new BadRequestException("You did the survey before.");
         }
 
+        //Check if survey is active 
+        if (surveyObj.Status != SurveyStatus.Active)
+            throw new BadRequestException("Can not do this survey because it is not active.");
+
         var answerList = _mapper.Map<List<Answer>>(request.Answers).Select(a =>
         {
             a.UserId = currentUser.Id;
@@ -784,7 +788,7 @@ public class SurveyService : ISurveyService
         }
         catch (Exception e)
         {
-            _logger.LogError("Can not get data on FilterAccountSurveyAsync method {}.", e.Message);
+            _logger.LogError("Can not get data on FilterCompletedSurveyAsync method {}.", e.Message);
             throw new BadRequestException(e.Message);
         }
     }
@@ -803,5 +807,58 @@ public class SurveyService : ISurveyService
             .ContinueWith(t =>
                 _mapper.Map<SurveyDetailResponse>(t.Result ??
                                                   throw new NotFoundException($"Survey {surveyId} does not exist.")));
+    }
+
+    public async Task<PagingResponse<UserSurveyResponse>> GetUserSurveyAsync(
+        long surveyId,
+        bool? isValid,
+        int? page,
+        int? size,
+        bool disableTracking = true
+    )
+    {
+        var currentUser = await _userService.GetCurrentUserAsync()
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+
+        var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyId)
+            .ContinueWith(t => t.Result ?? throw new NotFoundException($"Survey {surveyId} does not exist"));
+
+        if (currentUser.Role != Role.Admin && currentUser.Id != survey.Id)
+        {
+            throw new UnauthorizedException(
+                "Access denied. Only Admin or owner can view list user who completed the survey.");
+        }
+
+        var parameter = Expression.Parameter(typeof(UserSurvey));
+        Expression filter = Expression.Constant(true); // default is "where true"
+
+        IOrderedQueryable<UserSurvey> OrderBy(IQueryable<UserSurvey> q) => q.OrderByDescending(s => s.Date);
+        try
+        {
+            filter = Expression.AndAlso(filter,
+                Expression.Equal(Expression.Property(parameter, nameof(UserSurvey.SurveyId)),
+                    Expression.Constant(surveyId)));
+
+            if (isValid.HasValue)
+            {
+                filter = Expression.AndAlso(filter,
+                    Expression.Equal(Expression.Property(parameter, nameof(UserSurvey.IsValid)),
+                        Expression.Constant(isValid.Value)));
+            }
+
+            return await _unitOfWork.UserSurveyRepository.GetPaginateAsync(
+                    Expression.Lambda<Func<UserSurvey, bool>>(filter, parameter), OrderBy,
+                    $"{nameof(UserSurvey.User)}",
+                    page,
+                    size,
+                    disableTracking
+                )
+                .ContinueWith(t => _mapper.Map<PagingResponse<UserSurveyResponse>>(t.Result));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Can not get data on GetUserSurveyAsync method {}.", e.Message);
+            throw new BadRequestException(e.Message);
+        }
     }
 }
