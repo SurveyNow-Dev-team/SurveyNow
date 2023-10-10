@@ -4,5 +4,5 @@ namespace Application.Interfaces.Repositories;
 
 public interface ITransactionRepository: IBaseRepository<Transaction>
 {
-    
+    Task<bool> CheckExistPendingRedeemOrderAsync();
 }
