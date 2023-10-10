@@ -140,6 +140,82 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<PointCreateRedeemOrderResponse> ProcessCreateGiftRedeemOrderAsync(PointRedeemRequest redeemRequest)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(redeemRequest.UserId);
+            if(user == null)
+            {
+                throw new NotFoundException("Cannot find user's information");
+            }
+            if(user.Point < redeemRequest.PointAmount)
+            {
+                throw new BadRequestException("Insufficient user's point amount");
+            }
+            // Check for any existing pending redeem transaction
+            var pendingOrder = await _unitOfWork.TransactionRepository.CheckExistPendingRedeemOrderAsync();
+            if (pendingOrder)
+            {
+                throw new ConflictException("User have unprocessed redeem order");
+            }
+            switch(redeemRequest.PaymentMethod)
+            {
+                case PaymentMethod.Momo:
+                    (bool result, Transaction? transaction) = await ProcessMomoCreateGiftRedeemOrder(user, redeemRequest);
+                    if (!result)
+                    {
+                        return new PointCreateRedeemOrderResponse()
+                        {
+                            Status = TransactionStatus.Fail.ToString(),
+                            Message = "Failed to create new gift redeem order",
+                            PointAmount = redeemRequest.PointAmount,
+                            MoneyAmount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                            PaymentMethod = redeemRequest.PaymentMethod.ToString()
+                        };
+                    }
+                    return new PointCreateRedeemOrderResponse()
+                    {
+                        Status = TransactionStatus.Success.ToString(),
+                        Message = "Successfully create gift redeem order. User gift will be delivered soon",
+                        PointAmount = redeemRequest.PointAmount,
+                        MoneyAmount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                        TransactionId = transaction!.Id.ToString(),
+                        PaymentMethod = redeemRequest.PaymentMethod.ToString()
+                    };
+                default:
+                    throw new BadRequestException("Unsupported payment method");
+            }
+        }
+
+        private async Task<(bool, Transaction?)> ProcessMomoCreateGiftRedeemOrder(User user, PointRedeemRequest redeemRequest)
+        {
+            try
+            {
+                // Create new transaction
+                Transaction redeemTransaction = new Transaction()
+                {
+                    UserId = user.Id,
+                    TransactionType = TransactionType.RedeemGift,
+                    PaymentMethod = PaymentMethod.Momo,
+                    Point = redeemRequest.PointAmount,
+                    Amount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                    Currency = Currency.VND.ToString(),
+                    Date = DateTime.UtcNow,
+                    SourceAccount = null,
+                    DestinationAccount = redeemRequest.MomoAccount,
+                    PurchaseCode = null,
+                    Status = TransactionStatus.Pending,
+                };
+                // Add transaction
+                var entity = await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(redeemTransaction);
+                var result = await _unitOfWork.SaveChangeAsync();
+                return (result <= 0) ? (false, null) : (true, entity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to create new momo gift redeem transaction");
+            }
+        }
+
         public async Task<PointPurchaseResultResponse> ProcessMomoPaymentResultAsync(long userId, MomoCreatePaymentResultRequest resultRequest)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);

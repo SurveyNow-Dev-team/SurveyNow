@@ -3,6 +3,7 @@ using Application.DTOs.Request.Momo;
 using Application.DTOs.Request.Point;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Momo;
+using Application.DTOs.Response.Point;
 using Application.DTOs.Response.Point.History;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
@@ -80,21 +81,21 @@ namespace SurveyNow.Controllers
         }
 
         // Test end-point
-        [HttpPost("do-survey/")]
-        public async Task<ActionResult<BasePointHistoryResponse>> AddPointDoSurveyAsync([FromQuery] decimal pointAmount, [FromQuery] long surveyId)
-        {
-            try
-            {
-                var user = await _userService.GetCurrentUserAsync();
-                var result = await _pointService.AddDoSurveyPointAsync(user.Id, surveyId, pointAmount);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred");
-                return StatusCode(500, "An error occurred");
-            }
-        }
+        //[HttpPost("do-survey/")]
+        //public async Task<ActionResult<BasePointHistoryResponse>> AddPointDoSurveyAsync([FromQuery] decimal pointAmount, [FromQuery] long surveyId)
+        //{
+        //    try
+        //    {
+        //        var user = await _userService.GetCurrentUserAsync();
+        //        var result = await _pointService.AddDoSurveyPointAsync(user.Id, surveyId, pointAmount);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "An error occurred");
+        //        return StatusCode(500, "An error occurred");
+        //    }
+        //}
 
         [Authorize]
         [HttpPost("purchase/momo")]
@@ -121,13 +122,22 @@ namespace SurveyNow.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet]
         [Route("purchase/momo/return")]
         public async Task<ActionResult> OnReceivingMomoTransactionResult([FromQuery] MomoCreatePaymentResultRequest payload, [FromQuery] long userId)
         {
             _logger.LogInformation("Receive momo transaction result from client");
             var result = await _pointService.ProcessMomoPaymentResultAsync(userId, payload);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("redeem/momo")]
+        public async Task<ActionResult<PointCreateRedeemOrderResponse>> CreateMomoGiftRedeemOrder([FromBody] PointRedeemRequest redeemRequest)
+        {
+            var result = await _pointService.ProcessCreateGiftRedeemOrderAsync(redeemRequest);
             return Ok(result);
         }
     }
