@@ -25,7 +25,10 @@ namespace SurveyNow.Controllers
             _logger = logger;
             _userService = userService;
         }
-
+        /// <summary>
+        /// Lấy danh sách toàn bộ các gói dùng để đăng khảo sát
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("all")]
         public async Task<ActionResult<List<PackInformation>>> GetAllPacksAsync()
@@ -41,12 +44,12 @@ namespace SurveyNow.Controllers
             }
         }
 
-        // Test end-point
-        [HttpGet("calculate")]
-        public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery]PackType packType, [FromQuery]int participants)
-        {
-            return await _packService.CalculatePackPriceAsync(packType, participants);
-        }
+        //// Test end-point
+        //[HttpGet("calculate")]
+        //public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery]PackType packType, [FromQuery]int participants)
+        //{
+        //    return await _packService.CalculatePackPriceAsync(packType, participants);
+        //}
 
         /// <summary>
         /// Get recommended pack(s) based on given survey's information
@@ -72,6 +75,11 @@ namespace SurveyNow.Controllers
             }
         }
 
+        /// <summary>
+        /// Xử lý yêu cầu mua gói để đăng khảo sát của người dùng
+        /// </summary>
+        /// <param name="purchaseRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("purchase")]
         public async Task<ActionResult> ProcessPackPurchaseRequest(PackPurchaseRequest purchaseRequest)

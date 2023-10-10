@@ -28,6 +28,11 @@ namespace SurveyNow.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Xem chi tiết thông tin biến động điểm của người dùng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("history/{id}")]
         public async Task<ActionResult<BasePointHistoryResponse>> GetPointHistoryDetailAsync(long id)
@@ -52,6 +57,16 @@ namespace SurveyNow.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy danh sách biến động điểm của người dùng hiện tại,
+        /// có thể filter theo ngày, giá trị điểm và cách sắp xếp
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="dateFilter"></param>
+        /// <param name="valueFilter"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="pagingRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("history")]
         public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery] PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
@@ -96,7 +111,12 @@ namespace SurveyNow.Controllers
         //        return StatusCode(500, "An error occurred");
         //    }
         //}
-
+        /// <summary>
+        /// Gửi yêu cầu nạp điểm vào tài khoản của người dùng.
+        /// Yêu cầu sẽ được xử lý và trả về các phương thức thanh toán bằng momo nếu xử lý thành công
+        /// </summary>
+        /// <param name="purchaseRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("purchase/momo")]
         public async Task<ActionResult<MomoPaymentMethodResponse>> CreateMomoPointPurchaseOrder([FromBody] PointPurchaseRequest purchaseRequest)
@@ -122,6 +142,12 @@ namespace SurveyNow.Controllers
             }
         }
 
+        /// <summary>
+        /// Nhận và xử lý kết quả thanh toán giao dịch nạp điểm bằng momo
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet]
         [Route("purchase/momo/return")]
@@ -132,6 +158,11 @@ namespace SurveyNow.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Gửi yêu cầu đổi điểm thành tiền mặt với điểm đến là tài khoản momo của người dùng
+        /// </summary>
+        /// <param name="redeemRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost]
         [Route("redeem/momo")]

@@ -14,6 +14,12 @@ namespace SurveyNow.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Endpoint chỉ dùng để momo gửi kết quả giao dịch về.
+        /// Client ko sử dụng endpoint này
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("ipn")]
         public async Task<ActionResult> OnReceivingMomoIpn([FromBody] MomoCreatePaymentResultRequest payload)
