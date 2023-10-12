@@ -81,7 +81,10 @@ namespace SurveyNow.Controllers
                     {
                         return Ok(result);
                     }
-                    return NotFound();
+                    return new PagingResponse<ShortPointHistoryResponse>()
+                    {
+                        Results = Enumerable.Empty<ShortPointHistoryResponse>().ToList(),
+                    };
                 }
                 else
                 {
@@ -159,7 +162,7 @@ namespace SurveyNow.Controllers
         }
 
         /// <summary>
-        /// Gửi yêu cầu đổi điểm thành tiền mặt với điểm đến là tài khoản momo của người dùng
+        /// Gửi yêu cầu đổi điểm thành tiền mặt với điểm đến là tài khoản (số điện thoại) momo của người dùng
         /// </summary>
         /// <param name="redeemRequest"></param>
         /// <returns></returns>

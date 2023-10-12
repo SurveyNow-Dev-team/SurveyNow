@@ -67,13 +67,17 @@ namespace Application.Utils
                     return "Failed";
                 case TransactionStatus.Success:
                     return "Success";
+                case TransactionStatus.Pending:
+                    return "Pending";
+                case TransactionStatus.Cancel:
+                    return "Cancel";
                 default:
                     return "";
             }
         }
 
         public static string GeneratePointHistoryDescription(PointHistoryType type, long userId, decimal point,
-            long surveyId = 0, PackType packType = PackType.Basic, PaymentMethod paymentMethod = PaymentMethod.Momo)
+            long surveyId = 0, PackType packType = PackType.Basic, PaymentMethod paymentMethod = PaymentMethod.Momo, string refundReason = "")
         {
             switch (type)
             {
@@ -97,12 +101,13 @@ namespace Application.Utils
                     return $"User received refunded point. " +
                            $"User ID: {userId}; " +
                            $"Point Amount: {point}; " +
-                           $"Reason: ; ";
+                           $"Reason: {refundReason}; ";
 
                 case PointHistoryType.RedeemPoint:
                     return $"User redeem point. " +
                            $"User ID: {userId}; " +
-                           $"Point Amount: {point}; ";
+                           $"Point Amount: {point}; " +
+                           $"With method: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.PackPurchase:
                     return $"User purchase pack for posting survey. " +
