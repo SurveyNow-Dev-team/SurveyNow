@@ -133,6 +133,8 @@ namespace Infrastructure.Services
                     PointPackPurchaseDetailResponse packResult = _mapper.Map<PointPackPurchaseDetailResponse>(pointHistory);
                     packResult.PackPurchase = packPurchaseResponse;
                     return packResult;
+                case PointHistoryType.RefundPoint:
+                    return _mapper.Map<BasePointHistoryResponse>(pointHistory);
                 default:
                     // Refund point, Gift point and Receiving Point
                     // will be added later on
@@ -376,21 +378,15 @@ namespace Infrastructure.Services
                 pointHistory!.Point = pointAmount;
 
                 // refund point to user
-                await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.PointHistoryRepository.AddAsync(pointHistory);
                 await _unitOfWork.UserRepository.UpdateUserPoint(userId, UserPointAction.IncreasePoint, pointAmount);
                 await _unitOfWork.SaveChangeAsync();
-                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
                 throw new Exception("Failed to refund point to user", ex);
-            }
-            finally
-            {
-                await _unitOfWork.DisposeAsync();
             }
         }
     }

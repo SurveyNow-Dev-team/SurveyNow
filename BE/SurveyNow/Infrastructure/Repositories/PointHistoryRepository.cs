@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Application.DTOs.Response;
 using Application.Utils;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -129,5 +130,10 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
             default:
                 return (q => q.OrderByDescending(p => p.Date));
         }
+    }
+
+    public async Task<PointHistory?> GetByTransactionId(long transactionId)
+    {
+        return await _dbSet.FirstOrDefaultAsync(p => p.PointPurchaseId == transactionId);
     }
 }
