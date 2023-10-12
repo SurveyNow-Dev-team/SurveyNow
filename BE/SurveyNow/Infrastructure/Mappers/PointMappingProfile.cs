@@ -75,6 +75,8 @@ namespace Infrastructure.Mappers
                 .ForMember(dest => dest.Date,
                 src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)));
 
+            CreateMap<PagingResponse<Transaction>, PagingResponse<TransactionResponse>>();
+
             CreateMap<Survey, ShortSurveyResponse>()
                 .ForMember(dest => dest.Status,
                 src => src.MapFrom(src => EnumUtil.ConvertSurveyStatusToString(src.Status)));
