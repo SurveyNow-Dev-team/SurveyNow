@@ -809,6 +809,8 @@ public class SurveyService : ISurveyService
             throw new BadRequestException("You have not completed survey yet.");
         }
 
+        var survey = await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id);
+
         return await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id)
             .ContinueWith(t =>
                 _mapper.Map<SurveyDetailResponse>(t.Result ??

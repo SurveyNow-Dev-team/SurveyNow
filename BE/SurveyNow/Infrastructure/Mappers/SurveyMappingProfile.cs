@@ -55,8 +55,8 @@ public class SurveyMappingProfile : Profile
         CreateMap<AnswerRequest, Answer>();
         CreateMap<AnswerOptionRequest, AnswerOption>();
 
-        CreateMap<AnswerOptionResponse, AnswerOption>();
-        CreateMap<AnswerResponse, Answer>();
+        CreateMap<AnswerOption, AnswerOptionResponse>();
+        CreateMap<Answer, AnswerResponse>();
 
         CreateMap<UserSurvey, UserSurveyResponse>()
             .ForMember(dest => dest.Date, src => src.MapFrom(us => DateUtil.FormatDateTimeToDatetimeV2(us.Date)))

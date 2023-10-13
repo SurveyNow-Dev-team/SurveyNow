@@ -6,5 +6,5 @@ public class AnswerResponse
 
     public int? RateNumber { get; set; }
 
-    public virtual ICollection<AnswerOptionResponse> AnswerOptions { get; set; } = new List<AnswerOptionResponse>();
+    public virtual ICollection<AnswerOptionResponse?> AnswerOptions { get; set; } = new List<AnswerOptionResponse?>();
 }
