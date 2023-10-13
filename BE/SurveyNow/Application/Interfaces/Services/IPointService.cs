@@ -19,6 +19,6 @@ namespace Application.Interfaces.Services
         Task<PagingResponse<ShortPointHistoryResponse>?> GetPaginatedPointHistoryListAsync(long userId, PointHistoryType type, PointDateFilterRequest dateFilter, PointValueFilterRequest valueFilter, PointSortOrderRequest sortOrder, PagingRequest pagingRequest);
         Task<PointCreateRedeemOrderResponse> ProcessCreateGiftRedeemOrderAsync(PointRedeemRequest redeemRequest);
         Task<bool> RefundPointForUser(long userId, decimal pointAmount, string message);
-
+        Task<decimal> GetSurveyRewardPointAmount(long surveyId);
     }
 }

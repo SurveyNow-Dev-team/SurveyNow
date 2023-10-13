@@ -389,5 +389,31 @@ namespace Infrastructure.Services
                 throw new Exception("Failed to refund point to user", ex);
             }
         }
+
+        public async Task<decimal> GetSurveyRewardPointAmount(long surveyId)
+        {
+            var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyId);
+            if (survey == null)
+            {
+                throw new NotFoundException("Cannot find survey with the given id");
+            }
+            if(survey.PackType == null)
+            {
+                throw new BadRequestException("Survey did not have any pack purchased");
+            }
+            switch (survey.PackType)
+            {
+                case PackType.Basic:
+                    return 0.5m;
+                case PackType.Medium:
+                    return 0.7m;
+                case PackType.Advanced:
+                    return 1m;
+                case PackType.Expert:
+                    return 50m;
+                default:
+                    throw new BadRequestException("Invalid survey's pack type");
+            }
+        }
     }
 }
