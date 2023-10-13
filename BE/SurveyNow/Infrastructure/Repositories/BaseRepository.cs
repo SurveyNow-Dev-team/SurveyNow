@@ -3,7 +3,6 @@ using System.Reflection;
 using Application.DTOs.Response;
 using Application.ErrorHandlers;
 using Application.Interfaces.Repositories;
-using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -46,11 +45,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProperty);
-            }
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             if (orderBy != null)
             {
@@ -91,8 +87,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 query = query.Where(filter);
             }
 
-            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Aggregate(query,
-                (current, includeProperty) => IncludeNested(current, includeProperty));
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             result.TotalRecords = await query.CountAsync();
 
@@ -100,6 +96,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             {
                 query = orderBy(query);
             }
+
 
             if (page.HasValue && size.HasValue)
             {
@@ -123,7 +120,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             {
                 result.Results = await query.ToListAsync();
             }
-
 
             return result;
         }
@@ -253,12 +249,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             query = query.Where(filter);
         }
 
-        foreach (var includeProperty in includeProperties.Split
-                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            // query = query.Include(includeProperty);
-            query = IncludeNested(query, includeProperty);
-        }
+        query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
         if (orderBy != null)
         {
@@ -268,24 +260,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         {
             return await query.ToListAsync();
         }
-    }
-
-    private static IQueryable<T> IncludeNested<T>(IQueryable<T> query, string includeProperty) where T : class
-    {
-        var includeProperties = includeProperty.Split('.');
-        var result = query;
-
-        try
-        {
-            result = includeProperties.Select(prop => typeof(T).GetProperty(prop)).Aggregate(result,
-                (current, navigationProp) => current.Include(navigationProp?.Name ?? ""));
-        }
-        catch (Exception e)
-        {
-            throw new BadRequestException("Some include properties does not exist.");
-        }
-
-        return result;
     }
 
     public async Task<T> AddAsyncReturnEntity(T entity)

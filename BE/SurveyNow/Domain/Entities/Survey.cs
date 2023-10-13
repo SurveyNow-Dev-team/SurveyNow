@@ -56,7 +56,7 @@ public class Survey
 
     [ForeignKey(nameof(CreatedUserId))]
     [DeleteBehavior(DeleteBehavior.NoAction)]
-    public virtual User CreatedBy { get; set; } = null!;
+    public User CreatedBy { get; set; } = null!;
 
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
 

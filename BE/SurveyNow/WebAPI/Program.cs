@@ -51,7 +51,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 // Configure the HTTPS redirection middleware with the obtained port
 // app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors("_publicPolicy");
 
 app.UseAuthentication();
 

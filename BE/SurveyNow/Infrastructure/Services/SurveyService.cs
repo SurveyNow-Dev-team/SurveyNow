@@ -769,7 +769,7 @@ public class SurveyService : ISurveyService
 
             var userSurveys = await _unitOfWork.UserSurveyRepository.GetPaginateAsync(
                 Expression.Lambda<Func<UserSurvey, bool>>(filter, parameter), orderBy,
-                $"{nameof(UserSurvey.Survey)}.{nameof(Survey.CreatedBy)}",
+                $"{nameof(UserSurvey.Survey)}",
                 page,
                 size,
                 disableTracking
