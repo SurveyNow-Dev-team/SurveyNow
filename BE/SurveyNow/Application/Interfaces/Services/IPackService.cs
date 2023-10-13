@@ -7,7 +7,7 @@ namespace Application.Interfaces.Services
 {
     public interface IPackService
     {
-        Task PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest);
+        Task<PackPurchaseResponse> PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest);
         Task<decimal> CalculatePackPriceAsync(PackType packType, int participants);
         Task<List<PackInformation>> GetRecommendedPacksAsync(PackRecommendRequest request);
     }
