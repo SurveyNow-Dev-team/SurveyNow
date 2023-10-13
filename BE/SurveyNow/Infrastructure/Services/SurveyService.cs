@@ -43,10 +43,6 @@ public class SurveyService : ISurveyService
             surveyObject.CreatedUserId = currentUser.Id;
             //Update status to PackPurchase if user bought a pack
             surveyObject.Status = SurveyStatus.Draft;
-            // if (surveyObject.PackType.HasValue)
-            // {
-            //     surveyObject.Status = SurveyStatus.PackPurchased;
-            // }
 
             await _unitOfWork.SurveyRepository.AddAsync(surveyObject);
             //Create Survey object
@@ -281,6 +277,16 @@ public class SurveyService : ISurveyService
                 filter = Expression.AndAlso(filter,
                     Expression.Equal(Expression.Property(parameter, nameof(Survey.Status)),
                         Expression.Constant(statusEnum.Value)));
+            }
+            else
+            {
+                filter = Expression.AndAlso(filter,
+                    Expression.Equal(Expression.Property(parameter, nameof(Survey.Status)),
+                        Expression.Constant(SurveyStatus.Active)));
+
+                filter = Expression.OrElse(filter,
+                    Expression.Equal(Expression.Property(parameter, nameof(Survey.Status)),
+                        Expression.Constant(SurveyStatus.Expired)));
             }
 
             //only survey that is not deleted
@@ -796,9 +802,9 @@ public class SurveyService : ISurveyService
     public async Task<SurveyDetailResponse> GetAnswerAsync(long surveyId)
     {
         var currentUser = await _userService.GetCurrentUserAsync()
-            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from token."));
 
-        if (!(await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(surveyId, currentUser.Id)))
+        if (!await _unitOfWork.UserSurveyRepository.ExistBySurveyIdAndUserId(surveyId, currentUser.Id))
         {
             throw new BadRequestException("You have not completed survey yet.");
         }
@@ -818,7 +824,7 @@ public class SurveyService : ISurveyService
     )
     {
         var currentUser = await _userService.GetCurrentUserAsync()
-            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from token."));
 
         var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyId)
             .ContinueWith(t => t.Result ?? throw new NotFoundException($"Survey {surveyId} does not exist"));
@@ -869,7 +875,7 @@ public class SurveyService : ISurveyService
     )
     {
         var currentUser = await _userService.GetCurrentUserAsync()
-            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from toke."));
+            .ContinueWith(t => t.Result ?? throw new UnauthorizedException("Can not extract current user from token."));
 
         var survey = await _unitOfWork.SurveyRepository.Get(
                 filter: s => s.Id == surveyId,

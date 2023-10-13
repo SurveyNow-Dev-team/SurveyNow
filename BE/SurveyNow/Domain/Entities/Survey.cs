@@ -20,8 +20,7 @@ public class Survey
 
     [Range(0, 100000)] public int TotalAnswer { get; set; } = 0; //store the number of users that did the survey
 
-    [Range(0, 100000)]
-    public int TotalValidAnswer { get; set; } = 0; //store the number of valid users that did the survey
+    [Range(0, 100000)] public int TotalValidAnswer { get; set; } //store the number of valid users that did the survey
 
     public SurveyStatus Status { get; set; } = SurveyStatus.Draft;
 
@@ -31,6 +30,7 @@ public class Survey
 
     //need to check here
     [Precision(6, 1)] [Range(0, 100000)] public decimal Point { get; set; }
+    [Range(0, 100000)] public int TotalParticipant { get; set; }
 
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]

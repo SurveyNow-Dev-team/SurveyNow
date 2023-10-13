@@ -64,4 +64,17 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
             .Include(s => s.CreatedBy)
             .FirstOrDefaultAsync(s => s.Id == surveyId);
     }
+
+    public async Task UpdateTotalParticipant(int id, int value)
+    {
+        var survey = await GetByIdAsync(id);
+        if (survey != null)
+        {
+            if (value > 0)
+            {
+                survey.TotalParticipant = value;
+                Update(survey);
+            }
+        }
+    }
 }
