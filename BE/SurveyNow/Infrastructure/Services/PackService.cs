@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.DTOs.Request.Pack;
 using Application.DTOs.Response.Pack;
+using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Application.Utils;
 using AutoMapper;
@@ -88,25 +89,25 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest)
+        public async Task<PackPurchaseResponse> PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest)
         {
             // Calculate pack price
             decimal cost = await CalculatePackPriceAsync(purchaseRequest.PackType, purchaseRequest.TotalParticipants);
 
             // Check for survey conditions
-            Survey survey = await _unitOfWork.SurveyRepository.GetByIdAsync(purchaseRequest.SurveyId);
+            var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(purchaseRequest.SurveyId);
             if (survey == null)
             {
-                throw new ArgumentNullException("Failed to located the associated survey.");
+                throw new NotFoundException("Failed to located the associated survey.");
             }
             else if (survey.Status == SurveyStatus.PackPurchased)
             {
-                throw new OperationCanceledException($"A pack has been purchase for this survey. Survey's ID: {survey.Id}");
+                throw new ConflictException($"A pack has been purchase for this survey. Survey's ID: {survey.Id}");
             }
             // Check user point balance
             if (user.Point < cost)
             {
-                throw new OperationCanceledException($"Insufficient user point. Required: {cost}; Balance: {user.Point}");
+                throw new BadRequestException($"Insufficient user point. Required: {cost}; Balance: {user.Point}");
             }
             try
             {
@@ -150,11 +151,13 @@ namespace Infrastructure.Services
                 // Commit transaction
                 await _unitOfWork.SaveChangeAsync();
                 await _unitOfWork.CommitAsync();
+                var result = _mapper.Map<PackPurchaseResponse>(packPurchaseEntity);
+                return result;
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new InvalidOperationException($"Failed to process user's pack purchase request\n{ex.Message}");
+                throw new Exception($"Failed to process user's pack purchase request\n{ex.Message}");
             }
         }
     }
