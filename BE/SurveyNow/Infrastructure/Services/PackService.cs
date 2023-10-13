@@ -26,7 +26,7 @@ namespace Infrastructure.Services
         {
             if(participants <= 0)
             {
-                throw new ArgumentOutOfRangeException($"Invalid number of participannts: {participants}");
+                throw new BadRequestException($"Invalid number of participannts: {participants}");
             }
 
             decimal commission, userValue, userCost;
@@ -57,7 +57,7 @@ namespace Infrastructure.Services
                     return commission + userCost;
 
                 default:
-                    throw new ArgumentException("Invalid pack type. Failed to calculate pack price");
+                    throw new BadRequestException("Invalid pack type. Failed to calculate pack price");
             }
         }
 

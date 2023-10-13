@@ -44,6 +44,7 @@ namespace SurveyNow.Controllers
             }
         }
 
+
         /// <summary>
         /// Tính số điểm cần để mua gói dựa trên loại gói và số người điền khảo sát
         /// </summary>
@@ -52,6 +53,7 @@ namespace SurveyNow.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet("calculate")]
+        [Produces("application/json")]
         public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery] PackType packType, [FromQuery] int participants)
         {
             var result = await _packService.CalculatePackPriceAsync(packType, participants);
