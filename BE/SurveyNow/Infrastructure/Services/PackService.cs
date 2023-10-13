@@ -103,17 +103,13 @@ namespace Infrastructure.Services
             {
                 throw new OperationCanceledException($"A pack has been purchase for this survey. Survey's ID: {survey.Id}");
             }
-
             // Check user point balance
             if (user.Point < cost)
             {
                 throw new OperationCanceledException($"Insufficient user point. Required: {cost}; Balance: {user.Point}");
             }
-
             try
             {
-                
-
                 PointHistory pointHistory = new PointHistory() 
                 {
                     UserId = user.Id,
@@ -124,7 +120,6 @@ namespace Infrastructure.Services
                     Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.PackPurchase, user.Id, cost, purchaseRequest.SurveyId, purchaseRequest.PackType),
                     Status = TransactionStatus.Success,
                 };
-
                 PackPurchase packPurchase = new PackPurchase()
                 {
                     UserId = user.Id,
@@ -134,7 +129,6 @@ namespace Infrastructure.Services
                     Status = TransactionStatus.Success,
                     SurveyId = survey.Id,
                 };
-
                 // Begin transaction
                 await _unitOfWork.BeginTransactionAsync();
 
@@ -151,6 +145,7 @@ namespace Infrastructure.Services
                 survey.PackType = purchaseRequest.PackType;
                 survey.Point = cost;
                 _unitOfWork.SurveyRepository.Update(survey);
+                await _unitOfWork.SurveyRepository.UpdateTotalParticipant((int)survey.Id, purchaseRequest.TotalParticipants);
 
                 // Commit transaction
                 await _unitOfWork.SaveChangeAsync();

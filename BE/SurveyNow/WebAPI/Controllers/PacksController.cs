@@ -44,12 +44,19 @@ namespace SurveyNow.Controllers
             }
         }
 
-        //// Test end-point
-        //[HttpGet("calculate")]
-        //public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery]PackType packType, [FromQuery]int participants)
-        //{
-        //    return await _packService.CalculatePackPriceAsync(packType, participants);
-        //}
+        /// <summary>
+        /// Tính số điểm cần để mua gói dựa trên loại gói và số người điền khảo sát
+        /// </summary>
+        /// <param name="packType"></param>
+        /// <param name="participants"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("calculate")]
+        public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery] PackType packType, [FromQuery] int participants)
+        {
+            var result =  await _packService.CalculatePackPriceAsync(packType, participants);
+            return Ok(result);
+        }
 
         /// <summary>
         /// Get recommended pack(s) based on given survey's information
