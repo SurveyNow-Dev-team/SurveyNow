@@ -16,7 +16,7 @@ public class Survey
 
     [Column(TypeName = "nvarchar(3000)")] public string? Description { get; set; }
 
-    [Range(0, 1000)] public int TotalQuestion { get; set; } = 0;
+    [Range(0, 999)] public int TotalQuestion { get; set; } = 0;
 
     [Range(0, 100000)] public int TotalAnswer { get; set; } = 0; //store the number of users that did the survey
 
@@ -30,7 +30,7 @@ public class Survey
 
     //need to check here
     [Precision(6, 1)] [Range(0, 100000)] public decimal Point { get; set; }
-    [Range(0, 100000)] public int TotalParticipant { get; set; }
+
 
     [DataType(DataType.DateTime)]
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
@@ -51,6 +51,8 @@ public class Survey
     [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
     [Precision(2)]
     public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+
+    [Range(0, 100000)] public int TotalParticipant { get; set; }
 
     public long CreatedUserId { get; set; }
 
