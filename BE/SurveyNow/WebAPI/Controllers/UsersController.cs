@@ -12,6 +12,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SurveyNow.Controllers
 {
+    /// <summary>
+    /// User related APIs
+    /// </summary>
     [Route("api/v1/users")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -95,6 +98,12 @@ namespace SurveyNow.Controllers
             return url;
         }
 
+        /// <summary>
+        /// Change user role, allow Admin role only
+        /// </summary>
+        /// <param name="id">user id</param>
+        /// <param name="role">user has 2 role: User and Admin</param>
+        /// <returns></returns>
         [Authorize(Roles = "Admin")]
         [HttpPut("role/{id}")]
         public async Task ChangeRole(long id, string role)
@@ -102,6 +111,12 @@ namespace SurveyNow.Controllers
             await _userService.ChangeRole(id, role);
         }
 
+        /// <summary>
+        /// Change user status, allow Admin role only
+        /// </summary>
+        /// <param name="id">user id</param>
+        /// <param name="status">user status includes 3 states: Active, InActive, and Suspending</param>
+        /// <returns></returns>
         [Authorize(Roles = "Admin")]
         [HttpPut("status/{id}")]
         public async Task ChangeStatus(long id, string status)

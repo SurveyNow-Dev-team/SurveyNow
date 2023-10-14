@@ -36,10 +36,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(o =>
-    {
-        o.SwaggerEndpoint("/swagger/v1/swagger.yaml", "SurveyNow V1");
-    });
+    app.UseSwaggerUI();
 }
 
 /*if (!app.Environment.IsDevelopment())
