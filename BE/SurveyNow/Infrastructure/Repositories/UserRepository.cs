@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+﻿using Application.ErrorHandlers;
+using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -24,6 +25,21 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         var user = await GetByEmailAsync(email);
         if (user != null)
         {
+            if (user.IsDelete)
+            {
+                throw new ForbiddenException("This account has been deleted.");
+            }
+
+            if (user.Status == UserStatus.InActive)
+            {
+                throw new ForbiddenException("This account has been blocked.");
+            }
+
+            if (user.Status == UserStatus.Suspending)
+            {
+                throw new ForbiddenException("This account is suspending.");
+            }
+
             if (BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash))
                 return user;
         }
@@ -43,12 +59,14 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         {
             throw new ArgumentException("Invalid UserId");
         }
+
         if (pointAmount <= 0)
         {
             throw new ArgumentException("Point must be a positive value");
         }
+
         var user = await GetByIdAsync(userId);
-        if(user == null)
+        if (user == null)
         {
             throw new NullReferenceException($"Cannot find user with the given ID: {userId}");
         }
@@ -65,6 +83,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                 {
                     user.Point = 0;
                 }
+
                 Update(user);
                 break;
             // Handle additional actions here

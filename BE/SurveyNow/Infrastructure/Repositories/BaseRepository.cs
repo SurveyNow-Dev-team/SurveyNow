@@ -3,12 +3,12 @@ using System.Reflection;
 using Application.DTOs.Response;
 using Application.ErrorHandlers;
 using Application.Interfaces.Repositories;
-using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
+
 namespace Infrastructure.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
@@ -27,22 +27,26 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     public virtual async Task<IEnumerable<T>> Get(
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        string includeProperties = "")
+        string includeProperties = "",
+        bool disableTracking = true
+    )
     {
         IQueryable<T> query = _dbSet;
 
         try
         {
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProperty);
-            }
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             if (orderBy != null)
             {
@@ -65,24 +69,26 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
         int? page,
-        int? size)
+        int? size,
+        bool disableTracking = true)
     {
         IQueryable<T> query = _dbSet;
-        PagingResponse<T> result = new PagingResponse<T>();
+        var result = new PagingResponse<T>();
 
         try
         {
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                // query = query.Include(includeProperty);
-                query = IncludeNested(query, includeProperty);
-            }
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             result.TotalRecords = await query.CountAsync();
 
@@ -90,6 +96,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             {
                 query = orderBy(query);
             }
+
 
             if (page.HasValue && size.HasValue)
             {
@@ -114,7 +121,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 result.Results = await query.ToListAsync();
             }
 
-            
             return result;
         }
         catch (Exception e)
@@ -129,15 +135,16 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await _dbSet.FindAsync(id);
     }
 
-    public async Task<T?> GetByIdAsync(object? id,  string includeProperties = "")
+    public async Task<T?> GetByIdAsync(object? id, string includeProperties = "")
     {
         IQueryable<T> query = _dbSet;
         foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             query = query.Include(includeProperty);
         }
-        var result = query.FirstOrDefault(delegate (T t)
+
+        var result = query.FirstOrDefault(delegate(T t)
         {
             var currentId = typeof(T).GetProperty("Id").GetValue(t);
             return currentId.Equals(id);
@@ -150,7 +157,9 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return await _dbSet.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null, string? includeProperties = "")
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null,
+        string? includeProperties = "")
     {
         IQueryable<T> query = _dbSet;
         if (filter != null)
@@ -171,13 +180,16 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                     {
                         query = query.Where(property.Name + ".ToLower().Contains(@0)", (data as string).ToLower());
                     }
-                    else if (type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double))
+                    else if (type == typeof(int) || type == typeof(long) || type == typeof(float) ||
+                             type == typeof(double))
                     {
                         query = query.Where(property.Name + " == @0", data);
-                    } else if (type == typeof(bool))
+                    }
+                    else if (type == typeof(bool))
                     {
                         query = query.Where(property.Name + " == @0", data);
-                    } else if (type == typeof(DateTime))
+                    }
+                    else if (type == typeof(DateTime))
                     {
                         DateTime date = (DateTime)data;
                         query = query.Where(property.Name + "== @0", date);
@@ -187,7 +199,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
 
         foreach (var includeProperty in includeProperties.Split
-                         (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             query = query.Include(includeProperty);
         }
@@ -237,12 +249,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             query = query.Where(filter);
         }
 
-        foreach (var includeProperty in includeProperties.Split
-                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            // query = query.Include(includeProperty);
-            query = IncludeNested(query, includeProperty);
-        }
+        query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
         if (orderBy != null)
         {
@@ -252,27 +260,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         {
             return await query.ToListAsync();
         }
-    }
-
-    private static IQueryable<T> IncludeNested<T>(IQueryable<T> query, string includeProperty) where T : class
-    {
-        var includeProperties = includeProperty.Split('.');
-        IQueryable<T> result = query;
-
-        try
-        {
-            foreach (var prop in includeProperties)
-            {
-                var navigationProp = typeof(T).GetProperty(prop);
-                result = result.Include(navigationProp.Name);
-            }
-        }
-        catch (Exception e)
-        {
-            throw new BadRequestException("Some include properties does not exist.");
-        }
-
-        return result;
     }
 
     public async Task<T> AddAsyncReturnEntity(T entity)

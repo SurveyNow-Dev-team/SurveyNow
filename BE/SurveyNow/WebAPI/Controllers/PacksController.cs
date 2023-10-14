@@ -25,7 +25,10 @@ namespace SurveyNow.Controllers
             _logger = logger;
             _userService = userService;
         }
-
+        /// <summary>
+        /// Lấy danh sách toàn bộ các gói dùng để đăng khảo sát
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("all")]
         public async Task<ActionResult<List<PackInformation>>> GetAllPacksAsync()
@@ -41,11 +44,20 @@ namespace SurveyNow.Controllers
             }
         }
 
-        // Test end-point
+
+        /// <summary>
+        /// Tính số điểm cần để mua gói dựa trên loại gói và số người điền khảo sát
+        /// </summary>
+        /// <param name="packType"></param>
+        /// <param name="participants"></param>
+        /// <returns></returns>
+        [Authorize]
         [HttpGet("calculate")]
-        public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery]PackType packType, [FromQuery]int participants)
+        [Produces("application/json")]
+        public async Task<ActionResult<decimal>> CalculatePackPriceAsync([FromQuery] PackType packType, [FromQuery] int participants)
         {
-            return await _packService.CalculatePackPriceAsync(packType, participants);
+            var result = await _packService.CalculatePackPriceAsync(packType, participants);
+            return Ok(result);
         }
 
         /// <summary>
@@ -55,9 +67,9 @@ namespace SurveyNow.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet("recommend")]
-        public async Task<ActionResult<List<PackInformation>>> GetRecommendedPacksAsync([FromQuery]PackRecommendRequest recommendRequest)
+        public async Task<ActionResult<List<PackInformation>>> GetRecommendedPacksAsync([FromQuery] PackRecommendRequest recommendRequest)
         {
-            if(recommendRequest == null || recommendRequest.TotalQuestions <= 0)
+            if (recommendRequest == null || recommendRequest.TotalQuestions <= 0)
             {
                 return BadRequest("Invalid request!");
             }
@@ -72,36 +84,22 @@ namespace SurveyNow.Controllers
             }
         }
 
+        /// <summary>
+        /// Xử lý yêu cầu mua gói để đăng khảo sát của người dùng
+        /// </summary>
+        /// <param name="purchaseRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("purchase")]
-        public async Task<ActionResult> ProcessPackPurchaseRequest(PackPurchaseRequest purchaseRequest)
+        public async Task<ActionResult<PackPurchaseResponse>> ProcessPackPurchaseRequest(PackPurchaseRequest purchaseRequest)
         {
             var user = await _userService.GetCurrentUserAsync();
-            if(user == null)
+            if (user == null)
             {
                 return Unauthorized("Cannot retreive user's identity");
             }
-            try
-            {
-                await _packService.PurchasePackAsync(user, purchaseRequest);
-                return Ok("Successfully purchase pack");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (OperationCanceledException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _packService.PurchasePackAsync(user, purchaseRequest);
+            return Ok(result);
         }
     }
 }

@@ -53,4 +53,29 @@ public interface ISurveyService
 
     Task<SurveyDetailResponse> UpdateSurveyAsync(long id, SurveyRequest request);
     Task<SurveyDetailResponse> ChangeSurveyStatusAsync(long id);
+
+    Task DoSurveyAsync(DoSurveyRequest request);
+
+    Task<PagingResponse<CommonSurveyResponse>> FilterCompletedSurveyAsync(
+        string? title,
+        string? sortTitle,
+        string? sortDate,
+        int? page,
+        int? size,
+        bool disableTracking = true
+    );
+
+    Task<SurveyDetailResponse> GetAnswerAsync(long surveyId);
+
+    Task<PagingResponse<UserSurveyResponse>> GetUserSurveyAsync(
+        long surveyId,
+        bool? isValid,
+        int? page,
+        int? size,
+        bool disableTracking = true
+    );
+
+    Task<CommonSurveyResponse> PostSurveyAsync(long surveyId,
+        DateTime? startDate, 
+        DateTime expiredDate);
 }

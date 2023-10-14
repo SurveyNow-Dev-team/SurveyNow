@@ -133,6 +133,8 @@ namespace Infrastructure.Services
                     PointPackPurchaseDetailResponse packResult = _mapper.Map<PointPackPurchaseDetailResponse>(pointHistory);
                     packResult.PackPurchase = packPurchaseResponse;
                     return packResult;
+                case PointHistoryType.RefundPoint:
+                    return _mapper.Map<BasePointHistoryResponse>(pointHistory);
                 default:
                     // Refund point, Gift point and Receiving Point
                     // will be added later on
@@ -140,10 +142,108 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<PointCreateRedeemOrderResponse> ProcessCreateGiftRedeemOrderAsync(PointRedeemRequest redeemRequest)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(redeemRequest.UserId);
+            if (user == null)
+            {
+                throw new NotFoundException("Cannot find user's information");
+            }
+            if (user.Point < redeemRequest.PointAmount)
+            {
+                throw new BadRequestException("Insufficient user's point amount");
+            }
+            // Check for any existing pending redeem transaction
+            var pendingOrder = await _unitOfWork.TransactionRepository.CheckExistPendingRedeemOrderAsync();
+            if (pendingOrder)
+            {
+                throw new ConflictException("User have unprocessed redeem order");
+            }
+            switch (redeemRequest.PaymentMethod)
+            {
+                case PaymentMethod.Momo:
+                    (bool result, PointCreateRedeemOrderResponse? resultData) = await ProcessMomoCreateGiftRedeemOrder(user, redeemRequest);
+                    if (!result)
+                    {
+                        return new PointCreateRedeemOrderResponse()
+                        {
+                            Status = TransactionStatus.Fail.ToString(),
+                            Message = "Failed to create new gift redeem order",
+                            PointAmount = redeemRequest.PointAmount,
+                            MoneyAmount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                            PaymentMethod = redeemRequest.PaymentMethod.ToString()
+                        };
+                    }
+                    return resultData!;
+                default:
+                    throw new BadRequestException("Unsupported payment method");
+            }
+        }
+
+        private async Task<(bool, PointCreateRedeemOrderResponse?)> ProcessMomoCreateGiftRedeemOrder(User user, PointRedeemRequest redeemRequest)
+        {
+            try
+            {
+                // Create new transaction
+                Transaction redeemTransaction = new Transaction()
+                {
+                    UserId = user.Id,
+                    TransactionType = TransactionType.RedeemGift,
+                    PaymentMethod = PaymentMethod.Momo,
+                    Point = redeemRequest.PointAmount,
+                    Amount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                    Currency = Currency.VND.ToString(),
+                    Date = DateTime.UtcNow,
+                    SourceAccount = null,
+                    DestinationAccount = redeemRequest.MomoAccount,
+                    PurchaseCode = null,
+                    Status = TransactionStatus.Pending,
+                };
+
+                // Create point history
+                var pointHistory = CreatePointHistoryEntity(user, PointHistoryType.RedeemPoint);
+                pointHistory!.Point = redeemRequest.PointAmount;
+                pointHistory!.Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.RedeemPoint, user.Id, redeemRequest.PointAmount, paymentMethod: redeemRequest.PaymentMethod);
+
+                // Add data
+                await _unitOfWork.BeginTransactionAsync();
+                var entity = await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(redeemTransaction);
+                await _unitOfWork.SaveChangeAsync();
+
+                pointHistory.PointPurchaseId = entity.Id;
+                var pointHistoryEntity = await _unitOfWork.PointHistoryRepository.AddAsyncReturnEntity(pointHistory);
+                await _unitOfWork.SaveChangeAsync();
+
+                await _unitOfWork.UserRepository.UpdateUserPoint(user.Id, UserPointAction.DecreasePoint, redeemRequest.PointAmount);
+                await _unitOfWork.SaveChangeAsync();
+
+                await _unitOfWork.CommitAsync();
+                return (true, new PointCreateRedeemOrderResponse()
+                {
+                    Status = TransactionStatus.Success.ToString(),
+                    Message = "Successfully create gift redeem order. User gift will be delivered soon",
+                    PointAmount = entity.Point,
+                    MoneyAmount = entity.Amount,
+                    TransactionId = entity.Id.ToString(),
+                    PaymentMethod = entity.PaymentMethod.ToString(),
+                    PointHistoryId = pointHistoryEntity.Id.ToString(),
+                });
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Failed to create new momo gift redeem transaction");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
+        }
+
         public async Task<PointPurchaseResultResponse> ProcessMomoPaymentResultAsync(long userId, MomoCreatePaymentResultRequest resultRequest)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if(user == null)
+            if (user == null)
             {
                 throw new NotFoundException("Cannot find user information");
             }
@@ -169,7 +269,7 @@ namespace Infrastructure.Services
                 Transaction transaction = CreateMomoTransactionEntity(user, resultRequest);
                 // Point history
                 PointHistory? pointHistory = CreatePointHistoryEntity(user, PointHistoryType.PurchasePoint, resultRequest: resultRequest);
-                if(pointHistory == null)
+                if (pointHistory == null)
                 {
                     throw new ArgumentNullException($"Cannot create point history data");
                 }
@@ -178,7 +278,7 @@ namespace Infrastructure.Services
                 await _unitOfWork.BeginTransactionAsync();
 
                 // Add transaction
-                var transactionEntity =  await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(transaction);
+                var transactionEntity = await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(transaction);
                 await _unitOfWork.SaveChangeAsync();
 
                 // Update and add point history
@@ -238,7 +338,6 @@ namespace Infrastructure.Services
             {
                 UserId = user.Id,
                 Date = DateTime.UtcNow,
-                Status = TransactionStatus.Success,
             };
             switch (pointHistoryType)
             {
@@ -246,9 +345,74 @@ namespace Infrastructure.Services
                     result.Description = resultRequest.orderInfo;
                     result.PointHistoryType = pointHistoryType;
                     result.Point = resultRequest.amount / BusinessData.BasePointVNDPrice;
+                    result.Status = TransactionStatus.Success;
+                    return result;
+                case PointHistoryType.RefundPoint:
+                    result.PointHistoryType = pointHistoryType;
+                    result.Status = TransactionStatus.Success;
+                    return result;
+                case PointHistoryType.RedeemPoint:
+                    result.PointHistoryType = pointHistoryType;
+                    result.Status = TransactionStatus.Pending;
                     return result;
                 default:
                     return null;
+            }
+        }
+
+        public async Task<bool> RefundPointForUser(long userId, decimal pointAmount, string message)
+        {
+            try
+            {
+                // Get user
+                var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    throw new NotFoundException("Cannot find user information");
+                }
+
+                // create point history
+                var pointHistory = CreatePointHistoryEntity(user, PointHistoryType.RefundPoint);
+                var description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.RefundPoint, userId, pointAmount, refundReason: message);
+                pointHistory!.Description = description;
+                pointHistory!.Point = pointAmount;
+
+                // refund point to user
+                await _unitOfWork.PointHistoryRepository.AddAsync(pointHistory);
+                await _unitOfWork.UserRepository.UpdateUserPoint(userId, UserPointAction.IncreasePoint, pointAmount);
+                await _unitOfWork.SaveChangeAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Failed to refund point to user", ex);
+            }
+        }
+
+        public async Task<decimal> GetSurveyRewardPointAmount(long surveyId)
+        {
+            var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyId);
+            if (survey == null)
+            {
+                throw new NotFoundException("Cannot find survey with the given id");
+            }
+            if(survey.PackType == null)
+            {
+                throw new BadRequestException("Survey did not have any pack purchased");
+            }
+            switch (survey.PackType)
+            {
+                case PackType.Basic:
+                    return 0.5m;
+                case PackType.Medium:
+                    return 0.7m;
+                case PackType.Advanced:
+                    return 1m;
+                case PackType.Expert:
+                    return 50m;
+                default:
+                    throw new BadRequestException("Invalid survey's pack type");
             }
         }
     }

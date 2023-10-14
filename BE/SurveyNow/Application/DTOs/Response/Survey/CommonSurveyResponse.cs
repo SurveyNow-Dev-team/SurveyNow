@@ -21,5 +21,5 @@ public class CommonSurveyResponse
 
     public long CreatedUserId { get; set; }
     
-    public string CreatedUserFullName { get; set; } = null!;
+    public string CreatedUserFullName { get; set; } = string.Empty;
 }

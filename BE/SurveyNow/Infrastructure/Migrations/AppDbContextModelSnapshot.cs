@@ -98,6 +98,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ColumnOrder")
                         .HasColumnType("int");
 
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<int>("RowOrder")
                         .HasColumnType("int");
 
@@ -676,6 +679,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("TotalAnswer")
                         .HasColumnType("int");
 
+                    b.Property<int>("TotalParticipant")
+                        .HasColumnType("int");
+
                     b.Property<int>("TotalQuestion")
                         .HasColumnType("int");
 
@@ -753,7 +759,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("AvatarUrl")
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasPrecision(2)

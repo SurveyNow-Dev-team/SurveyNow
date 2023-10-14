@@ -8,14 +8,17 @@ public interface IBaseRepository<T> where T : class
     Task<IEnumerable<T>> Get(
         Expression<Func<T, bool>>? filter,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
-        string includeProperties);
+        string includeProperties,
+        bool disableTracking = false
+        );
 
     Task<PagingResponse<T>> GetPaginateAsync(
         Expression<Func<T, bool>>? filter,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
         int? page,
-        int? size
+        int? size,
+        bool disableTracking = false
     );
 
     Task<T?> GetByIdAsync(object id);

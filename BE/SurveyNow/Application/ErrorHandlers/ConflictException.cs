@@ -4,15 +4,18 @@ namespace Application.ErrorHandlers;
 
 public class ConflictException : BaseException
 {
+    private const int _statusCode = (int)HttpStatusCode.Conflict;
+    private const string? _title = "Resource conflict.";
+
     public ConflictException()
     {
-        StatusCode = (int)HttpStatusCode.Conflict;
-        Title = "Resource conflict.";
+        StatusCode = _statusCode;
+        Title = _title;
     }
 
     public ConflictException(string? message) : base(message)
     {
-        StatusCode = (int)HttpStatusCode.Conflict;
-        Title = "Resource conflict.";
+        StatusCode = _statusCode;
+        Title = _title;
     }
 }
