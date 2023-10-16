@@ -34,7 +34,7 @@ public class Question
 
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
-    public virtual ICollection<ColumnOption> ColumnOptions { get; set; } = new List<ColumnOption>();
+    public ICollection<ColumnOption> ColumnOptions { get; set; } = new List<ColumnOption>();
 
-    public virtual ICollection<RowOption> RowOptions { get; set; } = new List<RowOption>();
+    public ICollection<RowOption> RowOptions { get; set; } = new List<RowOption>();
 }

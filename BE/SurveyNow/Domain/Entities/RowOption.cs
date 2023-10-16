@@ -17,7 +17,7 @@ public class RowOption
 
     public bool IsCustom { get; set; }
 
-    public int TotalChoose { get; set; } = 0;
+    public int TotalChoice { get; set; } 
 
     [Column(TypeName = "nvarchar(500)")] public string? Content { get; set; }
 

@@ -681,7 +681,32 @@ public class SurveyService : ISurveyService
         try
         {
             var tasks = answerList.Select(a => _unitOfWork.AnswerRepository.AddAsync(a));
+
             await Task.WhenAll(tasks);
+
+            foreach (var a in answerList)
+            {
+                var question = await _unitOfWork.QuestionRepository.GetByIdAsync(a.QuestionId)
+                    .ContinueWith(t =>
+                        t.Result ?? throw new BadRequestException($"Question {a.QuestionId} does not exist."));
+
+                //Update total answer of question 
+                question.TotalAnswer++;
+
+                //Update total choice of row order
+                foreach (var ao in a.AnswerOptions)
+                {
+                    foreach (var ro in question.RowOptions)
+                    {
+                        if (ro.Order != ao.RowOrder) continue;
+                        ro.TotalChoice++;
+                        break;
+                    }
+                }
+
+                _unitOfWork.QuestionRepository.Update(question);
+            }
+
             var userSurvey = new UserSurvey
             {
                 SurveyId = surveyObj.Id,
@@ -692,6 +717,28 @@ public class SurveyService : ISurveyService
             };
 
             await _unitOfWork.UserSurveyRepository.AddAsync(userSurvey);
+
+            //Update point
+
+            var pointHistory = new PointHistory()
+            {
+                UserId = currentUser.Id,
+                SurveyId = surveyObj.Id,
+                Point = surveyObj.Point,
+                PointHistoryType = PointHistoryType.DoSurvey,
+                Date = DateTime.UtcNow,
+                Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.DoSurvey, currentUser.Id,
+                    surveyObj.Point, surveyObj.Id),
+                Status = TransactionStatus.Success,
+            };
+
+            await _unitOfWork.PointHistoryRepository.AddPointHistoryAsync(pointHistory);
+
+            // Update survey total answer
+            surveyObj.TotalAnswer++;
+            surveyObj.TotalValidAnswer++;
+            _unitOfWork.SurveyRepository.Update(surveyObj);
+
             await _unitOfWork.SaveChangeAsync();
             await _unitOfWork.CommitAsync();
         }
@@ -808,8 +855,6 @@ public class SurveyService : ISurveyService
         {
             throw new BadRequestException("You have not completed survey yet.");
         }
-
-        var survey = await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id);
 
         return await _unitOfWork.SurveyRepository.GetSurveyAnswerAsync(surveyId, currentUser.Id)
             .ContinueWith(t =>

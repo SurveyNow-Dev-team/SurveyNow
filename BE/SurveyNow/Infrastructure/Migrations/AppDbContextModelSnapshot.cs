@@ -587,7 +587,7 @@ namespace Infrastructure.Migrations
                     b.Property<long>("QuestionId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("TotalChoose")
+                    b.Property<int>("TotalChoice")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

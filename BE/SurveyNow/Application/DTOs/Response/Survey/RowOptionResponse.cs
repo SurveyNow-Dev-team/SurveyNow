@@ -8,7 +8,7 @@ public class RowOptionResponse
 
     public bool IsCustom { get; set; }
 
-    public int TotalChoose { get; set; } = 0;
+    public int TotalChoice { get; set; } = 0;
 
     public string? Content { get; set; }
 }

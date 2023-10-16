@@ -21,8 +21,7 @@ public class SurveyResponse
     public bool IsDelete { get; set; }
 
     public PackType? PackType { get; set; }
-
-    //need to check here
+    
     public decimal? Point { get; set; }
 
     public string? StartDate { get; set; }
