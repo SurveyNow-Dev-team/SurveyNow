@@ -26,6 +26,12 @@ namespace SurveyNow.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Get all users, for Admin roles only
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="pagingRequest"></param>
+        /// <returns></returns>
         // GET: api/<UsersController>
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -35,6 +41,11 @@ namespace SurveyNow.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Get user by id, for Admin role only.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<UsersController>/5
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
@@ -44,6 +55,10 @@ namespace SurveyNow.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Get current login user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("login-user")]
         [Authorize]
         public async Task<ActionResult<UserResponse>> GetLoggedInUser()
@@ -61,6 +76,11 @@ namespace SurveyNow.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Update current user password
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("password")]
         [Authorize]
         public async Task ChangePassword([FromBody] PasswordChangeRequest request)
@@ -68,6 +88,11 @@ namespace SurveyNow.Controllers
             await _userService.ChangePasswordAsync(request);
         }
 
+        /// <summary>
+        /// Enter updated phone number & receive 6 number OTP to verify in that phone number's sms
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("phone-number")]
         public async Task UpdatePhoneNumber([FromBody][RegularExpression(@"^(84|0[3|5|7|8|9])[0-9]{8}$", ErrorMessage = "We currently support Vietnam phone number")] string phoneNumber)
@@ -75,6 +100,11 @@ namespace SurveyNow.Controllers
             await _userService.UpdatePhoneNumber(phoneNumber);
         }
 
+        /// <summary>
+        /// Enter OTP to verify phone number, if OTP is right, update phone number successfully
+        /// </summary>
+        /// <param name="confirmedOtp"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPut("phone-number-verification")]
         public async Task VerifyPhoneNumber([RegularExpression(@"^\d{6}$")] string confirmedOtp)
@@ -82,6 +112,10 @@ namespace SurveyNow.Controllers
             await _userService.VerifyPhoneNumber(confirmedOtp);
         }
 
+        /// <summary>
+        /// current user delete their account
+        /// </summary>
+        /// <returns></returns>
         // PUT api/<UsersController>/5
         [Authorize]
         [HttpPut("user-removal")]
@@ -90,6 +124,11 @@ namespace SurveyNow.Controllers
             await _userService.Remove();
         }
 
+        /// <summary>
+        /// Upload current user avatar
+        /// </summary>
+        /// <param name="formFile"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("avatar")]
         public async Task<string> UploadAvatar(IFormFile formFile)
@@ -101,7 +140,7 @@ namespace SurveyNow.Controllers
         /// <summary>
         /// Change user role, allow Admin role only
         /// </summary>
-        /// <param name="id">user id</param>
+        /// <param name="id"></param>
         /// <param name="role">user has 2 role: User and Admin</param>
         /// <returns></returns>
         [Authorize(Roles = "Admin")]
@@ -114,7 +153,7 @@ namespace SurveyNow.Controllers
         /// <summary>
         /// Change user status, allow Admin role only
         /// </summary>
-        /// <param name="id">user id</param>
+        /// <param name="id"></param>
         /// <param name="status">user status includes 3 states: Active, InActive, and Suspending</param>
         /// <returns></returns>
         [Authorize(Roles = "Admin")]

@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Request.User;
 using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -9,6 +10,7 @@ namespace SurveyNow.Controllers
 {
     [Route("api/v1/hobbies")]
     [ApiController]
+    [Authorize]
     public class HobbiesController : ControllerBase
     {
         private readonly IHobbyService _hobbyService;

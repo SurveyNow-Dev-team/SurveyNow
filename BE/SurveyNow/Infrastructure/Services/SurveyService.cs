@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -266,6 +267,19 @@ public class SurveyService : ISurveyService
 
         try
         {
+            // Get survey which is not belong to the login user
+            var user = await _userService.GetCurrentUserAsync().ContinueWith(x => x.Result ?? throw new UnauthorizedException("User hasn't logged in yet"));
+            filter = Expression.AndAlso(filter, Expression.NotEqual(Expression.Property(parameter, nameof(Survey.CreatedUserId)), Expression.Constant(user.Id)));
+            // Get survey which user haven't done it yet
+            // !survey.UserSurvey.Any(x => x.UserId == user.Id)
+            var toQueryable = typeof(Queryable).GetMethods()
+                .Where(method => method.Name.Equals("AsQueryable"))
+                .Single(method => method.IsGenericMethod)
+                .MakeGenericMethod(typeof(UserSurvey));
+            Expression<Func<UserSurvey, bool>> lambda = x => x.UserId == user.Id;
+            var queryableUserSurvey = Expression.Call(method: toQueryable, arg0: Expression.Property(parameter, nameof(Survey.UserSurveys)));
+            filter = Expression.AndAlso(filter, Expression.Condition(ExpressionUtils.Any(queryableUserSurvey, lambda), Expression.Constant(false), Expression.Constant(true)));
+
             if (statusEnum.HasValue)
             {
                 if (!(statusEnum.Value.Equals(SurveyStatus.Active) && statusEnum.Value.Equals(SurveyStatus.Expired)))

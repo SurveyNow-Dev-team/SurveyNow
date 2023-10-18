@@ -145,7 +145,7 @@ namespace Infrastructure.Services
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
-                throw new UnAuthorizedException();
+                throw new UnauthorizedException("User hasn't logged in yet");
             }
             var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId), "Address,Occupation,Occupation.Field");
             if (user == null)
