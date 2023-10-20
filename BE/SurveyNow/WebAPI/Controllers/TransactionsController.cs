@@ -52,7 +52,7 @@ namespace SurveyNow.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<TransactionResponse>> GetTransaction([FromRoute] long id)
         {
-            var result = await _transactionService.GetPendingTransactionsAsync(id);
+            var result = await _transactionService.GetTransactionsAsync(id);
             return Ok(result);
         }
 
@@ -83,6 +83,21 @@ namespace SurveyNow.Controllers
         public async Task<ActionResult<ProccessRedeemTransactionResult>> ProcessRedeemTransaction([FromRoute] long id, [FromBody] UpdatePointRedeemTransactionRequest request)
         {
             var result = await _transactionService.ProcessRedeemTransaction(id, request);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Xem danh sách lịch sử giao dịch của hệ thống. Có thể lọc theo các tiêu chí (loại giao dịch, trạng thái, thời gian) và thứ tự sắp xếp
+        /// </summary>
+        /// <param name="historyRequest"></param>
+        /// <param name="pagingRequest"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("history")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagingResponse<TransactionResponse>>> GetTransactionHistoryWithFilter([FromQuery] TransactionHistoryRequest historyRequest, [FromQuery] PagingRequest pagingRequest)
+        {
+            var result = await _transactionService.GetTransactionHistory(pagingRequest, historyRequest);
             return Ok(result);
         }
     }
