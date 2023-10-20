@@ -267,18 +267,6 @@ public class SurveyService : ISurveyService
 
         try
         {
-            // Get survey which is not belong to the login user
-            var user = await _userService.GetCurrentUserAsync().ContinueWith(x => x.Result ?? throw new UnauthorizedException("User hasn't logged in yet"));
-            filter = Expression.AndAlso(filter, Expression.NotEqual(Expression.Property(parameter, nameof(Survey.CreatedUserId)), Expression.Constant(user.Id)));
-            // Get survey which user haven't done it yet
-            // !survey.UserSurvey.Any(x => x.UserId == user.Id)
-            var toQueryable = typeof(Queryable).GetMethods()
-                .Where(method => method.Name.Equals("AsQueryable"))
-                .Single(method => method.IsGenericMethod)
-                .MakeGenericMethod(typeof(UserSurvey));
-            Expression<Func<UserSurvey, bool>> lambda = x => x.UserId == user.Id;
-            var queryableUserSurvey = Expression.Call(method: toQueryable, arg0: Expression.Property(parameter, nameof(Survey.UserSurveys)));
-            filter = Expression.AndAlso(filter, Expression.Condition(ExpressionUtils.Any(queryableUserSurvey, lambda), Expression.Constant(false), Expression.Constant(true)));
 
             if (statusEnum.HasValue)
             {
@@ -306,6 +294,48 @@ public class SurveyService : ISurveyService
             //only survey that is not deleted
             filter = Expression.AndAlso(filter,
                 Expression.Equal(Expression.Property(parameter, nameof(Survey.IsDelete)), Expression.Constant(false)));
+
+            #region survey which is not belong to the login user and user haven't done it yet
+            // Get survey which is not belong to the login user
+            var user = await _userService.GetCurrentUserAsync().ContinueWith(x => x.Result ?? throw new UnauthorizedException("User hasn't logged in yet"));
+            filter = Expression.AndAlso(filter, Expression.NotEqual(Expression.Property(parameter, nameof(Survey.CreatedUserId)), Expression.Constant(user.Id)));
+
+            // Get survey which user haven't done it yet
+            // !survey.UserSurvey.Any(x => x.UserId == user.Id)
+            filter = Expression.AndAlso(filter,
+                Expression.Condition(
+                    ExpressionUtils.Any<UserSurvey>(
+                        ExpressionUtils.ToQueryable<UserSurvey>(Expression.Property(parameter, nameof(Survey.UserSurveys))), x => x.UserId == user.Id), Expression.Constant(false), Expression.Constant(true)));
+            #endregion
+
+            // Get survey on criterion
+            #region by age
+            // if min age | max age not null => max age > date now - user dob > min age 
+            int? age = user.DateOfBirth != null ? (DateTime.Now.Year - user.DateOfBirth.Value.Year) : null;
+            Expression minAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.MinAge));
+            Expression maxAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.MaxAge));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                    Expression.NotEqual(
+                        minAge,
+                        Expression.Constant(null)),
+                    Expression.GreaterThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), minAge),
+                    Expression.Constant(true)));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                Expression.NotEqual(
+                    maxAge,
+                    Expression.Constant(null)),
+                Expression.LessThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), maxAge),
+                Expression.Constant(true)));
+            #endregion
+            #region by gender
+
+            #endregion
+            Expression gender = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.GenderCriteria));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                ExpressionUtils.Any<GenderCriterion>(ExpressionUtils.ToQueryable<GenderCriterion>(gender)),
+                ExpressionUtils.Any<GenderCriterion>(ExpressionUtils.ToQueryable<GenderCriterion>(gender), x => x.Gender.Equals(user.Gender)),
+                Expression.Constant(true)));
+
 
             if (!string.IsNullOrEmpty(title))
             {
@@ -887,7 +917,8 @@ public class SurveyService : ISurveyService
     public async Task<CommonSurveyResponse> PostSurveyAsync(
         long surveyId,
         DateTime? startDate,
-        DateTime expiredDate
+        DateTime expiredDate,
+        CriterionRequest? criterionRequest
     )
     {
         var currentUser = await _userService.GetCurrentUserAsync()
@@ -914,8 +945,12 @@ public class SurveyService : ISurveyService
             throw new BadRequestException("This survey has been posted before or you have not bought a pack yet.");
         }
 
-        var now = DateTime.UtcNow;
+        if(currentUser.Point < survey.Point)
+        {
+            throw new BadRequestException("You don't have enough point to post this survey.");
+        }
 
+        var now = DateTime.UtcNow;
 
         if (startDate.HasValue)
         {
@@ -937,6 +972,11 @@ public class SurveyService : ISurveyService
                 throw new BadRequestException(
                     "The expiration date must be at least 14 days from today.");
             }
+        }
+
+        if(survey.PackType == null)
+        {
+            throw new BadRequestException("You haven't bought pack yet");
         }
 
         survey.StartDate = startDate ?? now;

@@ -77,5 +77,6 @@ public interface ISurveyService
 
     Task<CommonSurveyResponse> PostSurveyAsync(long surveyId,
         DateTime? startDate, 
-        DateTime expiredDate);
+        DateTime expiredDate,
+        CriterionRequest? criterionRequest);
 }
