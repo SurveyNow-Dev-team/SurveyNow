@@ -69,19 +69,7 @@ namespace SurveyNow.Controllers
         [HttpGet("recommend")]
         public async Task<ActionResult<List<PackInformation>>> GetRecommendedPacksAsync([FromQuery] PackRecommendRequest recommendRequest)
         {
-            if (recommendRequest == null || recommendRequest.TotalQuestions <= 0)
-            {
-                return BadRequest("Invalid request!");
-            }
-            try
-            {
-                return await _packService.GetRecommendedPacksAsync(recommendRequest);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while trying to retrieve recommeded packs data");
-                return StatusCode(500, "An error occurred while trying to retrieve recommeded packs data");
-            }
+            return await _packService.GetRecommendedPacksAsync(recommendRequest);
         }
 
         /// <summary>
