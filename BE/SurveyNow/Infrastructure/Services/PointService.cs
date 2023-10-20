@@ -35,22 +35,21 @@ namespace Infrastructure.Services
         {
             if (userId <= 0 || surveyId <= 0 || pointAmount <= 0)
             {
-                throw new ArgumentOutOfRangeException("Paramater(s) is out of range. All parameters range must be larger than 0");
+                throw new ArgumentOutOfRangeException("Id của người dùng, Id khảo sát và số điểm phải lớn hơn 0");
             }
+            // Create point history record
+            PointHistory pointHistory = new PointHistory()
+            {
+                UserId = userId,
+                SurveyId = surveyId,
+                Point = pointAmount,
+                PointHistoryType = PointHistoryType.DoSurvey,
+                Date = DateTime.UtcNow,
+                Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.DoSurvey, userId, pointAmount, surveyId),
+                Status = TransactionStatus.Success,
+            };
             try
             {
-                // Create point history record
-                PointHistory pointHistory = new PointHistory()
-                {
-                    UserId = userId,
-                    SurveyId = surveyId,
-                    Point = pointAmount,
-                    PointHistoryType = PointHistoryType.DoSurvey,
-                    Date = DateTime.UtcNow,
-                    Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.DoSurvey, userId, pointAmount, surveyId),
-                    Status = TransactionStatus.Success,
-                };
-
                 // Begin transaction
                 await _unitOfWork.BeginTransactionAsync();
 
@@ -66,7 +65,7 @@ namespace Infrastructure.Services
 
                 if (result <= 0)
                 {
-                    throw new Exception("Failed add do survey point transaction");
+                    throw new Exception("Có lỗi xảy ra khi xử lý phần thưởng điền khảo sát của người dùng");
                 }
 
                 await _unitOfWork.CommitAsync();
@@ -75,7 +74,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new OperationCanceledException($"Failed to add point for user survey completion\n{ex.Message}");
+                throw new OperationCanceledException($"Có lỗi xảy ra khi xử lý phần thưởng điền khảo sát của người dùng\n{ex.Message}");
             }
         }
 
@@ -147,17 +146,17 @@ namespace Infrastructure.Services
             var user = await _unitOfWork.UserRepository.GetByIdAsync(redeemRequest.UserId);
             if (user == null)
             {
-                throw new NotFoundException("Cannot find user's information");
+                throw new NotFoundException("Không tìm thấy thông tin của người dùng");
             }
             if (user.Point < redeemRequest.PointAmount)
             {
-                throw new BadRequestException("Insufficient user's point amount");
+                throw new BadRequestException($"Người dùng không có đủ số điểm. Số dư hiện tại: {user.Point}");
             }
             // Check for any existing pending redeem transaction
             var pendingOrder = await _unitOfWork.TransactionRepository.CheckExistPendingRedeemOrderAsync();
             if (pendingOrder)
             {
-                throw new ConflictException("User have unprocessed redeem order");
+                throw new ConflictException($"Người dùng có yêu cầu đổi quà đã tạo. Vui lòng chờ cho đến khi yêu cầu trước được xử lý");
             }
             switch (redeemRequest.PaymentMethod)
             {
@@ -168,7 +167,7 @@ namespace Infrastructure.Services
                         return new PointCreateRedeemOrderResponse()
                         {
                             Status = TransactionStatus.Fail.ToString(),
-                            Message = "Failed to create new gift redeem order",
+                            Message = "Không thể tạo yêu cầu đổi quà của người dùng",
                             PointAmount = redeemRequest.PointAmount,
                             MoneyAmount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
                             PaymentMethod = redeemRequest.PaymentMethod.ToString()
@@ -176,7 +175,7 @@ namespace Infrastructure.Services
                     }
                     return resultData!;
                 default:
-                    throw new BadRequestException("Unsupported payment method");
+                    throw new BadRequestException("Phương thức thanh toán không đươc hỗ trợ");
             }
         }
 
@@ -221,7 +220,7 @@ namespace Infrastructure.Services
                 return (true, new PointCreateRedeemOrderResponse()
                 {
                     Status = TransactionStatus.Success.ToString(),
-                    Message = "Successfully create gift redeem order. User gift will be delivered soon",
+                    Message = "Yêu cầu đổi quà được tạo thành công. Người dùng sẽ nhận được quà sau khi yêu cầu được xử lý",
                     PointAmount = entity.Point,
                     MoneyAmount = entity.Amount,
                     TransactionId = entity.Id.ToString(),
@@ -232,7 +231,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Failed to create new momo gift redeem transaction");
+                throw new Exception("Có lỗi xảy ra trong quá trình tạo yêu cầu đổi quà");
             }
             finally
             {
@@ -245,7 +244,7 @@ namespace Infrastructure.Services
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             if (user == null)
             {
-                throw new NotFoundException("Cannot find user information");
+                throw new NotFoundException($"Không tìm thấy người dùng với Id: {userId}");
             }
 
             (bool checkTransaction, string message) = _momoService.ValidateMomoPaymentResult(resultRequest);
@@ -261,19 +260,17 @@ namespace Infrastructure.Services
                     PaymentMethod = PaymentMethod.Momo.ToString(),
                 };
             }
-
             // Process success transaction
+            // Transaction
+            Transaction transaction = CreateMomoTransactionEntity(user, resultRequest);
+            // Point history
+            PointHistory? pointHistory = CreatePointHistoryEntity(user, PointHistoryType.PurchasePoint, resultRequest: resultRequest);
+            if (pointHistory == null)
+            {
+                throw new ArgumentNullException($"Không thể lưu dữ liệu biến động điểm của người dùng");
+            }
             try
             {
-                // Transaction
-                Transaction transaction = CreateMomoTransactionEntity(user, resultRequest);
-                // Point history
-                PointHistory? pointHistory = CreatePointHistoryEntity(user, PointHistoryType.PurchasePoint, resultRequest: resultRequest);
-                if (pointHistory == null)
-                {
-                    throw new ArgumentNullException($"Cannot create point history data");
-                }
-
                 // Begin transaction
                 await _unitOfWork.BeginTransactionAsync();
 
@@ -306,7 +303,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new OperationCanceledException($"Failed to process user point purchase transaction\n{ex.Message}");
+                throw new OperationCanceledException($"Có lỗi xảy ra trong quá trình xử lý giao dịch mua điểm của người dùng\n{ex.Message}");
             }
             finally
             {
@@ -362,15 +359,14 @@ namespace Infrastructure.Services
 
         public async Task<bool> RefundPointForUser(long userId, decimal pointAmount, string message)
         {
+            // Get user
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException($"Không tìm thấy người dùng với Id: {userId}");
+            }
             try
             {
-                // Get user
-                var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-                if (user == null)
-                {
-                    throw new NotFoundException("Cannot find user information");
-                }
-
                 // create point history
                 var pointHistory = CreatePointHistoryEntity(user, PointHistoryType.RefundPoint);
                 var description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.RefundPoint, userId, pointAmount, refundReason: message);
@@ -386,7 +382,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Failed to refund point to user", ex);
+                throw new Exception("Có lỗi xảy ra trong quá trình hoàn điểm cho người dùng", ex);
             }
         }
 
@@ -395,11 +391,11 @@ namespace Infrastructure.Services
             var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(surveyId);
             if (survey == null)
             {
-                throw new NotFoundException("Cannot find survey with the given id");
+                throw new NotFoundException($"Không tìm thấy khảo sát với Id: {surveyId}");
             }
-            if(survey.PackType == null)
+            if (survey.PackType == null)
             {
-                throw new BadRequestException("Survey did not have any pack purchased");
+                throw new BadRequestException("Khảo sát chưa được mua gói");
             }
             switch (survey.PackType)
             {
@@ -412,7 +408,7 @@ namespace Infrastructure.Services
                 case PackType.Expert:
                     return 50m;
                 default:
-                    throw new BadRequestException("Invalid survey's pack type");
+                    throw new BadRequestException("Loại gói không hợp lệ");
             }
         }
     }
