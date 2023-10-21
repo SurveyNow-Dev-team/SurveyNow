@@ -60,9 +60,9 @@ public class Survey
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public User CreatedBy { get; set; } = null!;
 
+    public Criterion? Criteria { get; set; }
+
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
 
     public virtual ICollection<UserSurvey> UserSurveys { get; set; } = new List<UserSurvey>();
-
-    public virtual ICollection<Criterion> Criteria { get; set; } = new List<Criterion>();
 }

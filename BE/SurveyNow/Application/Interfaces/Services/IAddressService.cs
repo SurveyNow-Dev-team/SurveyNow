@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response;
 using Application.DTOs.Response.User;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace Application.Interfaces.Services
 {
     public interface IAddressService
     {
+        Task<IEnumerable<ProvinceResponse>> GetProvinces();
         Task<AddressResponse> GetAddress(long id);
         Task CreateAddress(AddressRequest request);
         Task<AddressResponse> UpdateAddress(long id, AddressRequest request);

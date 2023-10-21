@@ -1,5 +1,6 @@
 ﻿using Application;
 using Application.DTOs.Request.User;
+using Application.DTOs.Response;
 using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using AutoMapper;
@@ -33,6 +34,12 @@ namespace Infrastructure.Services
         {
             var address = await _unitOfWork.AddressRepository.GetByIdAsync(id);
             return _mapper.Map<AddressResponse>(address);
+        }
+
+        public async Task<IEnumerable<ProvinceResponse>> GetProvinces()
+        {
+            var provinces = await _unitOfWork.ProvinceRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<ProvinceResponse>>(provinces);
         }
 
         public async Task<AddressResponse> UpdateAddress(long id, AddressRequest request)

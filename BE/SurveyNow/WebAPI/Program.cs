@@ -40,7 +40,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     {
         o.SwaggerEndpoint("/swagger/v1/swagger.json", "SurveyNow V1");
     });
-
 }
 
 /*if (!app.Environment.IsDevelopment())

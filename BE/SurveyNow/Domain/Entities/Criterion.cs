@@ -18,7 +18,8 @@ public class Criterion
     public bool ExpertParticipant { get; set; }
 
     public long SurveyId { get; set; }
-    [ForeignKey(nameof(SurveyId))] public virtual Survey Survey { get; set; } = null!;
+    [ForeignKey(nameof(SurveyId))]
+    public virtual Survey? Survey { get; set; }
 
     public virtual ICollection<GenderCriterion> GenderCriteria { get; set; } = new List<GenderCriterion>();
 

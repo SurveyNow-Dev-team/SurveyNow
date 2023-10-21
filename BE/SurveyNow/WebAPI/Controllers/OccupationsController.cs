@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Request.User;
+using Application.DTOs.Response;
 using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,14 @@ namespace SurveyNow.Controllers
         public OccupationsController(IOccupationService service)
         {
             _service = service;
+        }
+
+        [HttpGet("fields")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<FieldDTO>>> GetFields()
+        {
+            var fields = await _service.GetFields();
+            return Ok(fields);
         }
 
         [HttpGet]
