@@ -971,11 +971,6 @@ public class SurveyService : ISurveyService
             throw new BadRequestException("This survey has been posted before or you have not bought a pack yet.");
         }
 
-        if(currentUser.Point < survey.Point)
-        {
-            throw new BadRequestException("You don't have enough point to post this survey.");
-        }
-
         var now = DateTime.UtcNow;
 
         if (startDate.HasValue)
@@ -1005,14 +1000,33 @@ public class SurveyService : ISurveyService
             throw new BadRequestException("You haven't bought pack yet");
         }
 
-        if((survey.PackType == PackType.Basic || survey.PackType == PackType.Medium) && request.Criteria != null && (request.Criteria.FieldCriteria.Any() || request.Criteria.AreaCriteria.Any() || request.Criteria.RelationshipCriteria.Any() || request.Criteria.ExpertParticipant))
+        if(request.Criteria != null)
         {
-            throw new Exception("Basic pack and medium pack doesn't support choosing users based on field, areas, relationship statuses, and expert");
-        }
+            if (survey.PackType == PackType.Basic || survey.PackType == PackType.Medium)
+            {
+                if(request.Criteria.FieldCriteria != null && request.Criteria.FieldCriteria.Any())
+                {
+                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on field");
 
-        var criteria = _mapper.Map<Criterion>(request.Criteria);
-        criteria.SurveyId = surveyId;
-        await _unitOfWork.CriterionRepository.AddAsync(criteria);
+                }
+                if (request.Criteria.AreaCriteria != null && request.Criteria.AreaCriteria.Any())
+                {
+                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on areas");
+                }
+                if(request.Criteria.RelationshipCriteria != null && request.Criteria.RelationshipCriteria.Any())
+                {
+                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on relationship statuses");
+                }
+                if (request.Criteria.ExpertParticipant)
+                {
+                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing expert users");
+                }
+            }
+
+            var criteria = _mapper.Map<Criterion>(request.Criteria);
+            criteria.SurveyId = surveyId;
+            await _unitOfWork.CriterionRepository.AddAsync(criteria);
+        }
 
         survey.StartDate = startDate ?? now;
         survey.ExpiredDate = expiredDate;

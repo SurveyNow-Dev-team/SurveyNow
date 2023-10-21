@@ -264,8 +264,9 @@ public class SurveyController : ControllerBase
     /// </summary>
     /// <param name="surveyId"></param>
     /// <param name="request">
-    /// Criteria could be null
-    /// Gender: Male, Female, Other
+    /// Criteria could be null <br />
+    /// Min age, max age, gender, relationship status, area, field could be null<br />
+    /// Gender: Male, Female, Other <br />
     /// Relationship status: Single, Dating, Married, Other
     /// </param>
     /// <returns></returns>

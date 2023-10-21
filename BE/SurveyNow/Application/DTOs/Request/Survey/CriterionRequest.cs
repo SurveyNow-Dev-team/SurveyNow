@@ -16,12 +16,12 @@ namespace Application.DTOs.Request.Survey
 
         public bool ExpertParticipant { get; set; }
 
-        public virtual ICollection<Gender> GenderCriteria { get; set; } = new List<Gender>();
+        public ICollection<Gender>? GenderCriteria { get; set; }
 
-        public virtual ICollection<long> FieldCriteria { get; set; } = new List<long>();
+        public ICollection<long>? FieldCriteria { get; set; }
 
-        public virtual ICollection<long> AreaCriteria { get; set; } = new List<long>();
+        public ICollection<long>? AreaCriteria { get; set; }
 
-        public virtual ICollection<RelationshipStatus> RelationshipCriteria { get; set; } = new List<RelationshipStatus>();
+        public ICollection<RelationshipStatus>? RelationshipCriteria { get; set; }
     }
 }
