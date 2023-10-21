@@ -28,11 +28,11 @@ namespace Infrastructure.Services
             var redeemTransaction = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
             if (redeemTransaction == null)
             {
-                throw new NotFoundException("Cannot find redeem transaction data");
+                throw new NotFoundException($"Không tìm thấy thông tin của giao dịch với ID: {id}");
             }
             if (redeemTransaction.Status != TransactionStatus.Pending)
             {
-                throw new BadRequestException("Can only cancel pending transaction");
+                throw new BadRequestException($"Giao dịch không ở trạng thái chờ xử lý");
             }
             var redeemPointHistory = await _unitOfWork.PointHistoryRepository.GetByTransactionId(redeemTransaction.Id);
             try
@@ -46,20 +46,20 @@ namespace Infrastructure.Services
 
                 await _unitOfWork.SaveChangeAsync();
 
-                var refundResult = await _pointService.RefundPointForUser(redeemTransaction.UserId, redeemTransaction.Point, $"Refund point for point redeem transaction: {redeemTransaction.Id}");
+                var refundResult = await _pointService.RefundPointForUser(redeemTransaction.UserId, redeemTransaction.Point, $"Hoàn điểm cho yêu cầu đổi quà với Id: {redeemTransaction.Id}");
 
                 await _unitOfWork.CommitAsync();
                 return new ProccessRedeemTransactionResult()
                 {
                     Status = TransactionStatus.Success.ToString(),
-                    Message = "Successfully cancel point redeem transaction and refund point for user",
+                    Message = "Thành công hủy giao dịch đổi quà và hoàn điểm lại cho người dùng",
                     TransactionId = redeemTransaction.Id,
                 };
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Error when trying to cancel redeem transaction", ex);
+                throw new Exception("Có lỗi xảy ra trong quá trình hủy giao dịch đổi quà của người dùng", ex);
             }
             finally
             {
@@ -77,17 +77,17 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Unexpected error occurred when trying to retrieve pending point redeem transaction list", ex);
+                throw new Exception("Có lỗi xảy ra trong quá trình tìm kiếm dữ liệu các giao dịch đổi quà đang chờ xử lý", ex);
             }
         }
 
-        public async Task<TransactionResponse> GetPendingTransactionsAsync(long id)
+        public async Task<TransactionResponse> GetTransactionsAsync(long id)
         {
 
             var entity = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
             if (entity == null)
             {
-                throw new NotFoundException("Cannot find transaction with the given id");
+                throw new NotFoundException($"Không tìm thấy dữ liệu của giao dịch với Id: {id}");
             }
             var result = _mapper.Map<TransactionResponse>(entity);
             return result;
@@ -98,11 +98,11 @@ namespace Infrastructure.Services
             var redeemTransaction = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
             if (redeemTransaction == null)
             {
-                throw new NotFoundException("Cannot find redeem transaction data");
+                throw new NotFoundException("Không tìm thấy dữ liệu của yêu cầu đổi điểm");
             }
-            if(redeemTransaction.Status != TransactionStatus.Pending)
+            if (redeemTransaction.Status != TransactionStatus.Pending)
             {
-                throw new BadRequestException("Can only process pending transaction");
+                throw new BadRequestException("Chỉ có thể xử lý giao địch đang được chờ");
             }
             var redeemPointHistory = await _unitOfWork.PointHistoryRepository.GetByTransactionId(redeemTransaction.Id);
             try
@@ -120,20 +120,28 @@ namespace Infrastructure.Services
                 return new ProccessRedeemTransactionResult()
                 {
                     Status = TransactionStatus.Success.ToString(),
-                    Message = "Successfully process user's point redeem transaction",
+                    Message = "Yêu cầu đổi quà của người dùng được xử lý thành công",
                     TransactionId = redeemTransaction.Id,
                 };
-
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception("Error when trying to process redeem transaction", ex);
+                throw new Exception("Có lỗi xày ra trong quá trình xử lý yêu cầu đổi quà của người dùng", ex);
             }
             finally
             {
                 await _unitOfWork.DisposeAsync();
             }
+        }
+        public async Task<PagingResponse<TransactionResponse>> GetTransactionHistory(PagingRequest pagingRequest, TransactionHistoryRequest historyRequest)
+        {
+            if(pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
+            {
+                throw new BadRequestException("Tiêu chí phân trang cho kết quả không hợp lệ");
+            }
+            var transactionList = await _unitOfWork.TransactionRepository.GetTransactionHistory(pagingRequest, historyRequest);
+            return _mapper.Map<PagingResponse<TransactionResponse>>(transactionList);
         }
     }
 }

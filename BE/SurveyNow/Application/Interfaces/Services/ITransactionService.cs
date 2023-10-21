@@ -8,8 +8,9 @@ namespace Application.Interfaces.Services
     public interface ITransactionService
     {
         Task<PagingResponse<TransactionResponse>> GetPaginatedPendingTransactionsAsync(PagingRequest pagingRequest);
-        Task<TransactionResponse> GetPendingTransactionsAsync(long id);
+        Task<TransactionResponse> GetTransactionsAsync(long id);
         Task<ProccessRedeemTransactionResult> CancelRedeemTransaction(long id);
         Task<ProccessRedeemTransactionResult> ProcessRedeemTransaction(long id, UpdatePointRedeemTransactionRequest request);
+        Task<PagingResponse<TransactionResponse>> GetTransactionHistory(PagingRequest pagingRequest, TransactionHistoryRequest historyRequest);
     }
 }
