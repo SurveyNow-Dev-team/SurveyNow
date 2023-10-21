@@ -4,6 +4,7 @@ using Application.DTOs.Response.Survey;
 using Application.Utils;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Infrastructure.Mappers;
 
@@ -63,5 +64,10 @@ public class SurveyMappingProfile : Profile
             .ForMember(dest => dest.FullName, src => src.MapFrom(us => us.User.FullName));
 
         CreateMap<PagingResponse<UserSurvey>, PagingResponse<UserSurveyResponse>>();
+
+        CreateMap<CriterionRequest, Criterion>()
+            .ForAllMembers(config => config.Condition((src, dest, value) => src != null));
+        CreateMap<Gender, GenderCriterion>()
+            .ForMember(dest => dest.Gender, config => config.MapFrom(gender => gender));
     }
 }

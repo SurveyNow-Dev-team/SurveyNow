@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace SurveyNow.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -588,7 +588,7 @@ namespace Infrastructure.Migrations
                     b.Property<long>("QuestionId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("TotalChoice")
+                    b.Property<int>("TotalChoose")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

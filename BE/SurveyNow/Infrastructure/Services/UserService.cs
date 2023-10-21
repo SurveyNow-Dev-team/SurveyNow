@@ -142,22 +142,17 @@ namespace Infrastructure.Services
 
         private async Task<User> GetLoggedInUserAsync()
         {
-            if (_httpContextAccessor.HttpContext.Request.Headers.ContainsKey("Authorization"))
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
             {
-                var token = _httpContextAccessor.HttpContext.Request.Headers.First(x => x.Key.Equals("Authorization")).Value;
-                var principle = _jwtService.ConvertToken(Regex.Replace(token, "Bearer ", ""));
-                var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId), "Address,Occupation,Occupation.Field");
-                if (user == null)
-                {
-                    throw new NotFoundException("User doesn't exist");
-                }
-                return user;
+                throw new UnauthorizedException("User hasn't logged in yet");
             }
-            else
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(long.Parse(userId), "Address,Occupation,Occupation.Field");
+            if (user == null)
             {
-                throw new NotFoundException("User doesn't log in");
+                throw new NotFoundException("User doesn't exist");
             }
+            return user;
         }
 
         public async Task Remove()

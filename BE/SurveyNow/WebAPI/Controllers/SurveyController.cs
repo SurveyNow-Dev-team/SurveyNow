@@ -74,7 +74,7 @@ public class SurveyController : ControllerBase
     }
 
     /// <summary>
-    /// Nguời dùng thông thường có thể filter khảo sát có status Active hoặc expired.
+    /// Nguời dùng thông thường có thể filter khảo sát chưa làm và không phải người dùng đó tạo có status Active hoặc expired.
     /// </summary>
     /// <param name="status"></param>
     /// <param name="title"></param>
@@ -261,10 +261,14 @@ public class SurveyController : ControllerBase
 
     /// <summary>
     /// Api đăng khảo sát. Khảo sát phải có status PackPurchase, tức là phải mua gói trước khi đăng.
-    /// Thêm tiêu chí khảo sát để làm sau
     /// </summary>
     /// <param name="surveyId"></param>
-    /// <param name="request"></param>
+    /// <param name="request">
+    /// Criteria could be null <br />
+    /// Min age, max age, gender, relationship status, area, field could be null<br />
+    /// Gender: Male, Female, Other <br />
+    /// Relationship status: Single, Dating, Married, Other
+    /// </param>
     /// <returns></returns>
     [HttpPut("{id:long}/post-survey")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CommonSurveyResponse))]
@@ -277,7 +281,7 @@ public class SurveyController : ControllerBase
         [FromBody] PostSurveyRequest request
     )
     {
-        return Ok(await _surveyService.PostSurveyAsync(surveyId, request.StartDate, request.ExpiredDate));
+        return Ok(await _surveyService.PostSurveyAsync(surveyId, request.StartDate, request.ExpiredDate, request));
     }
 
     /// <summary>
