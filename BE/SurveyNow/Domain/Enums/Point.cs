@@ -31,4 +31,16 @@
         Mobile,
         Web
     }
+
+    public enum TransactionHistorySortingOrder
+    {
+        DateDescending = 1,
+        DateAscending = 2,
+        AmountDescending = 3,
+        AmountAscending = 4,
+    }
+    public enum TransactionHistoryType
+    {
+
+    }
 }

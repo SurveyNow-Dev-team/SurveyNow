@@ -39,22 +39,14 @@ namespace SurveyNow.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid point history ID");
+                throw new BadRequestException("Id của lịch sử biến động điểm phải lớn hơn 0");
             }
-            try
+            var pointHistoryDetail = await _pointService.GetPointHistoryDetailAsync(id);
+            if (pointHistoryDetail == null)
             {
-                var pointHistoryDetail = await _pointService.GetPointHistoryDetailAsync(id);
-                if (pointHistoryDetail == null)
-                {
-                    return NotFound("Cannot find point history detail with the given ID");
-                }
-                return Ok(pointHistoryDetail);
+                throw new NotFoundException($"Không tìm thấy lịch sử biến động điểm với Id: {id}");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while trying to retrieve point history detail");
-                return StatusCode(500, "An error occurred while trying to retrieve point history detail");
-            }
+            return Ok(pointHistoryDetail);
         }
 
         /// <summary>
@@ -71,31 +63,20 @@ namespace SurveyNow.Controllers
         [HttpGet("history")]
         public async Task<ActionResult<PagingResponse<ShortPointHistoryResponse>>> GetPointPurchasesFilteredAsync([FromQuery] PointHistoryType type, [FromQuery] PointDateFilterRequest dateFilter, [FromQuery] PointValueFilterRequest valueFilter, [FromQuery] PointSortOrderRequest sortOrder, [FromQuery] PagingRequest pagingRequest)
         {
-            try
+            var user = await _userService.GetCurrentUserAsync();
+            if (user == null)
             {
-                var user = await _userService.GetCurrentUserAsync();
-                if (user != null)
-                {
-                    var result = await _pointService.GetPaginatedPointHistoryListAsync(user.Id, type, dateFilter, valueFilter, sortOrder, pagingRequest);
-                    if (result != null)
-                    {
-                        return Ok(result);
-                    }
-                    return new PagingResponse<ShortPointHistoryResponse>()
-                    {
-                        Results = Enumerable.Empty<ShortPointHistoryResponse>().ToList(),
-                    };
-                }
-                else
-                {
-                    return BadRequest("Unspecified user ID! Cannot retrieve user's point history!");
-                }
+                throw new NotFoundException($"Không tìm thấy thông tin của người dùng");
             }
-            catch (Exception ex)
+            var result = await _pointService.GetPaginatedPointHistoryListAsync(user.Id, type, dateFilter, valueFilter, sortOrder, pagingRequest);
+            if (result != null)
             {
-                _logger.LogError(ex, "An error occurred while trying to retrieve point history");
-                return StatusCode(500, "An error occurred while trying to retrieve point history");
+                return Ok(result);
             }
+            return new PagingResponse<ShortPointHistoryResponse>()
+            {
+                Results = Enumerable.Empty<ShortPointHistoryResponse>().ToList(),
+            };
         }
 
         // Test end-point
@@ -127,22 +108,15 @@ namespace SurveyNow.Controllers
             var user = await _userService.GetCurrentUserAsync();
             if (user == null)
             {
-                return Unauthorized("Cannot retreive user's identity");
+                throw new NotFoundException("Không tìm thấy thông tin của người dùng");
             }
-            try
+            var result = await _pointService.CreateMomoPurchasePointOrder(user, purchaseRequest);
+            if (result == null)
             {
-                var result = await _pointService.CreateMomoPurchasePointOrder(user, purchaseRequest);
-                if (result == null)
-                {
-                    return NotFound("Failed to retrieve momo payment method");
-                }
-                return Ok(result);
+                throw new NotFoundException("Không thể tạo phương thức thanh toán bằng Momo");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An exception occurred when trying to create point purchase order with Momo");
-                return StatusCode(500, "An exception occurred when trying to create point purchase order with Momo");
-            }
+            return Ok(result);
+
         }
 
         /// <summary>

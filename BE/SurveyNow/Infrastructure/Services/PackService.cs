@@ -24,9 +24,9 @@ namespace Infrastructure.Services
 
         public async Task<decimal> CalculatePackPriceAsync(PackType packType, int participants)
         {
-            if(participants <= 0)
+            if (participants <= 0)
             {
-                throw new BadRequestException($"Invalid number of participannts: {participants}");
+                throw new BadRequestException($"Số lượng người khảo sát phải lớn hơn 0");
             }
 
             decimal commission, userValue, userCost;
@@ -57,40 +57,54 @@ namespace Infrastructure.Services
                     return commission + userCost;
 
                 default:
-                    throw new BadRequestException("Invalid pack type. Failed to calculate pack price");
+                    throw new BadRequestException("Gói khảo sát không hợp lý");
             }
         }
 
         public async Task<List<PackInformation>> GetRecommendedPacksAsync(PackRecommendRequest request)
         {
-            try
+            // Validate
+            if(request == null)
             {
-                if (request.ExpertParticipantOption)
-                {
-                    return new List<PackInformation>() { BusinessData.ExpertPack };
-                }
-
-                if(request.TotalQuestions <= 20)
-                {
-                    return BusinessData.Packs;
-                }
-                else if(request.TotalQuestions <= 40)
-                {
-                    return new List<PackInformation>() { BusinessData.MediumPack, BusinessData.AdvancedPack, BusinessData.ExpertPack };
-                }
-                else
-                {
-                    return new List<PackInformation>() {BusinessData.AdvancedPack, BusinessData.ExpertPack };
-                }
+                throw new BadRequestException("Yêu cầu không phù hợp");
             }
-            catch (Exception ex)
+            if(request.TotalQuestions <= 0)
             {
-                throw new Exception(ex.Message);
+                throw new BadRequestException("Khảo sát phải có câu hỏi");
+            }
+            if (request.TotalParticipant <= 0)
+            {
+                throw new BadRequestException("Khảo sát phải có người điền");
+            }
+            if (request.TotalParticipant > 300)
+            {
+                throw new BadRequestException($"Số lượng người điền khảo sát vượt quá mức giới hạn (300 người). Số người hiện tại: {request.TotalParticipant}");
+            }
+            // Business
+            if (request.ExpertParticipantOption)
+            {
+                return new List<PackInformation>() { BusinessData.ExpertPack };
+            }
+            if (request.TotalQuestions <= 20 && request.TotalParticipant <= 100)
+            {
+                return BusinessData.Packs;
+            }
+            else if (request.TotalQuestions <= 40 && request.TotalParticipant <= 200)
+            {
+                return new List<PackInformation>() { BusinessData.MediumPack, BusinessData.AdvancedPack, BusinessData.ExpertPack };
+            }
+            else
+            {
+                return new List<PackInformation>() { BusinessData.AdvancedPack, BusinessData.ExpertPack };
             }
         }
 
         public async Task<PackPurchaseResponse> PurchasePackAsync(User user, PackPurchaseRequest purchaseRequest)
         {
+            if(purchaseRequest.TotalParticipants > 300)
+            {
+                throw new BadRequestException($"Số lượng người điền khảo sát vượt quá mức giới hạn (300 người). Số người hiện tại: {purchaseRequest.TotalParticipants}");
+            }
             // Calculate pack price
             decimal cost = await CalculatePackPriceAsync(purchaseRequest.PackType, purchaseRequest.TotalParticipants);
 
@@ -98,20 +112,20 @@ namespace Infrastructure.Services
             var survey = await _unitOfWork.SurveyRepository.GetByIdAsync(purchaseRequest.SurveyId);
             if (survey == null)
             {
-                throw new NotFoundException("Failed to located the associated survey.");
+                throw new NotFoundException($"Không tìm thấy khảo sát tương ứng với Id: {purchaseRequest.SurveyId}");
             }
             else if (survey.Status == SurveyStatus.PackPurchased)
             {
-                throw new ConflictException($"A pack has been purchase for this survey. Survey's ID: {survey.Id}");
+                throw new ConflictException($"Khảo sát với ID: {survey.Id} đã được mua gói");
             }
             // Check user point balance
             if (user.Point < cost)
             {
-                throw new BadRequestException($"Insufficient user point. Required: {cost}; Balance: {user.Point}");
+                throw new BadRequestException($"Người dùng không có đủ số dư điểm. Cần: {cost}; Số dư hiện tại: {user.Point}");
             }
             try
             {
-                PointHistory pointHistory = new PointHistory() 
+                PointHistory pointHistory = new PointHistory()
                 {
                     UserId = user.Id,
                     SurveyId = purchaseRequest.SurveyId,
@@ -157,7 +171,7 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new Exception($"Failed to process user's pack purchase request\n{ex.Message}");
+                throw new Exception($"Có lỗi xảy ra trong quá trình xử lý giao dịch mua gói của người dùng\n{ex.Message}");
             }
         }
     }

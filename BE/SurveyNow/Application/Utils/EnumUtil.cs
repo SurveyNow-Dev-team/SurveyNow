@@ -82,39 +82,39 @@ namespace Application.Utils
             switch (type)
             {
                 case PointHistoryType.PurchasePoint:
-                    return $"User purchase point to their account. " +
-                           $"User ID: {userId}; " +
-                           $"Point Amount: {point}; " +
-                           $"Total Amount: {point * BusinessData.BasePointVNDPrice} VND; " +
-                           $"With method: {paymentMethod.ToString()}; ";
+                    return $"Người dùng mua điểm vào tài khoản của mình với thông tin: " +
+                           $"ID người dùng: {userId}; " +
+                           $"Số lượng điểm: {point}; " +
+                           $"Số lượng tiền: {point * BusinessData.BasePointVNDPrice} VND; " +
+                           $"Phương thức thanh toán: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.DoSurvey:
-                    return $"User received point from survey completion. " +
-                           $"User ID: {userId}; " +
-                           $"Point Amount: {point}; " +
-                           $"Survey ID: {surveyId}; ";
+                    return $"Người dùng nhận thưởng điểm sau khi đã hoàn thành khảo sát, với thông tin: " +
+                           $"ID người dùng: {userId}; " +
+                           $"Số lượng điểm: {point}; " +
+                           $"ID khảo sát: {surveyId}; ";
 
                 case PointHistoryType.GiftPoint:
                     return "";
 
                 case PointHistoryType.RefundPoint:
-                    return $"User received refunded point. " +
-                           $"User ID: {userId}; " +
-                           $"Point Amount: {point}; " +
-                           $"Reason: {refundReason}; ";
+                    return $"Người dùng được hoàn lại điểm với thông tin: " +
+                           $"ID người dùng: {userId}; " +
+                           $"Số lượng điểm: {point}; " +
+                           $"Lý do: {refundReason}; ";
 
                 case PointHistoryType.RedeemPoint:
-                    return $"User redeem point. " +
-                           $"User ID: {userId}; " +
-                           $"Point Amount: {point}; " +
-                           $"With method: {paymentMethod.ToString()}; ";
+                    return $"Người dùng đổi điểm với thông tin: " +
+                           $"ID người dùng: {userId}; " +
+                           $"Số lượng điểm: {point}; " +
+                           $"Phương thức nhận: {paymentMethod.ToString()}; ";
 
                 case PointHistoryType.PackPurchase:
-                    return $"User purchase pack for posting survey. " +
-                           $"User ID: {userId}; " +
-                           $"Pack type: {Enum.GetName(packType)}; " +
-                           $"Survey ID: {surveyId}; " +
-                           $"Point Amount: {point}";
+                    return $"Người dùng mua gói dùng để đăng khảo sát với thông tin: " +
+                           $"ID người dùng: {userId}; " +
+                           $"Loại gói: {Enum.GetName(packType)}; " +
+                           $"ID khảo sát: {surveyId}; " +
+                           $"Số lượng điểm: {point}";
 
                 case PointHistoryType.ReceiveGift:
                     return "";
