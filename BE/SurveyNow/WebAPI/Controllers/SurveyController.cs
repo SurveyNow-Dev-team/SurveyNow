@@ -261,11 +261,13 @@ public class SurveyController : ControllerBase
 
     /// <summary>
     /// Api đăng khảo sát. Khảo sát phải có status PackPurchase, tức là phải mua gói trước khi đăng.
-    /// Thêm tiêu chí khảo sát để làm sau
     /// </summary>
     /// <param name="surveyId"></param>
-    /// <param name="request"></param>
-    /// <param name="criterion"></param>
+    /// <param name="request">
+    /// Criteria could be null
+    /// Gender: Male, Female, Other
+    /// Relationship status: Single, Dating, Married, Other
+    /// </param>
     /// <returns></returns>
     [HttpPut("{id:long}/post-survey")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CommonSurveyResponse))]
@@ -275,11 +277,10 @@ public class SurveyController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorDetail))]
     public async Task<ActionResult<CommonSurveyResponse>> PostSurveyAsync(
         [FromRoute(Name = "id")] long surveyId,
-        [FromBody] PostSurveyRequest request,
-        [FromQuery] CriterionRequest? criterion
+        [FromBody] PostSurveyRequest request
     )
     {
-        return Ok(await _surveyService.PostSurveyAsync(surveyId, request.StartDate, request.ExpiredDate, criterion));
+        return Ok(await _surveyService.PostSurveyAsync(surveyId, request.StartDate, request.ExpiredDate, request));
     }
 
     /// <summary>

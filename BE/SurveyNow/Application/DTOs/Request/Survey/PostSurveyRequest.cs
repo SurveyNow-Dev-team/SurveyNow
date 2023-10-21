@@ -15,4 +15,6 @@ public class PostSurveyRequest
     [Precision(2)]
     [Required(ErrorMessage = "Expired date is required.")]
     public DateTime ExpiredDate { get; init; }
+
+    public CriterionRequest? Criteria { get; set; }
 }

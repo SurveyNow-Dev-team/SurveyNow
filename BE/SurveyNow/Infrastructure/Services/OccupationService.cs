@@ -1,5 +1,6 @@
 ﻿using Application;
 using Application.DTOs.Request.User;
+using Application.DTOs.Response;
 using Application.DTOs.Response.User;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
@@ -22,6 +23,12 @@ namespace Infrastructure.Services
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<FieldDTO>> GetFields()
+        {
+            var fields = await _unitOfWork.FieldRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<FieldDTO>>(fields);
         }
 
         public async Task CreateOccupation(OccupationRequest request)

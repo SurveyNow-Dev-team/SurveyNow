@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,12 @@ namespace Application.DTOs.Request.Survey
 
         public bool ExpertParticipant { get; set; }
 
-        public virtual ICollection<GenderCriterion> GenderCriteria { get; set; } = new List<GenderCriterion>();
+        public virtual ICollection<Gender> GenderCriteria { get; set; } = new List<Gender>();
 
-        public virtual ICollection<FieldCriterion> FieldCriteria { get; set; } = new List<FieldCriterion>();
+        public virtual ICollection<long> FieldCriteria { get; set; } = new List<long>();
 
-        public virtual ICollection<AreaCriterion> AreaCriteria { get; set; } = new List<AreaCriterion>();
+        public virtual ICollection<long> AreaCriteria { get; set; } = new List<long>();
 
-        public virtual ICollection<RelationshipCriterion> RelationshipCriteria { get; set; } = new List<RelationshipCriterion>();
+        public virtual ICollection<RelationshipStatus> RelationshipCriteria { get; set; } = new List<RelationshipStatus>();
     }
 }

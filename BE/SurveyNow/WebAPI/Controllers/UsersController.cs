@@ -12,9 +12,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SurveyNow.Controllers
 {
-    /// <summary>
-    /// User related APIs
-    /// </summary>
     [Route("api/v1/users")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -68,6 +65,12 @@ namespace SurveyNow.Controllers
         }
 
         // PUT api/<UsersController>/5
+        /// <summary>
+        /// Update user basic information
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userRequest"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [Authorize]
         public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UserRequest userRequest)

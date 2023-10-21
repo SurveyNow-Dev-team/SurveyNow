@@ -65,6 +65,6 @@ public class SurveyMappingProfile : Profile
         CreateMap<PagingResponse<UserSurvey>, PagingResponse<UserSurveyResponse>>();
 
         CreateMap<CriterionRequest, Criterion>()
-            .ForMember(dest => dest.MinAge, config => config.Condition((src, dest, value) => src != null));
+            .ForAllMembers(config => config.Condition((src, dest, value) => src != null));
     }
 }

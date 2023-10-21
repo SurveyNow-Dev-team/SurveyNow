@@ -327,14 +327,40 @@ public class SurveyService : ISurveyService
                 Expression.LessThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), maxAge),
                 Expression.Constant(true)));
             #endregion
-            #region by gender
 
-            #endregion
-            Expression gender = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.GenderCriteria));
+            #region by gender
+            Expression genders = ExpressionUtils.ToQueryable<GenderCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.GenderCriteria)));
             filter = Expression.AndAlso(filter, Expression.Condition(
-                ExpressionUtils.Any<GenderCriterion>(ExpressionUtils.ToQueryable<GenderCriterion>(gender)),
-                ExpressionUtils.Any<GenderCriterion>(ExpressionUtils.ToQueryable<GenderCriterion>(gender), x => x.Gender.Equals(user.Gender)),
+                ExpressionUtils.Any<GenderCriterion>(genders),
+                ExpressionUtils.Any<GenderCriterion>(genders, x => x.Gender == user.Gender),
                 Expression.Constant(true)));
+            #endregion
+
+            #region by relationship status
+            Expression relationshipStatuses = ExpressionUtils.ToQueryable<RelationshipCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.RelationshipCriteria)));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                ExpressionUtils.Any<RelationshipCriterion>(relationshipStatuses),
+                ExpressionUtils.Any<RelationshipCriterion>(relationshipStatuses, x => x.RelationshipStatus == user.RelationshipStatus),
+                Expression.Constant(true)));
+            #endregion
+
+            #region by area
+            long? provinceId = (user.Address != null && user.Address.Province != null) ? user.Address.Id : null;
+            Expression areas = ExpressionUtils.ToQueryable<AreaCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.AreaCriteria)));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                ExpressionUtils.Any<AreaCriterion>(areas),
+                ExpressionUtils.Any<AreaCriterion>(areas, x => x.ProvinceId == provinceId),
+                Expression.Constant(true)));
+            #endregion
+
+            #region by field
+            long? fieldId = (user.Occupation != null && user.Occupation.Field != null) ? user.Occupation.Field.Id : null;
+            Expression fields = ExpressionUtils.ToQueryable<FieldCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.FieldCriteria)));
+            filter = Expression.AndAlso(filter, Expression.Condition(
+                ExpressionUtils.Any<FieldCriterion>(fields),
+                ExpressionUtils.Any<FieldCriterion>(fields, x => x.FieldId == fieldId),
+                Expression.Constant(true)));
+            #endregion
 
 
             if (!string.IsNullOrEmpty(title))
@@ -918,7 +944,7 @@ public class SurveyService : ISurveyService
         long surveyId,
         DateTime? startDate,
         DateTime expiredDate,
-        CriterionRequest? criterionRequest
+        PostSurveyRequest request
     )
     {
         var currentUser = await _userService.GetCurrentUserAsync()
@@ -978,6 +1004,15 @@ public class SurveyService : ISurveyService
         {
             throw new BadRequestException("You haven't bought pack yet");
         }
+
+        if((survey.PackType == PackType.Basic || survey.PackType == PackType.Medium) && request.Criteria != null && (request.Criteria.FieldCriteria.Any() || request.Criteria.AreaCriteria.Any() || request.Criteria.RelationshipCriteria.Any() || request.Criteria.ExpertParticipant))
+        {
+            throw new Exception("Basic pack and medium pack doesn't support choosing users based on field, areas, relationship statuses, and expert");
+        }
+
+        var criteria = _mapper.Map<Criterion>(request.Criteria);
+        criteria.SurveyId = surveyId;
+        await _unitOfWork.CriterionRepository.AddAsync(criteria);
 
         survey.StartDate = startDate ?? now;
         survey.ExpiredDate = expiredDate;

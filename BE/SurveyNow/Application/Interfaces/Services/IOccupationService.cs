@@ -11,6 +11,7 @@ namespace Application.Interfaces.Services
 {
     public interface IOccupationService
     {
+        Task<IEnumerable<FieldDTO>> GetFields();
         Task<IEnumerable<OccupationResponse>> GetOccupations();
         Task<OccupationResponse> GetOccupation(long id);
         Task CreateOccupation(OccupationRequest request);
