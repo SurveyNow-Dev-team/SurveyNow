@@ -645,6 +645,9 @@ namespace Infrastructure.Migrations
                     b.Property<long>("CreatedUserId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("CriteriaId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(3000)");
 

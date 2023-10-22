@@ -60,6 +60,8 @@ public class Survey
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public User CreatedBy { get; set; } = null!;
 
+    public long CriteriaId { get; set; }
+
     public Criterion? Criteria { get; set; }
 
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();

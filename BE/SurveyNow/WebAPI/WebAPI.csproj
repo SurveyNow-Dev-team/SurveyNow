@@ -21,7 +21,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\test\" />
       <Folder Include="Middlewares\" />
       <Folder Include="Validations\" />
     </ItemGroup>

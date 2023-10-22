@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace SurveyNow.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231020092137_v1")]
-    partial class v1
+    [Migration("20231022055704_DatabaseV5.0")]
+    partial class DatabaseV50
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -591,7 +591,7 @@ namespace SurveyNow.Migrations
                     b.Property<long>("QuestionId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("TotalChoose")
+                    b.Property<int>("TotalChoice")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -646,6 +646,9 @@ namespace SurveyNow.Migrations
                         .HasColumnType("datetime2(2)");
 
                     b.Property<long>("CreatedUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CriteriaId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
