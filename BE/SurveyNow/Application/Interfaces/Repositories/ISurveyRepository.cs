@@ -8,4 +8,5 @@ public interface ISurveyRepository : IBaseRepository<Survey>
     public Task<Survey?> GetSurveyAnswerAsync(long surveyId, long userId);
 
     public Task UpdateTotalParticipant(int id, int value);
+    public Task<List<Survey>> GetExpiredSurvey();
 }

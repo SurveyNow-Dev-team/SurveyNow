@@ -77,4 +77,11 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
             }
         }
     }
+
+    public async Task<List<Survey>> GetExpiredSurvey()
+    {
+        return await _dbSet.Where(s => s.Status == Domain.Enums.SurveyStatus.Active
+        && DateTime.Compare((DateTime)s.ExpiredDate, DateTime.UtcNow) < 0)
+            .ToListAsync();
+    }
 }
