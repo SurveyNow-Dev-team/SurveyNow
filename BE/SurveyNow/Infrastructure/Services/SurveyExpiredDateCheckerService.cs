@@ -29,7 +29,7 @@ namespace Infrastructure.Services
                     await DoWork();
 
                     // Wait for a period of time
-                    await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
+                    await Task.Delay(TimeSpan.FromHours(8), stoppingToken);
                 }
             }
             catch (OperationCanceledException)
