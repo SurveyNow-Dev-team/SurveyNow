@@ -1,10 +1,12 @@
 ﻿using Application.DTOs.Request;
 using Application.DTOs.Request.Momo;
 using Application.DTOs.Request.Point;
+using Application.DTOs.Request.Transaction;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Momo;
 using Application.DTOs.Response.Point;
 using Application.DTOs.Response.Point.History;
+using Application.DTOs.Response.Transaction;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Domain.Enums;
@@ -136,16 +138,37 @@ namespace SurveyNow.Controllers
         }
 
         /// <summary>
-        /// Gửi yêu cầu đổi điểm thành tiền mặt với điểm đến là tài khoản (số điện thoại) momo của người dùng
+        /// Gửi yêu cầu đổi điểm thành tiền mặt với điểm đến là tài khoản (số điện thoại) ví điện tử của người dùng
         /// </summary>
         /// <param name="redeemRequest"></param>
         /// <returns></returns>
         [Authorize]
         [HttpPost]
-        [Route("redeem/momo")]
+        [Route("redeem/request")]
         public async Task<ActionResult<PointCreateRedeemOrderResponse>> CreateMomoGiftRedeemOrder([FromBody] PointRedeemRequest redeemRequest)
         {
             var result = await _pointService.ProcessCreateGiftRedeemOrderAsync(redeemRequest);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Người dùng gửi yêu cầu nạp điểm với số điểm và hình thức thanh toán.
+        /// Sau khi tạo yêu cầu thành công, người dùng cần phải chuyển tiền tới tài khoản của App SurveyNow đúng với thông tin được App trả vể.
+        /// Sau khi yêu cầu nạp điểm được tạo và người dùng đã chuyển đủ số tiền, App SurveyNow sẽ xử lý yêu cầu giao dịch của người dùng.
+        /// </summary>
+        /// <param name="purchaseRequest"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize]
+        [Route("purchase/request")]
+        public async Task<ActionResult<PointPurchaseTransactionCreateResponse>> CreatePointPurchaseRequest([FromBody] PointPurchaseTransactionCreateRequest purchaseRequest)
+        {
+            var user = await _userService.GetCurrentUserAsync();
+            if (user == null)
+            {
+                throw new NotFoundException($"Không tìm thấy thông tin của người dùng");
+            }
+            var result = await _pointService.CreatePointPurchaseRequest(user, purchaseRequest);
             return Ok(result);
         }
     }

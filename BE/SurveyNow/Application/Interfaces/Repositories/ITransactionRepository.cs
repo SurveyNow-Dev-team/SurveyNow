@@ -10,4 +10,6 @@ public interface ITransactionRepository : IBaseRepository<Transaction>
     Task<bool> CheckExistPendingRedeemOrderAsync();
     Task<PagingResponse<Transaction>> GetPendingRedeemTransactionList(PagingRequest pagingRequest);
     Task<PagingResponse<Transaction>> GetTransactionHistory(PagingRequest pagingRequest, TransactionHistoryRequest historyRequest);
+    Task<PagingResponse<Transaction>> GetPendingPurchaseTransactionList(long? id, PagingRequest pagingRequest);
+
 }

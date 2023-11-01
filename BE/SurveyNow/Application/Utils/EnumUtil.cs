@@ -82,38 +82,34 @@ namespace Application.Utils
             switch (type)
             {
                 case PointHistoryType.PurchasePoint:
-                    return $"Người dùng mua điểm vào tài khoản của mình với thông tin: " +
-                           $"ID người dùng: {userId}; " +
-                           $"Số lượng điểm: {point}; " +
-                           $"Số lượng tiền: {point * BusinessData.BasePointVNDPrice} VND; " +
-                           $"Phương thức thanh toán: {paymentMethod.ToString()}; ";
+                    return $"Người dùng nạp điểm vào tài khoản - " +
+                           $"Số lượng điểm: {point} - " +
+                           $"Số lượng tiền: {point * BusinessData.BasePointVNDPrice} VND - " +
+                           $"Phương thức thanh toán: {paymentMethod.ToString()}";
 
                 case PointHistoryType.DoSurvey:
-                    return $"Người dùng nhận thưởng điểm sau khi đã hoàn thành khảo sát, với thông tin: " +
-                           $"ID người dùng: {userId}; " +
-                           $"Số lượng điểm: {point}; " +
-                           $"ID khảo sát: {surveyId}; ";
+                    return $"Người dùng nhận thưởng điểm sau khi đã hoàn thành khảo sát - " +
+                           $"Số lượng điểm: {point} - " +
+                           $"Mã số khảo sát: {surveyId}";
 
                 case PointHistoryType.GiftPoint:
                     return "";
 
                 case PointHistoryType.RefundPoint:
-                    return $"Người dùng được hoàn lại điểm với thông tin: " +
-                           $"ID người dùng: {userId}; " +
-                           $"Số lượng điểm: {point}; " +
-                           $"Lý do: {refundReason}; ";
+                    return $"Người dùng được hoàn lại điểm - " +
+                           $"Số lượng điểm: {point} - " +
+                           $"Lý do: {refundReason}";
 
                 case PointHistoryType.RedeemPoint:
-                    return $"Người dùng đổi điểm với thông tin: " +
-                           $"ID người dùng: {userId}; " +
-                           $"Số lượng điểm: {point}; " +
-                           $"Phương thức nhận: {paymentMethod.ToString()}; ";
+                    return $"Người dùng đổi điểm - " +
+                           $"Số lượng điểm: {point} - " +
+                           $"Số lượng tiền: {point * BusinessData.BasePointVNDPrice} VND - " +
+                           $"Phương thức thanh toán: {paymentMethod.ToString()}";
 
                 case PointHistoryType.PackPurchase:
-                    return $"Người dùng mua gói dùng để đăng khảo sát với thông tin: " +
-                           $"ID người dùng: {userId}; " +
-                           $"Loại gói: {Enum.GetName(packType)}; " +
-                           $"ID khảo sát: {surveyId}; " +
+                    return $"Người dùng mua gói dùng để đăng khảo sát - " +
+                           $"Loại gói: {GetPackTypeName(packType)} - " +
+                           $"Mã số khảo sát: {surveyId} - " +
                            $"Số lượng điểm: {point}";
 
                 case PointHistoryType.ReceiveGift:
@@ -133,6 +129,23 @@ namespace Application.Utils
                 return result;
 
             return null;
+        }
+
+        public static string GetPackTypeName(PackType packType)
+        {
+            switch (packType)
+            {
+                case PackType.Basic:
+                    return "Gói Tiết Kiệm";
+                case PackType.Medium:
+                    return "Gói Cơ Bản";
+                case PackType.Advanced:
+                    return "Gói Nâng Cao";
+                case PackType.Expert:
+                    return "Gói Chuyên Gia";
+                default:
+                    return string.Empty;
+            }
         }
     }
 }

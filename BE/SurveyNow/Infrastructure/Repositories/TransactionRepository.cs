@@ -128,4 +128,21 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
                 return (query => query.OrderByDescending(t => t.Date));
         }
     }
+
+    public async Task<PagingResponse<Transaction>> GetPendingPurchaseTransactionList(long? id, PagingRequest pagingRequest)
+    {
+        Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> sortOrder = (q => q.OrderBy(t => t.Date));
+        PagingResponse<Transaction> result = null;
+        if(id is null)
+        {
+            Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending);
+            result = await GetPaginateAsync(filterExpression, sortOrder, "", page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
+        }
+        else if(id is not null && id.HasValue)
+        {
+            Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending && t.Id == id);
+            result = await GetPaginateAsync(filterExpression, sortOrder, "", page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
+        }
+        return result;
+    }
 }

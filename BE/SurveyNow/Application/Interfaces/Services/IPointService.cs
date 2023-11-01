@@ -1,10 +1,12 @@
 ﻿using Application.DTOs.Request;
 using Application.DTOs.Request.Momo;
 using Application.DTOs.Request.Point;
+using Application.DTOs.Request.Transaction;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Momo;
 using Application.DTOs.Response.Point;
 using Application.DTOs.Response.Point.History;
+using Application.DTOs.Response.Transaction;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -20,5 +22,6 @@ namespace Application.Interfaces.Services
         Task<PointCreateRedeemOrderResponse> ProcessCreateGiftRedeemOrderAsync(PointRedeemRequest redeemRequest);
         Task<bool> RefundPointForUser(long userId, decimal pointAmount, string message);
         Task<decimal> GetSurveyRewardPointAmount(long surveyId);
+        Task<PointPurchaseTransactionCreateResponse> CreatePointPurchaseRequest(User user, PointPurchaseTransactionCreateRequest purchaseRequest);
     }
 }
