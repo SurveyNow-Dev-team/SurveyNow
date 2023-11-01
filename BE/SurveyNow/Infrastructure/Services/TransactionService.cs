@@ -5,8 +5,11 @@ using Application.DTOs.Response;
 using Application.DTOs.Response.Transaction;
 using Application.ErrorHandlers;
 using Application.Interfaces.Services;
+using Application.Utils;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
+using System.Text.RegularExpressions;
 
 namespace Infrastructure.Services
 {
@@ -29,6 +32,10 @@ namespace Infrastructure.Services
             if (redeemTransaction == null)
             {
                 throw new NotFoundException($"Không tìm thấy thông tin của giao dịch với ID: {id}");
+            }
+            if (redeemTransaction.TransactionType != TransactionType.RedeemGift)
+            {
+                throw new BadRequestException($"Giao dịch với mã số {id} không phải là giao dịch đổi quà");
             }
             if (redeemTransaction.Status != TransactionStatus.Pending)
             {
@@ -67,8 +74,12 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<PagingResponse<TransactionResponse>> GetPaginatedPendingTransactionsAsync(PagingRequest pagingRequest)
+        public async Task<PagingResponse<TransactionResponse>> GetPaginatedPendingRedeemTransactionsAsync(PagingRequest pagingRequest)
         {
+            if (pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
+            {
+                throw new BadRequestException("Tiêu chí phân trang cho kết quả không hợp lệ");
+            }
             try
             {
                 var entityList = await _unitOfWork.TransactionRepository.GetPendingRedeemTransactionList(pagingRequest);
@@ -98,12 +109,17 @@ namespace Infrastructure.Services
             var redeemTransaction = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
             if (redeemTransaction == null)
             {
-                throw new NotFoundException("Không tìm thấy dữ liệu của yêu cầu đổi điểm");
+                throw new NotFoundException("Không tìm thấy dữ liệu của yêu cầu đổi quà");
+            }
+            if (redeemTransaction.TransactionType != TransactionType.RedeemGift)
+            {
+                throw new BadRequestException($"Giao dịch với mã số {id} không phải là giao dịch đổi quà");
             }
             if (redeemTransaction.Status != TransactionStatus.Pending)
             {
                 throw new BadRequestException("Chỉ có thể xử lý giao địch đang được chờ");
             }
+            // Need to validate data in request (eWallet transaction Id,...)
             var redeemPointHistory = await _unitOfWork.PointHistoryRepository.GetByTransactionId(redeemTransaction.Id);
             try
             {
@@ -134,14 +150,153 @@ namespace Infrastructure.Services
                 await _unitOfWork.DisposeAsync();
             }
         }
+
         public async Task<PagingResponse<TransactionResponse>> GetTransactionHistory(PagingRequest pagingRequest, TransactionHistoryRequest historyRequest)
         {
-            if(pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
+            if (pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
             {
                 throw new BadRequestException("Tiêu chí phân trang cho kết quả không hợp lệ");
             }
             var transactionList = await _unitOfWork.TransactionRepository.GetTransactionHistory(pagingRequest, historyRequest);
             return _mapper.Map<PagingResponse<TransactionResponse>>(transactionList);
+        }
+
+        public async Task<PagingResponse<TransactionResponse>> GetPaginatedPendingPurchaseTransactionsAsync(long? id, PagingRequest pagingRequest)
+        {
+            if (pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
+            {
+                throw new BadRequestException("Tiêu chí phân trang cho kết quả không hợp lệ");
+            }
+            var transactionList = await _unitOfWork.TransactionRepository.GetPendingPurchaseTransactionList(id, pagingRequest);
+            return _mapper.Map<PagingResponse<TransactionResponse>>(transactionList);
+        }
+
+        public async Task<ProccessRedeemTransactionResult> CancelPurchaseTransaction(long id)
+        {
+            var purchaseTransaction = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
+            if (purchaseTransaction == null)
+            {
+                throw new NotFoundException($"Không tìm thấy thông tin của giao dịch với ID: {id}");
+            }
+            if (purchaseTransaction.TransactionType != TransactionType.PurchasePoint)
+            {
+                throw new BadRequestException($"Giao dịch với mã số {id} không phải là giao dịch nạp điểm");
+            }
+            if (purchaseTransaction.Status != TransactionStatus.Pending)
+            {
+                throw new BadRequestException($"Giao dịch không ở trạng thái chờ xử lý");
+            }
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                purchaseTransaction.Status = TransactionStatus.Cancel;
+                _unitOfWork.TransactionRepository.Update(purchaseTransaction);
+
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitAsync();
+                return new ProccessRedeemTransactionResult()
+                {
+                    Status = TransactionStatus.Success.ToString(),
+                    Message = $"Thành công hủy giao dịch nạp điểm với mã số {id} của người dùng",
+                    TransactionId = purchaseTransaction.Id,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi xảy ra trong quá trình hủy giao dịch nạp điểm của người dùng", ex);
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
+        }
+
+        public async Task<ProccessRedeemTransactionResult> ProcessPurchaseTransaction(long id, UpdatePointPurchaseTransactionRequest request)
+        {
+            var purchaseTransaction = await _unitOfWork.TransactionRepository.GetByIdAsync(id);
+            if (purchaseTransaction == null)
+            {
+                throw new NotFoundException("Không tìm thấy dữ liệu của yêu cầu nạp điểm");
+            }
+            if (purchaseTransaction.TransactionType != TransactionType.PurchasePoint)
+            {
+                throw new BadRequestException($"Giao dịch với mã số {id} không phải là giao dịch nạp điểm");
+            }
+            if (purchaseTransaction.Status != TransactionStatus.Pending)
+            {
+                throw new BadRequestException("Chỉ có thể xử lý giao địch đang được chờ");
+            }
+            // Need to validate data in request (eWallet transaction Id,...)
+            ValidatePointPurchaseRequest(purchaseTransaction, request);
+            purchaseTransaction.Status = TransactionStatus.Success;
+            purchaseTransaction.SourceAccount = request.SourceAccount;
+            purchaseTransaction.PurchaseCode = request.EWalletTransactionId;
+            var pointHistory = GeneratePointPurchaseHistoryEntity(purchaseTransaction);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                _unitOfWork.TransactionRepository.Update(purchaseTransaction);
+                await _unitOfWork.PointHistoryRepository.AddAsync(pointHistory);
+                await _unitOfWork.UserRepository.UpdateUserPoint(purchaseTransaction.UserId, UserPointAction.IncreasePoint, purchaseTransaction.Point);
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitAsync();
+                return new ProccessRedeemTransactionResult()
+                {
+                    Status = TransactionStatus.Success.ToString(),
+                    Message = "Yêu cầu nạp điểm của người dùng được xử lý thành công. Số điểm trong tài khoản của người dùng đã được cập nhật",
+                    TransactionId = purchaseTransaction.Id,
+                };
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi xày ra trong quá trình xử lý yêu cầu nạp điểm của người dùng", ex);
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
+        }
+
+        private PointHistory GeneratePointPurchaseHistoryEntity(Transaction transaction)
+        {
+            PointHistory pointHistory = new PointHistory()
+            {
+                Date = DateTime.UtcNow,
+                Description = $"Người dùng nạp điểm vào tài khoản - Số lượng điểm: {transaction.Point} - Số tiền: {transaction.Amount} - Phương thức thanh toán: {transaction.PaymentMethod.ToString()} - Cách thức: Thủ công",
+                PointHistoryType = PointHistoryType.PurchasePoint,
+                Point = transaction.Point,
+                Status = TransactionStatus.Success,
+                UserId = transaction.UserId,
+                PointPurchaseId = transaction.Id,
+                PackPurchaseId = null,
+                SurveyId = null,
+            };
+            return pointHistory;
+        }
+
+        private void ValidatePointPurchaseRequest(Transaction transaction, UpdatePointPurchaseTransactionRequest request)
+        {
+            // Validate phone number
+            string phoneNumberPattern = @"\b0\d{9}\b";
+            if (!Regex.IsMatch(request.SourceAccount, phoneNumberPattern))
+            {
+                throw new BadRequestException("Số tài khoản (số điện thoại) của ví điện tử của người dùng không hợp lệ");
+            }
+            // Validate eWallet transaction Id
+            if (transaction.PaymentMethod == PaymentMethod.Momo)
+            {
+                string momoTransactionIdPattern = @"\b\d{11}\b";
+                if (!Regex.IsMatch(request.EWalletTransactionId, momoTransactionIdPattern))
+                {
+                    throw new BadRequestException("Mã giao dịch momo không hợp lệ");
+                }
+            }
+            else if (transaction.PaymentMethod == PaymentMethod.VnPay)
+            {
+
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 using Application.DTOs.Request;
 using Application.DTOs.Request.Momo;
 using Application.DTOs.Request.Point;
+using Application.DTOs.Request.Transaction;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Momo;
 using Application.DTOs.Response.Pack;
@@ -174,6 +175,20 @@ namespace Infrastructure.Services
                         };
                     }
                     return resultData!;
+                case PaymentMethod.VnPay:
+                    (result, resultData) = await ProcessVnPayCreateGiftRedeemOrder(user, redeemRequest);
+                    if (!result)
+                    {
+                        return new PointCreateRedeemOrderResponse()
+                        {
+                            Status = TransactionStatus.Fail.ToString(),
+                            Message = "Không thể tạo yêu cầu đổi quà của người dùng",
+                            PointAmount = redeemRequest.PointAmount,
+                            MoneyAmount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                            PaymentMethod = redeemRequest.PaymentMethod.ToString()
+                        };
+                    }
+                    return resultData!;
                 default:
                     throw new BadRequestException("Phương thức thanh toán không đươc hỗ trợ");
             }
@@ -193,7 +208,7 @@ namespace Infrastructure.Services
                     Amount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
                     Currency = Currency.VND.ToString(),
                     Date = DateTime.UtcNow,
-                    SourceAccount = null,
+                    SourceAccount = BusinessData.SurveyNowVnPayAccount,
                     DestinationAccount = redeemRequest.MomoAccount,
                     PurchaseCode = null,
                     Status = TransactionStatus.Pending,
@@ -409,6 +424,138 @@ namespace Infrastructure.Services
                     return 50m;
                 default:
                     throw new BadRequestException("Loại gói không hợp lệ");
+            }
+        }
+
+        public async Task<PointPurchaseTransactionCreateResponse> CreatePointPurchaseRequest(User user, PointPurchaseTransactionCreateRequest purchaseRequest)
+        {
+            ValidatePointPurchaseRequest(purchaseRequest);
+            var transaction = GeneratePointPurchaseRequestTransactionEntity(user, purchaseRequest);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                var transactionEntity = await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(transaction);
+                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitAsync();
+                return new PointPurchaseTransactionCreateResponse()
+                {
+                    Status = TransactionStatus.Success.ToString(),
+                    Message = "Người dùng tạo yêu cầu nạp điểm thành công. Vui lòng chuyển tiền đến tài khoản của SurveyNow theo thông tin được cung cấp.",
+                    PointAmount = transaction.Point,
+                    MoneyAmount = transaction.Amount,
+                    Currency = transaction.Currency,
+                    PaymentMethod = transaction.PaymentMethod.ToString(),
+                    DestinationAccount = transaction.DestinationAccount!,
+                    Description = $"SurveyNow - Người dùng với mã số: {user.Id} - Nạp {transaction.Point} điểm vào tài khoản - Với mã giao dịch yêu cầu: {transaction.Id}",
+                    TransactionId = transactionEntity.Id,
+
+                };
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi xảy ra trong quá trình tạo yêu cầu nạp điểm");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
+        }
+
+        private Transaction GeneratePointPurchaseRequestTransactionEntity(User user, PointPurchaseTransactionCreateRequest purchaseRequest)
+        {
+            Transaction transaction = new Transaction()
+            {
+                UserId = user.Id,
+                TransactionType = TransactionType.PurchasePoint,
+                Point = purchaseRequest.PointAmount,
+                Amount = purchaseRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                Currency = Currency.VND.ToString(),
+                Date = DateTime.UtcNow,
+                SourceAccount = null,
+                PurchaseCode = null,
+                Status = TransactionStatus.Pending,
+            };
+
+            switch (purchaseRequest.PaymentMethod)
+            {
+                case PaymentMethod.Momo:
+                    transaction.PaymentMethod = PaymentMethod.Momo;
+                    transaction.DestinationAccount = BusinessData.SurveyNowMomoAccount;
+                    break;
+                case PaymentMethod.VnPay:
+                    transaction.PaymentMethod = PaymentMethod.VnPay;
+                    transaction.DestinationAccount = BusinessData.SurveyNowVnPayAccount;
+                    break;
+                default:
+                    throw new BadRequestException("Phương thức thanh toán nạp điểm không hợp lệ");
+            }
+            return transaction;
+        }
+
+        private void ValidatePointPurchaseRequest(PointPurchaseTransactionCreateRequest purchaseRequest)
+        {
+            if (purchaseRequest == null) throw new BadRequestException("Yêu cầu đổi điểm không hợp lệ. Vui lòng nhập lại yêu cầu");
+            if (purchaseRequest.PointAmount <= 0) throw new BadRequestException("Số điểm cần nạp phải lớn hơn 0");
+        }
+
+        private async Task<(bool, PointCreateRedeemOrderResponse?)> ProcessVnPayCreateGiftRedeemOrder(User user, PointRedeemRequest redeemRequest)
+        {
+            try
+            {
+                // Create new transaction
+                Transaction redeemTransaction = new Transaction()
+                {
+                    UserId = user.Id,
+                    TransactionType = TransactionType.RedeemGift,
+                    PaymentMethod = PaymentMethod.VnPay,
+                    Point = redeemRequest.PointAmount,
+                    Amount = redeemRequest.PointAmount * BusinessData.BasePointVNDPrice,
+                    Currency = Currency.VND.ToString(),
+                    Date = DateTime.UtcNow,
+                    SourceAccount = BusinessData.SurveyNowVnPayAccount,
+                    DestinationAccount = redeemRequest.MomoAccount,
+                    PurchaseCode = null,
+                    Status = TransactionStatus.Pending,
+                };
+
+                // Create point history
+                var pointHistory = CreatePointHistoryEntity(user, PointHistoryType.RedeemPoint);
+                pointHistory!.Point = redeemRequest.PointAmount;
+                pointHistory!.Description = EnumUtil.GeneratePointHistoryDescription(PointHistoryType.RedeemPoint, user.Id, redeemRequest.PointAmount, paymentMethod: redeemRequest.PaymentMethod);
+
+                // Add data
+                await _unitOfWork.BeginTransactionAsync();
+                var entity = await _unitOfWork.TransactionRepository.AddAsyncReturnEntity(redeemTransaction);
+                await _unitOfWork.SaveChangeAsync();
+
+                pointHistory.PointPurchaseId = entity.Id;
+                var pointHistoryEntity = await _unitOfWork.PointHistoryRepository.AddAsyncReturnEntity(pointHistory);
+                await _unitOfWork.SaveChangeAsync();
+
+                await _unitOfWork.UserRepository.UpdateUserPoint(user.Id, UserPointAction.DecreasePoint, redeemRequest.PointAmount);
+                await _unitOfWork.SaveChangeAsync();
+
+                await _unitOfWork.CommitAsync();
+                return (true, new PointCreateRedeemOrderResponse()
+                {
+                    Status = TransactionStatus.Success.ToString(),
+                    Message = "Yêu cầu đổi quà được tạo thành công. Người dùng sẽ nhận được quà sau khi yêu cầu được xử lý",
+                    PointAmount = entity.Point,
+                    MoneyAmount = entity.Amount,
+                    TransactionId = entity.Id.ToString(),
+                    PaymentMethod = entity.PaymentMethod.ToString(),
+                    PointHistoryId = pointHistoryEntity.Id.ToString(),
+                });
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception("Có lỗi xảy ra trong quá trình tạo yêu cầu đổi quà");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
             }
         }
     }

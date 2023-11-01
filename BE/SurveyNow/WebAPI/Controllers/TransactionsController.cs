@@ -38,7 +38,7 @@ namespace SurveyNow.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagingResponse<TransactionResponse>>> GetPaginatedPendingRedeemTransaction([FromQuery] PagingRequest pagingRequest)
         {
-            var result = await _transactionService.GetPaginatedPendingTransactionsAsync(pagingRequest);
+            var result = await _transactionService.GetPaginatedPendingRedeemTransactionsAsync(pagingRequest);
             return Ok(result);
         }
 
@@ -57,12 +57,12 @@ namespace SurveyNow.Controllers
         }
 
         /// <summary>
-        /// Hủy giao dịch đổi điểm đang chờ xử lý của người dùng
+        /// Hủy giao dịch đổi điểm đang chờ xử lý và hoàn lại điểm vào tài khoản của người dùng
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("cancel/{id:long}")]
+        [Route("point-redeem/{id:long}/cancel")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProccessRedeemTransactionResult>> CancelRedeemTransaction([FromRoute] long id)
         {
@@ -78,7 +78,7 @@ namespace SurveyNow.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("process/{id:long}")]
+        [Route("point-redeem/{id:long}/process")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProccessRedeemTransactionResult>> ProcessRedeemTransaction([FromRoute] long id, [FromBody] UpdatePointRedeemTransactionRequest request)
         {
@@ -98,6 +98,51 @@ namespace SurveyNow.Controllers
         public async Task<ActionResult<PagingResponse<TransactionResponse>>> GetTransactionHistoryWithFilter([FromQuery] TransactionHistoryRequest historyRequest, [FromQuery] PagingRequest pagingRequest)
         {
             var result = await _transactionService.GetTransactionHistory(pagingRequest, historyRequest);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Lấy danh sách các giao dịch nạp điểm đang chờ được xử lý, sắp xếp theo ngày tạo tăng dần (cũ nhất -> mới nhất). Có thể tìm kiếm theo Id của của giao dịch
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="pagingRequest"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("point-purchase/pending")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagingResponse<TransactionResponse>>> GetPaginatedPendingPurchaseTransaction([FromQuery] long? id, [FromQuery] PagingRequest pagingRequest)
+        {
+            var result = await _transactionService.GetPaginatedPendingPurchaseTransactionsAsync(id, pagingRequest);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Hủy giao dịch nạp điểm đang chờ xử lý của người dùng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("point-purchase/{id:long}/cancel")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProccessRedeemTransactionResult>> CancelPurchaseTransaction([FromRoute] long id)
+        {
+            var result = await _transactionService.CancelPurchaseTransaction(id);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Xử lý giao dịch nạp điểm của người dùng sau khi đã nhận được giao dịch thanh toán đầy đủ qua ví điện tử của người dùng.
+        /// Tài khoản của người dùng sẽ được cập nhật số điểm tương ứng với số điểm trong yêu cầu giao dịch nạp điểm
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("point-purchase/{id:long}/process")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProccessRedeemTransactionResult>> ProcessPurchaseTransaction([FromRoute] long id, [FromBody] UpdatePointPurchaseTransactionRequest request)
+        {
+            var result = await _transactionService.ProcessPurchaseTransaction(id, request);
             return Ok(result);
         }
     }
