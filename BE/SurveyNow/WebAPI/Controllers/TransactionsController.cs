@@ -71,8 +71,8 @@ namespace SurveyNow.Controllers
         }
 
         /// <summary>
-        /// Xử lý giao dịch đổi điểm của người dùng sau khi đã chuyển tiền đến ví momo của người dùng thành công.
-        /// Cần cung cấp mã giao dịch momo
+        /// Xử lý giao dịch đổi điểm của người dùng sau khi đã chuyển tiền đến ví điện tử của người dùng thành công.
+        /// Cần cung cấp mã giao dịch của giao dịch đã thực hiện trong ví điện tử
         /// </summary>
         /// <param name="id"></param>
         /// <param name="request"></param>
