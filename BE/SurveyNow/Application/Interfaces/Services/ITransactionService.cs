@@ -2,6 +2,7 @@
 using Application.DTOs.Request.Transaction;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Transaction;
+using Domain.Entities;
 
 namespace Application.Interfaces.Services
 {
@@ -15,5 +16,6 @@ namespace Application.Interfaces.Services
         Task<PagingResponse<TransactionResponse>> GetPaginatedPendingPurchaseTransactionsAsync(long? id, PagingRequest pagingRequest);
         Task<ProccessRedeemTransactionResult> CancelPurchaseTransaction(long id);
         Task<ProccessRedeemTransactionResult> ProcessPurchaseTransaction(long id, UpdatePointPurchaseTransactionRequest request);
+        Task<PagingResponse<TransactionResponse>> GetUserTransactions(UserTransactionRequest request, PagingRequest pagingRequest, User user);
     }
 }

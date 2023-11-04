@@ -298,5 +298,15 @@ namespace Infrastructure.Services
 
             }
         }
+
+        public async Task<PagingResponse<TransactionResponse>> GetUserTransactions(UserTransactionRequest request, PagingRequest pagingRequest, User user)
+        {
+            if (pagingRequest.Page < 1 || pagingRequest.RecordsPerPage < 1 || pagingRequest.Page == null || pagingRequest.RecordsPerPage == null)
+            {
+                throw new BadRequestException("Tiêu chí phân trang cho kết quả không hợp lệ");
+            }
+            var transactionList = await _unitOfWork.TransactionRepository.GetUserTransactions(request, pagingRequest, user.Id);
+            return _mapper.Map<PagingResponse<TransactionResponse>>(transactionList);
+        }
     }
 }

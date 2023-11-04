@@ -2,6 +2,7 @@
 using Application.DTOs.Request.Transaction;
 using Application.DTOs.Response;
 using Application.DTOs.Response.Transaction;
+using Application.ErrorHandlers;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -143,6 +144,27 @@ namespace SurveyNow.Controllers
         public async Task<ActionResult<ProccessRedeemTransactionResult>> ProcessPurchaseTransaction([FromRoute] long id, [FromBody] UpdatePointPurchaseTransactionRequest request)
         {
             var result = await _transactionService.ProcessPurchaseTransaction(id, request);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Lấy danh sách các giao dịch của người dùng, có thể lọc theo loại giao dịch và trạng thái. Sắp xếp theo thứ tự từ mới nhất đến cũ nhất
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="pagingRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException"></exception>
+        [HttpGet]
+        [Authorize]
+        [Route("history/user")]
+        public async Task<ActionResult<PagingResponse<TransactionResponse>>> GetUserTransactions([FromQuery] UserTransactionRequest request, [FromQuery] PagingRequest pagingRequest)
+        {
+            var user = await _userService.GetCurrentUserAsync();
+            if (user is null)
+            {
+                throw new NotFoundException($"Không tìm thấy thông tin của người dùng");
+            }
+            var result = await _transactionService.GetUserTransactions(request, pagingRequest, user);
             return Ok(result);
         }
     }

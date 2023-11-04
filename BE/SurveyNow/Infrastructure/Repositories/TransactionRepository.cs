@@ -145,4 +145,14 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         }
         return result;
     }
+
+    public async Task<PagingResponse<Transaction>> GetUserTransactions(UserTransactionRequest request, PagingRequest pagingRequest, long userId)
+    {
+        Expression<Func<Transaction, bool>>? userIdFilter = (t => t.UserId == userId);
+        Expression<Func<Transaction, bool>>? typeFilter = (request.TransactionType is null) ? null : (t => t.TransactionType == request.TransactionType);
+        Expression<Func<Transaction, bool>>? statusFilter = (request.Status is null) ? null : (t => t.Status == request.Status);
+        var combinedFilter = GetCombinedFilterExpression(userIdFilter, statusFilter, typeFilter);
+        Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> sortOrder = (query => query.OrderByDescending(t => t.Date));
+        return await GetPaginateAsync(combinedFilter, sortOrder, "", pagingRequest.Page, pagingRequest.RecordsPerPage);
+    }
 }
