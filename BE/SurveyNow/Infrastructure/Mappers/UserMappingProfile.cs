@@ -40,5 +40,16 @@ public class UserMappingProfile : Profile
         CreateMap<Province, ProvinceResponse>().ReverseMap();
         CreateMap<City, CityResponse>().ReverseMap();
         CreateMap<District, DistrictResponse>().ReverseMap();
+
+        CreateMap<UserReportRequest, UserReport>()
+            .AfterMap((src, dest) =>
+            {
+                dest.Status = UserReportStatus.Pending;
+            })
+            .ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
+        CreateMap<UserReport, UserReportResponse>();
+        CreateMap<UserReportStatusRequest, UserReport>().ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
+        CreateMap<string, UserReportStatus>().ConstructUsing(src => Enum.Parse<UserReportStatus>(src));
+        CreateMap<UserReportStatus, string>().ConstructUsing(src => src.ToString());
     }
 }
