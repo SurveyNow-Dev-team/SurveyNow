@@ -13,8 +13,8 @@ namespace Application.DTOs.Request.User
         public string? FullName { get; set; } = null!;
         public string? Gender { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        [RegularExpression(@"\d+")]
-        public string PhoneNumber { get; set; }
+        [RegularExpression(@"(84|0[3|5|7|8|9])+([0-9]{8})\b", ErrorMessage = "Vietnamese phone number only")]
+        public string? PhoneNumber { get; set; }
         public string? Status { get; set; }
 
         public string? Role { get; set; }
