@@ -17,8 +17,6 @@ namespace Application.DTOs.Request.User
 
         public string Reason { get; set; } = null!;
 
-        public long CreatedUserId { get; set; }
-
         public long? UserId { get; set; }
 
         public long? SurveyId { get; set; }

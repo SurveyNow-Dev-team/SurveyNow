@@ -14,11 +14,13 @@ namespace Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
 
-        public UserReportService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserReportService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userService = userService;
         }
 
         public async Task<UserReportResponse> ChangeReportStatus(long id, UserReportStatusRequest status)
@@ -37,6 +39,12 @@ namespace Infrastructure.Services
         public async Task Create(UserReportRequest request)
         {
             var report = _mapper.Map<UserReport>(request);
+            var user = await _userService.GetCurrentUserAsync();
+            if(user == null)
+            {
+                throw new NotFoundException("User not login");
+            }
+            report.CreatedUserId = user.Id;
             await _unitOfWork.UserReportRepository.AddAsync(report);
             await _unitOfWork.SaveChangeAsync();
         }

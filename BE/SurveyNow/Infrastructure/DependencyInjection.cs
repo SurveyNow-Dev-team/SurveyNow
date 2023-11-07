@@ -60,6 +60,7 @@ public static class DependencyInjection
         services.AddScoped<ISurveyService, SurveyService>();
         services.AddScoped<IMomoService, MomoService>();
         services.AddScoped<ITransactionService, TransactionService>();
+        services.AddScoped<IUserReportService, UserReportService>();
         services.AddHostedService<SurveyExpiredDateCheckerService>();
 
         //Unit of work

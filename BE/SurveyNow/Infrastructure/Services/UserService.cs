@@ -120,6 +120,10 @@ namespace Infrastructure.Services
             {
                 throw new NotFoundException("Incorrect Email or Password");
             }
+            if (user.IsDelete || user.Status != UserStatus.Active)
+            {
+                throw new UnauthorizedException("Your account is deleted or baned");
+            }
             var mappingTask = Task.Run(() => _mapper.Map<LoginUserResponse>(user));
             var tokenTask = _jwtService.GenerateAccessTokenAsync(user);
             await Task.WhenAll(mappingTask, tokenTask);
@@ -280,6 +284,13 @@ namespace Infrastructure.Services
                 };
                 await _unitOfWork.UserRepository.AddAsync(user);
                 await _unitOfWork.SaveChangeAsync();
+            }
+            else
+            {
+                if (user.IsDelete || user.Status != UserStatus.Active)
+                {
+                    throw new UnauthorizedException("Your account is deleted or baned");
+                }
             }
             var response = _mapper.Map<LoginUserResponse>(user);
             response.Token = await _jwtService.GenerateAccessTokenAsync(user);

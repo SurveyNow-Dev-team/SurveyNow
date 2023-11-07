@@ -2,12 +2,14 @@
 using Application.DTOs.Response.User;
 using Application.Interfaces.Services;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SurveyNow.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserReportsController : ControllerBase
     {
         private readonly IUserReportService _userReportService;
@@ -30,18 +32,19 @@ namespace SurveyNow.Controllers
         }
 
         /// <summary>
-        /// Change user report status
+        /// Change user report status, admin role only
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="status"></param>
+        /// <param name="request">status: Approved or Rejected</param>
         /// <returns></returns>
         [HttpPut("status/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserReportResponse>> ChangeReportStatus([FromRoute] long id, [FromBody] UserReportStatusRequest request)
         {
             return Ok(await _userReportService.ChangeReportStatus(id, request));
         }
 
-        [HttpPost("{id}")]
+        [HttpPost]
         public async Task<IActionResult> Create(UserReportRequest request)
         {
             await _userReportService.Create(request);
