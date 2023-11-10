@@ -29,5 +29,7 @@ namespace Application.DTOs.Response.Transaction
         public required string Status { get; set; }
 
         public long UserId { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
     }
 }

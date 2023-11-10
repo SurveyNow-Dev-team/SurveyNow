@@ -73,7 +73,11 @@ namespace Infrastructure.Mappers
                 .ForMember(dest => dest.Status,
                 src => src.MapFrom(src => EnumUtil.ConvertTransactionStatusToString(src.Status)))
                 .ForMember(dest => dest.Date,
-                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)));
+                src => src.MapFrom(src => DateUtil.FormatDateTimeToDatetimeV1(src.Date)))
+                .ForMember(dest => dest.FullName,
+                src => src.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.AvatarUrl,
+                src => src.MapFrom(src => src.User.AvatarUrl));
 
             CreateMap<PagingResponse<Transaction>, PagingResponse<TransactionResponse>>();
 
