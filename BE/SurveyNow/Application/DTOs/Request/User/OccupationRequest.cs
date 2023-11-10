@@ -13,11 +13,11 @@ namespace Application.DTOs.Request.User
     public class OccupationRequest
     {
 
-        public decimal? Income { get; set; }
+        public decimal Income { get; set; }
 
-        public string? PlaceOfWork { get; set; } = null!;
+        public string PlaceOfWork { get; set; }
 
-        public string? Currency { get; set; } = null!;
+        public string? Currency { get; set; }
 
         public long? FieldId { get; set; }
 

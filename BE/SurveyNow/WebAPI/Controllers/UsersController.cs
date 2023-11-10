@@ -31,7 +31,7 @@ namespace SurveyNow.Controllers
         /// <returns></returns>
         // GET: api/<UsersController>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery] UserFilterRequest filter, [FromQuery] PagingRequest pagingRequest)
         {
             var users = await _userService.GetUsers(filter, pagingRequest);
@@ -69,7 +69,9 @@ namespace SurveyNow.Controllers
         /// Update user basic information
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="userRequest"></param>
+        /// <param name="userRequest">Relationship status: Single, Dating, Married, Other <br/>
+        /// Gender: Male, Female, Other
+        /// </param>
         /// <returns></returns>
         [HttpPut("{id}")]
         [Authorize]
