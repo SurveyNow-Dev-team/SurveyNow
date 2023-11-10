@@ -9,7 +9,7 @@ namespace Application.DTOs.Request.User
         public string? FullName { get; set; } = null!;
         public string? Gender { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public RelationshipStatus? RelationshipStatus { get; set; }
+        public string? RelationshipStatus { get; set; }
         [EmailAddress]
         public string? Email { get; set; }
 

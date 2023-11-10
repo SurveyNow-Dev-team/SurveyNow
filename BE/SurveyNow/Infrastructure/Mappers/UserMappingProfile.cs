@@ -21,6 +21,8 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.FullName, src => src.MapFrom(src => StringUtil.GetNameFromEmail(src.Email)))
             .ForMember(dest => dest.Role, src => src.MapFrom(src => Role.User));
         CreateMap<User, LoginUserResponse>();
+
+        CreateMap<UserFilterRequest, User>().ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
         
         CreateMap<Role, string>().ConstructUsing(src => src.ToString());
         CreateMap<string, Role>().ConstructUsing(src => Enum.Parse<Role>(src));
@@ -28,10 +30,20 @@ public class UserMappingProfile : Profile
         CreateMap<string, UserStatus>().ConstructUsing(src => Enum.Parse<UserStatus>(src));
         CreateMap<Gender, string>().ConstructUsing(src => src.ToString());
         CreateMap<string, Gender>().ConstructUsing(src => Enum.Parse<Gender>(src));
+        CreateMap<string, RelationshipStatus>().ConstructUsing(src => Enum.Parse<RelationshipStatus>(src));
+        CreateMap<RelationshipStatus, string>().ConstructUsing(src => src.ToString());
 
         CreateMap<Hobby, HobbyResponse>();
         CreateMap<HobbyRequest, Hobby>();
-        CreateMap<OccupationRequest, Occupation>().ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
+        CreateMap<OccupationRequest, Occupation>()
+            .AfterMap((src, dest) =>
+            {
+                if(src.Currency == null)
+                {
+                    dest.Currency = "VND";
+                }
+            })
+            .ForAllMembers(x => x.Condition((src, dest, sourceValue) => sourceValue != null));
         CreateMap<Occupation, OccupationResponse>();
         CreateMap<Field, FieldDTO>().ReverseMap();
 
