@@ -32,7 +32,7 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         // Sorting order
         Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> sortOrder = (q => q.OrderBy(t => t.Date));
 
-        var filterList = await GetPaginateAsync(pendingRedeemTransaction, sortOrder, "", page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
+        var filterList = await GetPaginateAsync(pendingRedeemTransaction, sortOrder, nameof(Transaction.User), page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
 
         return filterList;
     }
@@ -44,7 +44,7 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         var transactionTypeFilter = GetTransactionTypeFilter(historyRequest);
         var combinedFilter = GetCombinedFilterExpression(durationFilter, statusFilter, transactionTypeFilter);
         var sortQuery = GetSortOrderQuery(historyRequest);
-        return await GetPaginateAsync(combinedFilter, sortQuery, "", pagingRequest.Page, pagingRequest.RecordsPerPage);
+        return await GetPaginateAsync(combinedFilter, sortQuery, nameof(Transaction.User), pagingRequest.Page, pagingRequest.RecordsPerPage);
     }
 
     private Expression<Func<Transaction, bool>>? GetDurationFilter(TransactionHistoryRequest historyRequest)
@@ -136,12 +136,12 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         if(id is null)
         {
             Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending);
-            result = await GetPaginateAsync(filterExpression, sortOrder, "", page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
+            result = await GetPaginateAsync(filterExpression, sortOrder, nameof(Transaction.User), page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
         }
         else if(id is not null && id.HasValue)
         {
             Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending && t.Id == id);
-            result = await GetPaginateAsync(filterExpression, sortOrder, "", page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
+            result = await GetPaginateAsync(filterExpression, sortOrder, nameof(Transaction.User), page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
         }
         return result;
     }
