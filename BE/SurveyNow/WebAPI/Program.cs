@@ -52,6 +52,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 app.UseCors("_publicPolicy");
 
+app.UseSession();
+
 app.UseAuthentication();
 
 app.UseAuthorization();

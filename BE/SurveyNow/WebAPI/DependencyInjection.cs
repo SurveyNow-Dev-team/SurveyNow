@@ -92,6 +92,9 @@ public static class DependencyInjection
             });
         });
 
+        services.AddDistributedMemoryCache();
+        services.AddSession();
+
         return services;
     }
 }
