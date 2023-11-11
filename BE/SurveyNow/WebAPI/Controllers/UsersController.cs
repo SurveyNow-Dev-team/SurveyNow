@@ -74,10 +74,18 @@ namespace SurveyNow.Controllers
         /// </param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UserRequest userRequest)
         {
             var user = await _userService.UpdateUser(id, userRequest);
+            return Ok(user);
+        }
+
+        [HttpPut("login-user")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<UserResponse>> UpdateLoginUser([FromBody] UserRequest userRequest)
+        {
+            var user = await _userService.UpdateCurrentUser(userRequest);
             return Ok(user);
         }
 
@@ -98,7 +106,7 @@ namespace SurveyNow.Controllers
         /// </summary>
         /// <param name="phoneNumber"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost("phone-number")]
         public async Task UpdatePhoneNumber([FromBody][RegularExpression(@"^(84|0[3|5|7|8|9])[0-9]{8}$", ErrorMessage = "We currently support Vietnam phone number")] string phoneNumber)
         {
@@ -110,7 +118,7 @@ namespace SurveyNow.Controllers
         /// </summary>
         /// <param name="confirmedOtp"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPut("phone-number-verification")]
         public async Task VerifyPhoneNumber([RegularExpression(@"^\d{6}$")] string confirmedOtp)
         {
@@ -134,7 +142,7 @@ namespace SurveyNow.Controllers
         /// </summary>
         /// <param name="formFile"></param>
         /// <returns></returns>
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost("avatar")]
         public async Task<string> UploadAvatar(IFormFile formFile)
         {
