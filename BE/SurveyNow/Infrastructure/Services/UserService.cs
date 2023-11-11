@@ -88,10 +88,6 @@ namespace Infrastructure.Services
         public async Task<UserResponse> UpdateCurrentUser(UserRequest request)
         {
             User user = await GetLoggedInUserAsync();
-            if (user.Role == Role.Admin)
-            {
-                throw new BadRequestException("Can't update admin account");
-            }
             user = _mapper.Map(request, user);
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();

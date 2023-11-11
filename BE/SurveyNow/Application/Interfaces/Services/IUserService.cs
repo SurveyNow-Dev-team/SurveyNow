@@ -12,6 +12,7 @@ namespace Application.Interfaces.Services
         Task<UserResponse> GetUser(long id);
         Task<PagingResponse<UserResponse>> GetUsers(UserFilterRequest filter, PagingRequest pagingRequest);
         Task<UserResponse> UpdateUser(long id, UserRequest request);
+        Task<UserResponse> UpdateCurrentUser(UserRequest request);
         Task<LoginUserResponse> CreateUserAsync(RegisterUserRequest request);
         Task<LoginUserResponse> LoginAsync(LoginUserRequest request);
         Task<LoginUserResponse> LoginWithGoogle(string idToken);
