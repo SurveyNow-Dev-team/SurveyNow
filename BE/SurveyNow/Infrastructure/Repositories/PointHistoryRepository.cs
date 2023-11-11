@@ -86,9 +86,10 @@ public class PointHistoryRepository : BaseRepository<PointHistory>, IPointHistor
         if (dateFilter.IsValid() != 0)
         {
             dateFilter.ChangeValues();
-            return (p => p.Date >= dateFilter.GetFromDate() && p.Date <= dateFilter.GetToDate());
+            DateTime startDate = dateFilter.GetFromDate().Date;
+            DateTime endDate = dateFilter.GetToDate().Date.AddDays(1).AddTicks(-1);
+            return (p => p.Date >= startDate && p.Date <= endDate);
         }
-
         return null;
     }
 
