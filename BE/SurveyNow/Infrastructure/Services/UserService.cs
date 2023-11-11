@@ -48,7 +48,7 @@ namespace Infrastructure.Services
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserFilterRequest filter, PagingRequest pagingRequest)
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync(entityFilter: _mapper.Map<User>(filter));
+            var users = await _unitOfWork.UserRepository.GetAllAsync(entityFilter: _mapper.Map<User>(filter), filter: x => x.Role != Role.Admin);
             if(users == null)
             {
                 throw new NotFoundException("There aren't any users satisfied the criteria");
@@ -75,8 +75,24 @@ namespace Infrastructure.Services
             {
                 throw new NotFoundException("User with this id is not existed");
             }
-
+            if (user.Role == Role.Admin)
+            {
+                throw new BadRequestException("Can't update admin account");
+            }
             user = _mapper.Map<UserRequest, User>(request, user);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+            return _mapper.Map<UserResponse>(user);
+        }
+
+        public async Task<UserResponse> UpdateCurrentUser(UserRequest request)
+        {
+            User user = await GetLoggedInUserAsync();
+            if (user.Role == Role.Admin)
+            {
+                throw new BadRequestException("Can't update admin account");
+            }
+            user = _mapper.Map(request, user);
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
             return _mapper.Map<UserResponse>(user);
@@ -162,6 +178,10 @@ namespace Infrastructure.Services
         public async Task Remove()
         {
             var user = await GetLoggedInUserAsync();
+            if(user.Role == Role.Admin)
+            {
+                throw new BadRequestException("Can't remove admin account");
+            }
             user.IsDelete = true;
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
@@ -245,6 +265,10 @@ namespace Infrastructure.Services
             {
                 throw new NotFoundException("User not found");
             }
+            if (user.Role == Role.Admin)
+            {
+                throw new BadRequestException("Can't update admin account");
+            }
             user.Role = _mapper.Map<Role>(role);
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangeAsync();
@@ -256,6 +280,10 @@ namespace Infrastructure.Services
             if (user == null)
             {
                 throw new NotFoundException("User not found");
+            }
+            if (user.Role == Role.Admin)
+            {
+                throw new BadRequestException("Can't update admin account");
             }
             user.Status = _mapper.Map<UserStatus>(status);
             _unitOfWork.UserRepository.Update(user);
