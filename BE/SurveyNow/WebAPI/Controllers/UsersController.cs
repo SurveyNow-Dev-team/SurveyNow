@@ -74,7 +74,7 @@ namespace SurveyNow.Controllers
         /// </param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UserRequest userRequest)
         {
             var user = await _userService.UpdateUser(id, userRequest);
