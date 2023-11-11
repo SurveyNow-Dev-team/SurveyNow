@@ -154,7 +154,7 @@ namespace Infrastructure.Services
                 throw new BadRequestException($"Người dùng không có đủ số điểm. Số dư hiện tại: {user.Point}");
             }
             // Check for any existing pending redeem transaction
-            var pendingOrder = await _unitOfWork.TransactionRepository.CheckExistPendingRedeemOrderAsync();
+            var pendingOrder = await _unitOfWork.TransactionRepository.CheckExistPendingRedeemOrderAsync(user.Id);
             if (pendingOrder)
             {
                 throw new ConflictException($"Người dùng có yêu cầu đổi quà đã tạo. Vui lòng chờ cho đến khi yêu cầu trước được xử lý");

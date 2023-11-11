@@ -19,9 +19,9 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
     {
     }
 
-    public async Task<bool> CheckExistPendingRedeemOrderAsync()
+    public async Task<bool> CheckExistPendingRedeemOrderAsync(long userId)
     {
-        return await _dbSet.AnyAsync(t => t.TransactionType == Domain.Enums.TransactionType.RedeemGift && t.Status == Domain.Enums.TransactionStatus.Pending);
+        return await _dbSet.AnyAsync(t => t.UserId == userId && t.TransactionType == TransactionType.RedeemGift && t.Status == TransactionStatus.Pending);
     }
 
     public async Task<PagingResponse<Transaction>> GetPendingRedeemTransactionList(PagingRequest pagingRequest)
