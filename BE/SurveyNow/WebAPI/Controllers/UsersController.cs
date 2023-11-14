@@ -31,7 +31,7 @@ namespace SurveyNow.Controllers
         /// <returns></returns>
         // GET: api/<UsersController>
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagingResponse<UserResponse>>> Get([FromQuery] UserFilterRequest filter, [FromQuery] PagingRequest pagingRequest)
         {
             var users = await _userService.GetUsers(filter, pagingRequest);

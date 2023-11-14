@@ -1,8 +1,6 @@
-﻿using System.Data;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 using Application;
 using Application.DTOs.Request;
 using Application.DTOs.Request.User;
@@ -18,7 +16,6 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Twilio.Jwt.AccessToken;
 
 namespace Infrastructure.Services
 {
@@ -48,7 +45,53 @@ namespace Infrastructure.Services
 
         public async Task<PagingResponse<UserResponse>> GetUsers(UserFilterRequest filter, PagingRequest pagingRequest)
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync(entityFilter: _mapper.Map<User>(filter), filter: x => x.Role != Role.Admin);
+            ParameterExpression parameters = Expression.Parameter(typeof(User));
+            Expression expression = Expression.Constant(true);
+            if (filter != null)
+            {
+                if(filter.FullName != null)
+                {
+                    expression = Expression.AndAlso(expression, ExpressionUtils.ContainsString<User>(Expression.Property(parameters, nameof(User.FullName)), Expression.Constant(filter.FullName)));
+                }
+                if(filter.Gender != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.Gender), typeof(Gender?)), Expression.Property(parameters, nameof(User.Gender)), false, null));
+                    
+                }
+                if(filter.DateOfBirth != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Constant(filter.DateOfBirth), Expression.Property(parameters, nameof(User.DateOfBirth))));
+                }
+                if (filter.PhoneNumber != null)
+                {
+                    Expression.AndAlso(expression, ExpressionUtils.ContainsString<User>(Expression.Property(parameters, nameof(User.PhoneNumber)), Expression.Constant(filter.PhoneNumber)));
+                }
+                if (filter.Status != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.Status), typeof(UserStatus?)), Expression.Property(parameters, nameof(User.Status))));
+                }
+                if (filter.Role != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.Role), typeof(Role?)), Expression.Property(parameters, nameof(User.Role))));
+                }
+                if (filter.RelationshipStatus != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.RelationshipStatus), typeof(RelationshipStatus?)), Expression.Property(parameters, nameof(User.RelationshipStatus))));
+                }
+                if (filter.Email != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Constant(filter.Email), Expression.Property(parameters, nameof(User.Email))));
+                }
+                if (filter.LangKey != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Constant(filter.LangKey), Expression.Property(parameters, nameof(User.LangKey))));
+                }
+                if (filter.Currency != null)
+                {
+                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Constant(filter.Currency), Expression.Property(parameters, nameof(User.Currency))));
+                }
+            }
+            var users = await _unitOfWork.UserRepository.GetAllAsync(filter: Expression.Lambda<Func<User, bool>>(expression, parameters));
             if(users == null)
             {
                 throw new NotFoundException("There aren't any users satisfied the criteria");
