@@ -45,6 +45,20 @@ namespace Application.Utils
             }
         }
 
+        public static Expression ContainsString<T>(Expression stringInstance, Expression stringValue)
+        {
+            string a = ""; a.Contains(""); 
+            var method = typeof(String).GetMethod("Contains", new Type[] { typeof(string) });
+            var expression = Expression.Call(instance: stringInstance, method: method, stringValue);
+            return expression;
+            //var parameterExp = Expression.Parameter(typeof(T), "type");
+            //var propertyExp = Expression.Property(parameterExp, propertyName);
+            //MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            //var someValue = Expression.Constant(propertyValue, typeof(string));
+            //var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+            //return containsMethodExp;
+        }
+
         public static Expression ForEach(Expression collection, ParameterExpression loopVar, Expression loopContent)
         {
             var elementType = loopVar.Type;
