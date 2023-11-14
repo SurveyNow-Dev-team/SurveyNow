@@ -63,6 +63,8 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
         {
             (fromDate, toDate) = (toDate, fromDate);
         }
+        fromDate = fromDate.Value.Date;
+        toDate = toDate.Value.Date.AddDays(1).AddTicks(-1);
         return (t => t.Date >= fromDate && t.Date <= toDate);
     }
 
