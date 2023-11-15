@@ -10,7 +10,7 @@ public interface IBaseRepository<T> where T : class
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
         string includeProperties,
         bool disableTracking = false
-        );
+    );
 
     Task<PagingResponse<T>> GetPaginateAsync(
         Expression<Func<T, bool>>? filter,
@@ -27,7 +27,9 @@ public interface IBaseRepository<T> where T : class
 
     Task<List<T>> GetAllAsync();
 
-    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null, string? includeProperties = "");
+    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, T? entityFilter = null,
+        string? includeProperties = "");
 
     Task AddAsync(T entity);
 

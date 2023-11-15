@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using Application;
 using Application.DTOs.Request.Survey;
 using Application.DTOs.Response;
@@ -39,15 +38,15 @@ public class SurveyService : ISurveyService
         try
         {
             //Create Survey object
-            var currentUser = await _userService.GetCurrentUserAsync();
-            surveyObject.CreatedBy = currentUser ?? throw new UnauthorizedException("User does not log in.");
+            var currentUser = await _userService.GetCurrentUserAsync()
+                .ContinueWith(t => t.Result ?? throw new UnauthorizedException("User does not log in."));
             surveyObject.CreatedUserId = currentUser.Id;
             //Update status to PackPurchase if user bought a pack
             surveyObject.Status = SurveyStatus.Draft;
 
             await _unitOfWork.SurveyRepository.AddAsync(surveyObject);
             //Create Survey object
-            int totalQuestion = 0;
+            var totalQuestion = 0;
 
             foreach (var s in surveyObject.Sections)
             {
@@ -119,17 +118,16 @@ public class SurveyService : ISurveyService
 
     public async Task<SurveyDetailResponse> GetByIdAsync(long id)
     {
-        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(id);
-        if (surveyObj == null)
-            throw new NotFoundException($"Survey {id} does not exist.");
-        var result = _mapper.Map<SurveyDetailResponse>(surveyObj);
-        return result;
+        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(id)
+            .ContinueWith(t => t.Result ?? throw new NotFoundException($"Survey {id} does not exist"));
+
+        return _mapper.Map<SurveyDetailResponse>(surveyObj);
     }
 
     public async Task<List<SurveyResponse>> GetAllAsync()
     {
-        var surveys = await _unitOfWork.SurveyRepository.GetAllAsync();
-        return _mapper.Map<List<SurveyResponse>>(surveys);
+        return await _unitOfWork.SurveyRepository.GetAllAsync()
+            .ContinueWith(t => _mapper.Map<List<SurveyResponse>>(t.Result));
     }
 
     public async Task<PagingResponse<SurveyResponse>> FilterSurveyAsync(
@@ -267,7 +265,6 @@ public class SurveyService : ISurveyService
 
         try
         {
-
             if (statusEnum.HasValue)
             {
                 if (!(statusEnum.Value.Equals(SurveyStatus.Active) && statusEnum.Value.Equals(SurveyStatus.Expired)))
@@ -296,70 +293,101 @@ public class SurveyService : ISurveyService
                 Expression.Equal(Expression.Property(parameter, nameof(Survey.IsDelete)), Expression.Constant(false)));
 
             #region survey which is not belong to the login user and user haven't done it yet
+
             // Get survey which is not belong to the login user
-            var user = await _userService.GetCurrentUserAsync().ContinueWith(x => x.Result ?? throw new UnauthorizedException("User hasn't logged in yet"));
-            filter = Expression.AndAlso(filter, Expression.NotEqual(Expression.Property(parameter, nameof(Survey.CreatedUserId)), Expression.Constant(user.Id)));
+            var user = await _userService.GetCurrentUserAsync().ContinueWith(x =>
+                x.Result ?? throw new UnauthorizedException("User hasn't logged in yet"));
+            filter = Expression.AndAlso(filter,
+                Expression.NotEqual(Expression.Property(parameter, nameof(Survey.CreatedUserId)),
+                    Expression.Constant(user.Id)));
 
             // Get survey which user haven't done it yet
             // !survey.UserSurvey.Any(x => x.UserId == user.Id)
             filter = Expression.AndAlso(filter,
                 Expression.Condition(
                     ExpressionUtils.Any<UserSurvey>(
-                        ExpressionUtils.ToQueryable<UserSurvey>(Expression.Property(parameter, nameof(Survey.UserSurveys))), x => x.UserId == user.Id), Expression.Constant(false), Expression.Constant(true)));
+                        ExpressionUtils.ToQueryable<UserSurvey>(Expression.Property(parameter,
+                            nameof(Survey.UserSurveys))), x => x.UserId == user.Id), Expression.Constant(false),
+                    Expression.Constant(true)));
+
             #endregion
 
             // Get survey on criterion
+
             #region by age
+
             // if min age | max age not null => max age > date now - user dob > min age 
             int? age = user.DateOfBirth != null ? (DateTime.Now.Year - user.DateOfBirth.Value.Year) : null;
-            Expression minAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.MinAge));
-            Expression maxAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.MaxAge));
+            Expression minAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                nameof(Criterion.MinAge));
+            Expression maxAge = Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                nameof(Criterion.MaxAge));
             filter = Expression.AndAlso(filter, Expression.Condition(
-                    Expression.NotEqual(
-                        minAge,
-                        Expression.Constant(null)),
-                    Expression.GreaterThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), minAge),
-                    Expression.Constant(true)));
+                Expression.NotEqual(
+                    minAge,
+                    Expression.Constant(null)),
+                Expression.GreaterThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), minAge),
+                Expression.Constant(true)));
             filter = Expression.AndAlso(filter, Expression.Condition(
                 Expression.NotEqual(
                     maxAge,
                     Expression.Constant(null)),
                 Expression.LessThan(Expression.TypeAs(Expression.Constant(age), typeof(int?)), maxAge),
                 Expression.Constant(true)));
+
             #endregion
 
             #region by gender
-            Expression genders = ExpressionUtils.ToQueryable<GenderCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.GenderCriteria)));
+
+            Expression genders = ExpressionUtils.ToQueryable<GenderCriterion>(
+                Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                    nameof(Criterion.GenderCriteria)));
             filter = Expression.AndAlso(filter, Expression.Condition(
                 ExpressionUtils.Any<GenderCriterion>(genders),
                 ExpressionUtils.Any<GenderCriterion>(genders, x => x.Gender == user.Gender),
                 Expression.Constant(true)));
+
             #endregion
 
             #region by relationship status
-            Expression relationshipStatuses = ExpressionUtils.ToQueryable<RelationshipCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.RelationshipCriteria)));
+
+            Expression relationshipStatuses = ExpressionUtils.ToQueryable<RelationshipCriterion>(
+                Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                    nameof(Criterion.RelationshipCriteria)));
             filter = Expression.AndAlso(filter, Expression.Condition(
                 ExpressionUtils.Any<RelationshipCriterion>(relationshipStatuses),
-                ExpressionUtils.Any<RelationshipCriterion>(relationshipStatuses, x => x.RelationshipStatus == user.RelationshipStatus),
+                ExpressionUtils.Any<RelationshipCriterion>(relationshipStatuses,
+                    x => x.RelationshipStatus == user.RelationshipStatus),
                 Expression.Constant(true)));
+
             #endregion
 
             #region by area
+
             long? provinceId = (user.Address != null && user.Address.Province != null) ? user.Address.Id : null;
-            Expression areas = ExpressionUtils.ToQueryable<AreaCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.AreaCriteria)));
+            Expression areas = ExpressionUtils.ToQueryable<AreaCriterion>(
+                Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                    nameof(Criterion.AreaCriteria)));
             filter = Expression.AndAlso(filter, Expression.Condition(
                 ExpressionUtils.Any<AreaCriterion>(areas),
                 ExpressionUtils.Any<AreaCriterion>(areas, x => x.ProvinceId == provinceId),
                 Expression.Constant(true)));
+
             #endregion
 
             #region by field
-            long? fieldId = (user.Occupation != null && user.Occupation.Field != null) ? user.Occupation.Field.Id : null;
-            Expression fields = ExpressionUtils.ToQueryable<FieldCriterion>(Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)), nameof(Criterion.FieldCriteria)));
+
+            long? fieldId = (user.Occupation != null && user.Occupation.Field != null)
+                ? user.Occupation.Field.Id
+                : null;
+            Expression fields = ExpressionUtils.ToQueryable<FieldCriterion>(
+                Expression.Property(Expression.Property(parameter, nameof(Survey.Criteria)),
+                    nameof(Criterion.FieldCriteria)));
             filter = Expression.AndAlso(filter, Expression.Condition(
                 ExpressionUtils.Any<FieldCriterion>(fields),
                 ExpressionUtils.Any<FieldCriterion>(fields, x => x.FieldId == fieldId),
                 Expression.Constant(true)));
+
             #endregion
 
 
@@ -1040,28 +1068,33 @@ public class SurveyService : ISurveyService
             }
         }
 
-        if(survey.PackType == null)
+        if (survey.PackType == null)
         {
             throw new BadRequestException("You haven't bought pack yet");
         }
 
-        if(request.Criteria != null)
+        if (request.Criteria != null)
         {
             if (survey.PackType == PackType.Basic || survey.PackType == PackType.Medium)
             {
-                if(request.Criteria.FieldCriteria != null && request.Criteria.FieldCriteria.Any())
+                if (request.Criteria.FieldCriteria != null && request.Criteria.FieldCriteria.Any())
                 {
-                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on field");
-
+                    throw new BadRequestException(
+                        "Basic pack and medium pack doesn't support choosing users based on field");
                 }
+
                 if (request.Criteria.AreaCriteria != null && request.Criteria.AreaCriteria.Any())
                 {
-                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on areas");
+                    throw new BadRequestException(
+                        "Basic pack and medium pack doesn't support choosing users based on areas");
                 }
-                if(request.Criteria.RelationshipCriteria != null && request.Criteria.RelationshipCriteria.Any())
+
+                if (request.Criteria.RelationshipCriteria != null && request.Criteria.RelationshipCriteria.Any())
                 {
-                    throw new BadRequestException("Basic pack and medium pack doesn't support choosing users based on relationship statuses");
+                    throw new BadRequestException(
+                        "Basic pack and medium pack doesn't support choosing users based on relationship statuses");
                 }
+
                 if (request.Criteria.ExpertParticipant)
                 {
                     throw new BadRequestException("Basic pack and medium pack doesn't support choosing expert users");
