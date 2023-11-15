@@ -16,14 +16,10 @@ namespace Application.DTOs.Request.User
         [RegularExpression(@"(84|0[3|5|7|8|9])+([0-9]{8})\b", ErrorMessage = "Vietnamese phone number only")]
         public string? PhoneNumber { get; set; }
         public UserStatus? Status { get; set; }
-
-        public Role? Role { get; set; }
         public RelationshipStatus? RelationshipStatus { get; set; }
         [EmailAddress]
         public string? Email { get; set; }
-
         public string? LangKey { get; set; }
-
         public string? Currency { get; set; }
     }
 }

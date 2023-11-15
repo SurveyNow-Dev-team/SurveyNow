@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Application.CustomizeAttributes;
 using Domain.Enums;
 
 namespace Application.DTOs.Request.User
@@ -8,6 +9,7 @@ namespace Application.DTOs.Request.User
         [RegularExpression(@"^[a-zA-ZăâêôơưĂÂÊÔƠƯàáảãạÀÁẢÃẠèéẻẽẹÈÉẺẼẸìíỉĩịÌÍỈĨỊòóỏõọÒÓỎÕỌùúủũụÙÚỦŨỤỳýỷỹỵỲÝỶỸỴăắằẳẵặĂẮẰẲẴẶâấầẩẫậÂẤẦẨẪẬêếềểễệÊẾỀỂỄỆôốồổỗộÔỐỒỔỖỘơớờởỡợƠỚỜỞỠỢưứừửữựƯỨỪỬỮỰđĐ\s]*$", ErrorMessage = "Full name contains a-z, A-Z, space & other Vietnamese alphabet characters")]
         public string? FullName { get; set; } = null!;
         public string? Gender { get; set; }
+        [MinAge(10)]
         public DateTime? DateOfBirth { get; set; }
         public string? RelationshipStatus { get; set; }
         [EmailAddress]

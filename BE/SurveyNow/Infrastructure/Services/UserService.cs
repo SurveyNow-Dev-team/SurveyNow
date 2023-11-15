@@ -46,7 +46,7 @@ namespace Infrastructure.Services
         public async Task<PagingResponse<UserResponse>> GetUsers(UserFilterRequest filter, PagingRequest pagingRequest)
         {
             ParameterExpression parameters = Expression.Parameter(typeof(User));
-            Expression expression = Expression.Constant(true);
+            Expression expression = Expression.Equal(Expression.Constant(Role.User), Expression.Property(parameters, nameof(User.Role)));
             if (filter != null)
             {
                 if(filter.FullName != null)
@@ -69,10 +69,6 @@ namespace Infrastructure.Services
                 if (filter.Status != null)
                 {
                     expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.Status), typeof(UserStatus?)), Expression.Property(parameters, nameof(User.Status))));
-                }
-                if (filter.Role != null)
-                {
-                    expression = Expression.AndAlso(expression, Expression.Equal(Expression.Convert(Expression.Constant(filter.Role), typeof(Role?)), Expression.Property(parameters, nameof(User.Role))));
                 }
                 if (filter.RelationshipStatus != null)
                 {
@@ -113,6 +109,10 @@ namespace Infrastructure.Services
 
         public async Task<UserResponse> UpdateUser(long id, UserRequest request)
         {
+            if(request.Email != null && await _unitOfWork.UserRepository.ExistByEmail(request.Email))
+            {
+                throw new BadRequestException("Email has been registered");
+            }
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
             if (user == null)
             {
@@ -130,6 +130,10 @@ namespace Infrastructure.Services
 
         public async Task<UserResponse> UpdateCurrentUser(UserRequest request)
         {
+            if (request.Email != null && await _unitOfWork.UserRepository.ExistByEmail(request.Email))
+            {
+                throw new BadRequestException("Email has been registered");
+            }
             User user = await GetLoggedInUserAsync();
             user = _mapper.Map(request, user);
             _unitOfWork.UserRepository.Update(user);
