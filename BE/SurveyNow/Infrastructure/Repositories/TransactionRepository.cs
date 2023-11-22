@@ -72,7 +72,9 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
     {
         if (historyRequest.Status == null)
         {
-            return null;
+            return (t => t.Status == TransactionStatus.Success ||
+            t.Status == TransactionStatus.Cancel ||
+            t.Status == TransactionStatus.Fail);
         }
         return (t => t.Status == historyRequest.Status);
     }
@@ -135,12 +137,12 @@ public class TransactionRepository : BaseRepository<Transaction>, ITransactionRe
     {
         Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> sortOrder = (q => q.OrderBy(t => t.Date));
         PagingResponse<Transaction> result = null;
-        if(id is null)
+        if (id is null)
         {
             Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending);
             result = await GetPaginateAsync(filterExpression, sortOrder, nameof(Transaction.User), page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
         }
-        else if(id is not null && id.HasValue)
+        else if (id is not null && id.HasValue)
         {
             Expression<Func<Transaction, bool>> filterExpression = (t => t.TransactionType == TransactionType.PurchasePoint && t.Status == TransactionStatus.Pending && t.Id == id);
             result = await GetPaginateAsync(filterExpression, sortOrder, nameof(Transaction.User), page: pagingRequest.Page, size: pagingRequest.RecordsPerPage);
