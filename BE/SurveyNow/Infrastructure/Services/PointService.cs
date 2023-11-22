@@ -446,7 +446,7 @@ namespace Infrastructure.Services
                     Currency = transaction.Currency,
                     PaymentMethod = transaction.PaymentMethod.ToString(),
                     DestinationAccount = transaction.DestinationAccount!,
-                    Description = $"SurveyNow - Người dùng với mã số: {user.Id} - Nạp {transaction.Point} điểm vào tài khoản - Với mã giao dịch yêu cầu: {transaction.Id}",
+                    Description = $"Mua điểm mã số: {transaction.Id}",
                     TransactionId = transactionEntity.Id,
 
                 };
