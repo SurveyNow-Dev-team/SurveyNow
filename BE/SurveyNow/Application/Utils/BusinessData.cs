@@ -59,7 +59,7 @@ namespace Application.Utils
         public static readonly decimal BasePointVNDPrice = 1000m;
         #endregion
         #region Transaction
-        public static readonly string SurveyNowMomoAccount = "0346476019";
+        public static readonly string SurveyNowMomoAccount = "0907817524";
         public static readonly string SurveyNowVnPayAccount = "0346476019";
         #endregion
     }
