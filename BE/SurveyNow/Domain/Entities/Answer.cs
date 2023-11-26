@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Entities;
@@ -19,6 +20,7 @@ public class Answer
 
     public int? RateNumber { get; set; }
 
+    [JsonIgnore]
     [ForeignKey(nameof(QuestionId))] public virtual Question Question { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))] public virtual User User { get; set; } = null!;

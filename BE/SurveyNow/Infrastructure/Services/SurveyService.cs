@@ -749,7 +749,7 @@ public class SurveyService : ISurveyService
         var currentUser = await _userService.GetCurrentUserAsync().ContinueWith(
             t => t.Result ?? throw new UnauthorizedException("Can not extract user from token."));
 
-        var surveyObj = await _unitOfWork.SurveyRepository.GetByIdWithoutTrackingAsync(request.SurveyId)
+        var surveyObj = await _unitOfWork.SurveyRepository.GetCommonSurveyById(request.SurveyId)
             .ContinueWith(t => t.Result ?? throw new NotFoundException($"Survey {request.SurveyId} can not be found."));
 
         if (currentUser.Id == surveyObj.CreatedUserId)

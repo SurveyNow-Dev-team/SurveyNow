@@ -48,6 +48,11 @@ public class SurveyRepository : BaseRepository<Survey>, ISurveyRepository
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
+    public async Task<Survey?> GetCommonSurveyById(long id)
+    {
+        return await _dbSet.FirstOrDefaultAsync(s => s.Id == id);
+    }
+
     public async Task<Survey?> GetSurveyAnswerAsync(long surveyId, long userId)
     {
         return await _dbSet.AsNoTracking()
